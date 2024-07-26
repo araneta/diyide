@@ -1,0 +1,55 @@
+{% extends "layouts/main.html" %}
+
+{%block css %}
+	
+	
+{% endblock %}
+
+
+{% block content %}
+	<div id="wrapper">
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark">
+            <div class="container-fluid d-flex flex-column p-0">
+				{% include "../partials/brand.html" %}
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/role/list"><i class="fas fa-table"></i><span>Daftar Jabatan</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/user/list"><i class="fas fa-user"></i><span>Daftar Pegawai</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/incoming-letter"><i class="fas fa-table"></i><span>Daftar Surat Masuk</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/outgoing-letter"><i class="fas fa-table"></i><span>Daftar Surat Keluar</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/outgoing-letter/settings"><i class="fas fa-table"></i><span>Setting Surat Keluar</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/archive-category"><i class="fas fa-table"></i><span>Kategori Arsip</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/archive"><i class="fas fa-table"></i><span>Arsip</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/profile"><i class="fas fa-user"></i><span>Profile</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout" id="lnkLogout"><i class="far fa-user-circle"></i><span>Logout</span></a></li>
+                    
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        
+                        
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    {% block innercontent %} {% endblock %}   
+                </div>
+            </div>
+            {% include "../partials/footer.html" %}
+            
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+		     
+    </div>
+{% endblock %}
+
+
+{% block jsfiles %} 
+
+
+	{% block innerjsfiles %} {% endblock %}        
+{% endblock %}
