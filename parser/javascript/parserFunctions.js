@@ -1,8 +1,8 @@
 const fs = require("fs");
 const babelParser = require("@babel/parser");
+const traverse = require("@babel/traverse").default;
 
 const filePath = process.argv[2];
-
 const code = fs.readFileSync(filePath, "utf-8");
 
 const ast = babelParser.parse(code, {
@@ -12,20 +12,36 @@ const ast = babelParser.parse(code, {
 
 const functions = [];
 
-function traverse(node) {
-  if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression") {
-    functions.push({
-      name: node.id ? node.id.name : "anonymous",
-      line: node.loc.start.line
-    });
-  }
-  for (const key in node) {
-    if (node[key] && typeof node[key] === "object") {
-      traverse(node[key]);
-    }
-  }
+function addFunction(name, line) {
+  functions.push({ name, line });
 }
 
-traverse(ast);
+traverse(ast, {
+  FunctionDeclaration(path) {
+    const name = path.node.id.name;
+    const line = path.node.loc.start.line;
+    addFunction(name, line);
+  },
+  FunctionExpression(path) {
+    const name = path.parent.id ? path.parent.id.name : (path.parent.key ? path.parent.key.name : "anonymous");
+    const line = path.node.loc.start.line;
+    addFunction(name, line);
+  },
+  ArrowFunctionExpression(path) {
+    const name = path.parent.id ? path.parent.id.name : (path.parent.key ? path.parent.key.name : "anonymous");
+    const line = path.node.loc.start.line;
+    addFunction(name, line);
+  },
+  ObjectMethod(path) {
+    const name = path.node.key.name;
+    const line = path.node.loc.start.line;
+    addFunction(name, line);
+  },
+  ClassMethod(path) {
+    const name = path.node.key.name;
+    const line = path.node.loc.start.line;
+    addFunction(name, line);
+  }
+});
 
 console.log(JSON.stringify(functions, null, 2));

@@ -43,7 +43,6 @@ if(lsTest() === true){
 }
 
 moment.locale('id');
-
 const LoadableReport = Loadable({
   loader: () => import('./report/ReportComponent'),
   loading: Loader,
@@ -318,12 +317,10 @@ const LoadableFeeder = Loadable({
   loader: () => import('./pages/feeder/Feeder'),
   loading: Loader,
 });
-
 const LoadableFeederPerFaculty = Loadable({
   loader: () => import('./pages/feeder/FeederPerFaculty'),
   loading: Loader,
 });
-
 const LoadableFeederMasterData = Loadable({
   loader: () => import('./pages/feeder/FeederMasterData'),
   loading: Loader,
@@ -342,7 +339,6 @@ const LoadableBankEntry = Loadable({
   loader: () => import('./pages/tuition-fees/Bank/BankEntryComponent'),
   loading: Loader,
 });
-
 const LoadableInvoiceCategory = Loadable({
   loader: () => import('./pages/tuition-fees/InvoiceCategory/InvoiceCategory'),
   loading: Loader,
