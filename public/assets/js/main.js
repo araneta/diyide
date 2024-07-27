@@ -3,6 +3,8 @@ window.MonacoEnvironment = { getWorkerUrl: () => proxy };
 var editor;
 const container = document.getElementById('editor-container');
 const tabsContainer = document.getElementById('editor-tabs');
+const breadcrumbsDiv = document.getElementById('breadcrumbs');
+
 const editors = {};
 let activeEditor = null;		
 var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path}
@@ -15,6 +17,48 @@ let proxy = URL.createObjectURL(new Blob([`
 	};
 	importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');
 `], { type: 'text/javascript' }));
+// Function to parse code and find function definitions
+function parseFunctions(code) {
+        const functions = [];
+        /*const ast = esprima.parseScript(code, { loc: true });
+        esprima.traverse(ast, {
+          enter: function(node) {
+            if (node.type === 'FunctionDeclaration') {
+              functions.push({
+                name: node.id.name,
+                startLine: node.loc.start.line
+              });
+            }
+          }
+        });*/
+        functions.push({
+		name: 'telox',
+		startLine: 22
+	  });
+        return functions;
+      }
+
+
+
+// Function to update breadcrumbs
+function updateBreadcrumbs() {
+	console.log('change');
+	const model = editor.getModel();
+	const code = model.getValue();
+	const functions = parseFunctions(code);
+
+	breadcrumbsDiv.innerHTML = 'Breadcrumbs: ';
+	functions.forEach(func => {
+			const breadcrumb = document.createElement('span');
+			breadcrumb.className = 'breadcrumb';
+			breadcrumb.textContent = func.name;
+			breadcrumb.onclick = () => {
+				editor.setPosition({ lineNumber: func.startLine, column: 1 });
+				editor.focus();
+			};
+			breadcrumbsDiv.appendChild(breadcrumb);
+	});
+}
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {
 		/*let editor = monaco.editor.create(document.getElementById('container'), {
@@ -29,10 +73,22 @@ function loadEditor(){
 		console.log('monaco ready');
 		editor = monaco.editor.create(container, {
 			value: 'loremimdsf sdfsd dsfds',
-			language: 'javascript',theme: 'vs-dark'
+			language: 'javascript',
+			theme: 'vs-dark',
+			 breadcrumbs: {
+			  enabled: true,
+			  useNative: false, // Use custom breadcrumb rendering
+			  separator: ' > ', // Customize the separator
+			}
 		});
 		editor.getDomNode().style.display = 'block';
 		editor.layout();
+		 // Update breadcrumbs on editor content change
+		editor.onDidChangeModelContent(updateBreadcrumbs);
+
+		  // Initial update
+		updateBreadcrumbs();
+		
 	});
 }
 loadEditor();
@@ -78,9 +134,11 @@ jQuery(document).ready(function($){
 		e.preventDefault();
 		
 		const data = Object.fromEntries(new FormData(e.target).entries());
+		const title = data.folderpath;
 		console.log(data)
 		$('.dirFiles').fileTree({script: 'api/files/filetree', root: data.folderpath }, function(file) {
 			console.log(file);
+			
 			const formData = {
 			  fpath: file,			  
 			};
@@ -92,6 +150,7 @@ jQuery(document).ready(function($){
 			  data: JSON.stringify(formData),
 			  success: function(data) {
 				const fileName = file.split('/').pop();				
+				document.title = title;
 				addTab(file,data);
 			  },
 			  error: function(jqXHR, textStatus, errorThrown) {
@@ -318,5 +377,7 @@ jQuery(document).ready(function($){
 			}
 		});
 	}
+	
+	
 	
 });

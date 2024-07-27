@@ -1,4 +1,4 @@
 1. save [done]
-2. auto complete from multi file
+2. auto complete from multi file [DONE]
 3. create new file, rename file, del file
 

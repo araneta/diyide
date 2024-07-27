@@ -7,18 +7,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
     <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
     
-    <link rel="stylesheet" href="/assets/DataTables/datatables.min.css">
-	<link rel="stylesheet" href="/assets/datatables.net-bs/css/dataTables.bootstrap.min.css">
-	<link rel="stylesheet" href="/assets/select2/css/select2.min.css">
-	<link rel="stylesheet" href="/assets/bootstrap-datepicker/css/bootstrap-datepicker3.min.css">
-	
-	<link rel="stylesheet" href="/assets/dropzone/dropzone.min.css"  type="text/css"/>
-	<link rel="stylesheet" href="/assets/css/pdfviewer.jquery.css"  type="text/css"/>
-	<link rel="stylesheet" href="/assets/css/print.min.css"  type="text/css"/>
-	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
+    <link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
 	<link rel="stylesheet" href="/assets/jqueryfiletree-master/dist/jQueryFileTree.min.css"  type="text/css"/>
 	
 	<script src='https://js.sentry-cdn.com/467c66395ca14dbab0ac0ba3a8beabca.min.js' crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/esprima@~4.0/dist/esprima.js"></script>
+
+
+
     {%block css %}{% endblock %}
     
     <script>
@@ -49,51 +45,18 @@
 <body class="">
 	<div id="page-top"></div>
     {% block content %} {% endblock %}
-
-	<!--pdf viewer-->
 	
-  
 	
-	<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-			<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">PDF Viewer</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<div id="pdfviewer"></div>
-
-			</div>
-			
-			 
-			<div class="modal-footer">
-				<button type="button" id="btnPrintPDF" class="btn btn-secondary">
-					Print PDF
-				</button>
-				<a href="" id="btnDownloadPDF" class="btn btn-primary">Download</a>
-			</div>
-		</div>
-	</div>
 </div>
 	<script type="text/javascript" src="/assets/js/jquery.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
     
     <script type="text/javascript" src="/assets/js/moment.min.js"></script>
 	<script type="text/javascript" src="/assets/js/moment-with-locales.min.js"></script>		
-	<script type="text/javascript" src="/assets/DataTables/datatables.min.js"></script>
-	<script type="text/javascript" src="/assets/DataTables/plug-ins/1.10.16/dataRender/ellipsis.js"></script>
-	<script type="text/javascript" src="/assets/select2/js/select2.full.min.js"></script>
 	<script type="text/javascript" src="/assets/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-	<script type="text/javascript" src="/assets/dropzone/dropzone.min.js"></script>
-	<script type="text/javascript" src="/assets/js/pdfjs/build/pdf.js"></script>
-	<script type="text/javascript" src="/assets/js/pdfviewer.jquery.js"></script>
-	<script type="text/javascript" src="/assets/js/print.min.js"></script>
 	<script type="text/javascript" src="/assets/jqueryfiletree-master/dist/jQueryFileTree.min.js"></script>
 	<script type="text/javascript" src="/assets/js/form.js"></script>
-	
-	<script src="/assets/js/bs-init.js"></script>
-    <script src="/assets/js/theme.js"></script>
+		
 	
 	{% block jsfiles %} {% endblock %}
 </body>
