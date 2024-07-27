@@ -7,7 +7,7 @@ package controllers
 
 type AdminController struct {
 	
-	UserImagesPath  string
+	ParserPath  string
 }
 type CommonRespond struct {
 	Status  int    `json:"status"`
@@ -31,26 +31,4 @@ type LoginRespond struct {
 type LoginForm struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-type SignUpForm struct {
-	FirstName string `json:"firstName" `
-	LastName  string `json:"lastName" `
-	MobileNo  string `json:"mobileNo"`
-	Email     string `json:"email"` //email
-	Password  string `json:"password"`
-}
-
-type ConfirmationForm struct {
-	UserID int    `json:"userID" `
-	Email  string `json:"email"` //email
-}
-
-type ForgotPasswordForm struct {
-	Email string `json:"email"` //email
-}
-
-type ValidateForgottenPasswordCodeForm struct {
-	Code        string `json:"code"`
-	NewPassword string `json:"newPassword"`
 }

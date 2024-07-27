@@ -1,4 +1,35 @@
-require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@latest/min/vs' }});
+const extensionToLanguageMap = {
+  '.js': 'javascript',
+  '.html': 'html',
+  '.css': 'css',
+  '.json': 'json',
+  '.go': 'go',
+  '.xml': 'xml',
+  '.py': 'python',
+  '.java': 'java',
+  '.rb': 'ruby',
+  '.php': 'php',
+  '.cpp': 'c++',
+  '.cs': 'c#',
+  '.ts': 'typeScript',
+  '.jsx': 'javascript',
+  '.tsx': 'typeScript',
+  '.md': 'Markdown',
+  '.sh': 'sh',
+  '.bat': 'bat',
+  '.sql': 'sql',
+  // Add more mappings as needed
+};
+function getFileExtension(fileName) {
+  const lastDotIndex = fileName.lastIndexOf('.');
+  return lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
+}
+function getFileLang(fpath){		
+	const extension = getFileExtension(fpath);
+	const lang = extensionToLanguageMap[extension.toLowerCase()] || 'Unknown';
+	return lang;
+}
+require.config({ paths: { 'vs': '/assets/package/min/vs' }});
 window.MonacoEnvironment = { getWorkerUrl: () => proxy };
 var editor;
 const container = document.getElementById('editor-container');
@@ -13,43 +44,13 @@ var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: m
 
 let proxy = URL.createObjectURL(new Blob([`
 	self.MonacoEnvironment = {
-		baseUrl: 'https://unpkg.com/monaco-editor@latest/min/'
+		baseUrl: '/assets/package/min/'
 	};
-	importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');
+	importScripts('/assets/package/min/vs/base/worker/workerMain.js');
 `], { type: 'text/javascript' }));
 function parseFunctions(code) {
-        const functions = [];
-        try {
-          const ast = Babel.transform(code, {
-            presets: ['react'],
-            plugins: ['@babel/plugin-syntax-jsx'],
-            ast: true
-          }).ast;
-
-          const traverse = (node, func) => {
-            if (node.type === 'FunctionDeclaration' || node.type === 'ArrowFunctionExpression') {
-              if (node.id) {
-                func(node);
-              }
-            }
-            for (const key in node) {
-              if (node.hasOwnProperty(key) && typeof node[key] === 'object' && node[key] !== null) {
-                traverse(node[key], func);
-              }
-            }
-          };
-
-          traverse(ast, node => {
-            functions.push({
-              name: node.id ? node.id.name : 'anonymous',
-              startLine: node.loc.start.line
-            });
-          });
-        } catch (error) {
-          console.error('Error parsing code:', error);
-        }
-        return functions;
-      }
+        
+}
 
 
 
@@ -61,7 +62,26 @@ function updateBreadcrumbs() {
 	console.log('change');
 	const model = editor.getModel();
 	const code = model.getValue();
-	const functions = parseFunctions(code);
+	const formData = {
+		fpath: model.uri.path,
+		buffer: code,
+		language: getFileLang(model.uri.path),
+	};
+	
+	$.ajax({
+	  url: 'api/parser',
+	  method: 'POST',
+	  contentType: 'application/json',
+	  data: JSON.stringify(formData),
+	  success: function(data) {
+		console.log(data);
+	  },
+	  error: function(jqXHR, textStatus, errorThrown) {
+		console.error('Error: ' + textStatus, errorThrown);
+	  }
+	});
+	
+	/*const functions = parseFunctions(code);
 
 	breadcrumbsDiv.innerHTML = 'Breadcrumbs: ';
 	functions.forEach(func => {
@@ -73,7 +93,7 @@ function updateBreadcrumbs() {
 				editor.focus();
 			};
 			breadcrumbsDiv.appendChild(breadcrumb);
-	});
+	});*/
 }
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {
@@ -346,38 +366,9 @@ jQuery(document).ready(function($){
 			}
 		});
 	}
-	function getFileExtension(fileName) {
-	  const lastDotIndex = fileName.lastIndexOf('.');
-	  return lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
-	}
-
-	function createModel(fpath,data){
-		
-		const extensionToLanguageMap = {
-		  '.js': 'javascript',
-		  '.html': 'html',
-		  '.css': 'css',
-		  '.json': 'json',
-		  '.go': 'go',
-		  '.xml': 'xml',
-		  '.py': 'python',
-		  '.java': 'java',
-		  '.rb': 'ruby',
-		  '.php': 'php',
-		  '.cpp': 'c++',
-		  '.cs': 'c#',
-		  '.ts': 'typeScript',
-		  '.jsx': 'javascript',
-		  '.tsx': 'typeScript',
-		  '.md': 'Markdown',
-		  '.sh': 'sh',
-		  '.bat': 'bat',
-		  '.sql': 'sql',
-		  // Add more mappings as needed
-		};
-		const extension = getFileExtension(fpath);
-		const lang = extensionToLanguageMap[extension.toLowerCase()] || 'Unknown';
-		return monaco.editor.createModel(data, lang, monaco.Uri.file(fpath));
+	
+	function createModel(fpath,data){					
+		return monaco.editor.createModel(data, getFileLang(fpath), monaco.Uri.file(fpath));
 	}
 	
 	function setAutoComplete(lang, allWords){

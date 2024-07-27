@@ -1,14 +1,18 @@
 package controllers
 
 import (
+	"github.com/cespare/xxhash/v2"
+
 	_ "teloeditor/common"	
 	_ "path/filepath"
 	_ "strconv"
-	"bufio"
-	"fmt"
+	"bufio"	
+	"bytes"
 	"io/ioutil"
 	"os"
-	
+	"encoding/json"
+	"fmt"
+	"os/exec"
 	"regexp"
 	"strings"
 	"html"
@@ -28,7 +32,18 @@ type GetWordsForm struct {
 	Extensions string `json:"extensions"`	
 	Language string `json:"language"`	
 }
-
+type ParserForm struct {
+	FPath string `json:"fpath"`	
+	Buffer string `json:"buffer"`	
+	Language string `json:"language"`
+}
+type Function struct {
+	Name string `json:"name"`
+	Line int    `json:"line"`
+}
+type ParserResult struct {
+	Functions []Function  `json:"functions"`	
+}
 
 func (c *AdminController) Test(ctx iris.Context) {
 	ctx.JSON(iris.Map{"status": "1", "message": ""})
@@ -214,4 +229,88 @@ func (c *AdminController) GetWords(ctx iris.Context) {
 	}
 	ctx.JSON(iris.Map{"status": "1", "message": words})
 
+}
+// parseJSFunctions runs the JavaScript script to parse functions and returns the result
+func parseJSFunctions(parser, jsFilePath string) ([]Function, error) {
+	cmd := exec.Command("node", parser, jsFilePath)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		return nil, err
+	}
+	//fmt.Println("Result: " + out.String())
+	output:=out.String()
+	/*output, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}*/
+
+	var functions []Function
+	err = json.Unmarshal([]byte(output), &functions)
+	if err != nil {
+		return nil, err
+	}
+
+	return functions, nil
+}
+func hashStringXXHash(input string) string {
+	hashedValue := xxhash.Sum64String(input)
+	return fmt.Sprintf("%x", hashedValue)
+}
+
+func (c *AdminController) Parser(ctx iris.Context) {
+	var form ParserForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	absolutePath, err := filepath.Abs(c.ParserPath)
+	if err != nil {
+		//log.Fatalf("Error getting absolute path: %v", err)
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	//save to temp file
+	fpath := absolutePath+"/"+hashStringXXHash(form.FPath)
+	fmt.Println(fpath)	
+    file, err := os.Create(fpath)
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+    defer file.Close()
+
+    writer := bufio.NewWriter(file)
+    _, err = writer.WriteString(form.Buffer)
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+
+    err = writer.Flush()
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+	
+
+	parser := absolutePath+"/javascript/parserFunctions.js"
+	fmt.Println(parser)
+	functions, err := parseJSFunctions(parser, fpath)
+	if err != nil {
+		ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
+		return
+	}
+	var res ParserResult
+	res.Functions = functions
+	ctx.JSON(iris.Map{"status": "1", "message": res})
 }

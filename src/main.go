@@ -7,6 +7,7 @@ import (
 	_ "os"
 	"strings"
 	_ "time"
+	_ "path/filepath"
 
 	"github.com/kataras/iris/v12"
 
@@ -125,11 +126,11 @@ func main() {
 			log.Println("Port: " + c.Port)
 			port = c.Port
 		}
-		if c.UserImagesPath != "" {
-			p := strings.TrimSuffix(c.UserImagesPath, "/")
+		if c.ParserPath != "" {
+			p := strings.TrimSuffix(c.ParserPath, "/")
 
-			log.Println("UserImagesPath: " + p)
-			//admin.SetHost(p)
+			log.Println("ParserPath: " + p)
+			adminCont.ParserPath = p
 		}
 
 	}
@@ -141,6 +142,7 @@ func main() {
 		API.Post("/files/read", adminCont.ReadFile)		
 		API.Post("/files/write", adminCont.WriteFile)	
 		API.Post("/files/words", adminCont.GetWords)	
+		API.Post("/parser", adminCont.Parser)	
 	}
 
 	app.Listen(":" + port)

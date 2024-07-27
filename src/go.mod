@@ -5,6 +5,7 @@ go 1.22
 toolchain go1.22.5
 
 require (
+	github.com/cespare/xxhash/v2 v2.2.0
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/iris-contrib/middleware/jwt v0.0.0-20240502084239-34f27409ce72
 	github.com/kataras/iris/v12 v12.2.11

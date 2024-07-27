@@ -1,0 +1,1411 @@
+import React, { Component } from 'react';
+import { browserHistory, Router, Route, IndexRoute  } from 'react-router'
+import { Navbar,Nav,Link, NavItem, MenuItem,NavDropdown,Glyphicon} from 'react-bootstrap';
+import { LinkContainer} from 'react-router-bootstrap'
+import Progress from "react-progress-2";
+import HttpsRedirect from 'react-https-redirect';
+//import {HeaderBar,NavigationMenu} from 'adminlte-reactjs';
+import AppHeader from './AppHeader'
+
+import {UNIVERSITY_API_URL,SUBDOMAIN, getHeader, getUnivID} from './Config';
+import moment from 'moment'
+
+//import logo from './logo.svg';
+import './App.css';
+
+
+import auth from './auth'
+import $ from 'jquery'
+
+import NotificationSystem from 'react-notification-system';
+import Loadable from 'react-loadable';
+import Loader from './components/Loader';
+import Sidebar from './components/Sidebar';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import PaymentEntryComponent from './pages/tuition-fees/Payment/PaymentEntryComponent';
+function lsTest(){
+    var test = 'test';
+    try {
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+if(lsTest() === true){
+    // available
+}else{
+    // unavailable
+    alert('Browser anda tidak mendukung Local Storage! Anda tidak akan bisa login');
+}
+
+moment.locale('id');
+
+const LoadableReport = Loadable({
+  loader: () => import('./report/ReportComponent'),
+  loading: Loader,
+});
+const LoadableChart = Loadable({
+  loader: () => import('./charts/ChartComponent'),
+  loading: Loader,
+});
+const LoadableSimpleMasterData = Loadable({
+  loader: () => import('./pages/SimpleMasterData'),
+  loading: Loader,
+});
+const LoadableStaff = Loadable({
+  loader: () => import('./pages/simpeg/Staff'),
+  loading: Loader,
+});
+const LoadableSimpegEntry = Loadable({
+  loader: () => import('./pages/simpeg/SimpegEntry'),
+  loading: Loader,
+});
+
+const LoadableStudent = Loadable({
+  loader: () => import('./pages/students/Student'),
+  loading: Loader,
+});
+const LoadableUpdateStudent = Loadable({
+  loader: () => import('./pages/students/UpdateStudentComponent'),
+  loading: Loader,
+});
+const LoadableReadOneStudent = Loadable({
+  loader: () => import('./pages/students/ReadOneStudentComponent'),
+  loading: Loader,
+});
+
+const LoadableCourseSchedulled = Loadable({
+  loader: () => import('./pages/courseschedulled/CourseSchedulled'),
+  loading: Loader,
+});
+const LoadableUpdateCourseSchedulled = Loadable({
+  loader: () => import('./pages/courseschedulled/UpdateCourseSchedulledComponent'),
+  loading: Loader,
+});
+const LoadableReadStudentCourseRegistration= Loadable({
+  loader: () => import('./pages/courseschedulled/ReadStudentCourseRegistrationComponent'),
+  loading: Loader,
+});
+const LoadableReadCourseSchedulledStaff= Loadable({
+  loader: () => import('./pages/courseschedulled/ReadCourseSchedulledStaffComponent'),
+  loading: Loader,
+});
+const LoadableCourseClassTransfer = Loadable({
+  loader: () => import('./pages/courseschedulled/CourseClassTransferComponent'),
+  loading: Loader,
+});
+const LoadableStudentEnrollment = Loadable({
+  loader: () => import('./pages/students/StudentEnrollmentComponent'),
+  loading: Loader,
+});
+const LoadableStudentActivity = Loadable({
+  loader: () => import('./pages/students/StudentActivityComponent'),
+  loading: Loader,
+});
+const LoadableProgramRoom = Loadable({
+  loader: () => import('./pages/programroom/ProgramRoom'),
+  loading: Loader,
+});
+const LoadableStudentStudyProgramCard = Loadable({
+  loader: () => import('./pages/students/StudentStudyProgramCardComponent'),
+  loading: Loader,
+});
+
+const LoadableStudentAcademic = Loadable({
+  loader: () => import('./pages/academic/StudentAcademicComponent'),
+  loading: Loader,
+});
+const LoadableCourseOffered = Loadable({
+  loader: () => import('./pages/coursesoffered/CourseOffered'),
+  loading: Loader,
+});
+const LoadableReadOneCourseOffered = Loadable({
+  loader: () => import('./pages/coursesoffered/ReadOneCourseOfferedComponent'),
+  loading: Loader,
+});
+const LoadableUpdateCourseOffered = Loadable({
+  loader: () => import('./pages/coursesoffered/UpdateCourseOfferedComponent'),
+  loading: Loader,
+});
+const LoadableCurriculum = Loadable({
+  loader: () => import('./pages/curriculums/Curriculum'),
+  loading: Loader,
+});
+const LoadableReadOneCurriculum = Loadable({
+  loader: () => import('./pages/curriculums/ReadOneCurriculumComponent'),
+  loading: Loader,
+});
+const LoadableUpdateCurriculum = Loadable({
+  loader: () => import('./pages/curriculums/UpdateCurriculumComponent'),
+  loading: Loader,
+});
+const LoadableStudyProgramCard = Loadable({
+  loader: () => import('./pages/studyprogramcard/StudyProgramCard'),
+  loading: Loader,
+});
+const LoadableUpdateStudyProgramCard = Loadable({
+  loader: () => import('./pages/studyprogramcard/UpdateStudyProgramCardComponent'),
+  loading: Loader,
+});
+const LoadableStudyProgramCardEntry = Loadable({
+  loader: () => import('./pages/studyprogramcard/StudyProgramCardEntry'),
+  loading: Loader,
+});
+const LoadableSupervisor = Loadable({
+  loader: () => import('./pages/supervisor/Supervisor'),
+  loading: Loader,
+});
+const LoadableReadSupervisor = Loadable({
+  loader: () => import('./pages/supervisor/ReadSupervisorComponent'),
+  loading: Loader,
+});
+const LoadableUpdateSupervisor = Loadable({
+  loader: () => import('./pages/supervisor/UpdateSupervisorComponent'),
+  loading: Loader,
+});
+const LoadableCoursePackages = Loadable({
+  loader: () => import('./pages/coursepackages/CoursePackages'),
+  loading: Loader,
+});
+const LoadableUpdateCoursePackages = Loadable({
+  loader: () => import('./pages/coursepackages/UpdateCoursePackagesComponent'),
+  loading: Loader,
+});
+const LoadableStudentActivities = Loadable({
+  loader: () => import('./pages/studentactivities/StudentActivities'),
+  loading: Loader,
+});
+const LoadableStudentActivitiesEntry = Loadable({
+  loader: () => import('./pages/studentactivities/StudentActivitiesEntryComponent'),
+  loading: Loader,
+});
+const LoadableTranscript = Loadable({
+  loader: () => import('./pages/transcript/Transcript'),
+  loading: Loader,
+});
+const LoadableTranscriptEntry = Loadable({
+  loader: () => import('./pages/transcript/TranscriptEntryComponent'),
+  loading: Loader,
+});
+const LoadableThesis = Loadable({
+  loader: () => import('./pages/thesis/Thesis'),
+  loading: Loader,
+});
+const LoadableThesisEntry = Loadable({
+  loader: () => import('./pages/thesis/ThesisEntryComponent'),
+  loading: Loader,
+});
+const LoadableCalendar = Loadable({
+  loader: () => import('./pages/calendar/Calendar'),
+  loading: Loader,
+});
+const LoadableCreateCalendar = Loadable({
+  loader: () => import('./pages/calendar/CreateCalendarComponent'),
+  loading: Loader,
+});
+/*const LoadableActiveSemester = Loadable({
+  loader: () => import('./pages/activesemester/ActiveSemester'),
+  loading: Loader,
+});*/
+const LoadableSchedules = Loadable({
+  loader: () => import('./pages/schedules/Schedules'),
+  loading: Loader,
+});
+
+const LoadableAssessmentSchedules = Loadable({
+  loader: () => import('./pages/assessmentschedules/AssessmentSchedules'),
+  loading: Loader,
+});
+const LoadableCreateAssessmentSchedules = Loadable({
+  loader: () => import('./pages/assessmentschedules/CreateAssessmentSchedulesComponent'),
+  loading: Loader,
+});
+
+const LoadableCreditTransfer = Loadable({
+  loader: () => import('./pages/credittransfer/CreditTransfer'),
+  loading: Loader,
+});
+const LoadableCreditTransferEntry = Loadable({
+  loader: () => import('./pages/credittransfer/CreditTransferEntryComponent'),
+  loading: Loader,
+});
+const LoadableGraduation= Loadable({
+  loader: () => import('./pages/graduation/Graduation'),
+  loading: Loader,
+});
+const LoadableGraduationEntry = Loadable({
+  loader: () => import('./pages/graduation/GraduationEntryComponent'),
+  loading: Loader,
+});
+const LoadableFaculty = Loadable({
+  loader: () => import('./pages/faculties/Faculty'),
+  loading: Loader,
+});
+const LoadableProgram = Loadable({
+  loader: () => import('./pages/programs/Program'),
+  loading: Loader,
+});
+const LoadableProgramEntry = Loadable({
+  loader: () => import('./pages/programs/CreateProgramComponent'),
+  loading: Loader,
+});
+const LoadableSemester = Loadable({
+  loader: () => import('./pages/semesters/Semester'),
+  loading: Loader,
+});
+const LoadableCourseType = Loadable({
+  loader: () => import('./pages/coursetypes/CourseType'),
+  loading: Loader,
+});
+const LoadableCourseGroup = Loadable({
+  loader: () => import('./pages/coursegroups/CourseGroup'),
+  loading: Loader,
+});
+const LoadableRoom = Loadable({
+  loader: () => import('./pages/rooms/Room'),
+  loading: Loader,
+});
+const LoadableUniversityGrade = Loadable({
+  loader: () => import('./pages/grade/UniversityGrade'),
+  loading: Loader,
+});
+const LoadableProgramGrade = Loadable({
+  loader: () => import('./pages/grade/ProgramGrade'),
+  loading: Loader,
+});
+const LoadableUniversityHonor = Loadable({
+  loader: () => import('./pages/grade/UniversityHonor'),
+  loading: Loader,
+});
+
+const LoadableUniversityRetrievalCredits = Loadable({
+  loader: () => import('./pages/grade/UniversityRetrievalCredits'),
+  loading: Loader,
+});
+const LoadableFacultyRetrievalCredits =  Loadable({
+  loader: () => import('./pages/grade/FacultyRetrievalCredits'),
+  loading: Loader,
+});
+
+const LoadableReadUserRole = Loadable({
+  loader: () => import('./pages/acl/ReadUserRoleComponent'),
+  loading: Loader,
+});
+const LoadableSettings = Loadable({
+  loader: () => import('./pages/settings/Settings'),
+  loading: Loader,
+});
+
+
+const LoadableForgotPassword = Loadable({
+  loader: () => import('./pages/forgot/ForgotPassword'),
+  loading: Loader,
+});
+const LoadableResetPassword = Loadable({
+  loader: () => import('./pages/forgot/ResetPassword'),
+  loading: Loader,
+});
+const LoadableUserProfile = Loadable({
+  loader: () => import('./pages/profile/UserProfile'),
+  loading: Loader,
+});
+/*
+const LoadableFeeder = Loadable({
+  loader: () => import('./pages/feeder/Feeder'),
+  loading: Loader,
+});
+
+const LoadableFeederPerFaculty = Loadable({
+  loader: () => import('./pages/feeder/FeederPerFaculty'),
+  loading: Loader,
+});
+
+const LoadableFeederMasterData = Loadable({
+  loader: () => import('./pages/feeder/FeederMasterData'),
+  loading: Loader,
+});
+*/ 
+const LoadableRulesManagement= Loadable({
+  loader: () => import('./pages/rules/RulesManagement'),
+  loading: Loader,
+});
+/*tuition fees*/
+const LoadableBank = Loadable({
+  loader: () => import('./pages/tuition-fees/Bank/Bank'),
+  loading: Loader,
+});
+const LoadableBankEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/Bank/BankEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableInvoiceCategory = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceCategory/InvoiceCategory'),
+  loading: Loader,
+});
+const LoadableInvoiceCategoryEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceCategory/InvoiceCategoryEntryComponent'),
+  loading: Loader,
+});
+const LoadableInvoiceType = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceType/InvoiceType'),
+  loading: Loader,
+});
+const LoadableInvoiceTypeEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceType/InvoiceTypeEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableInvoicePeriode = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoicePeriode/InvoicePeriode'),
+  loading: Loader,
+});
+const LoadableInvoicePeriodeEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoicePeriode/InvoicePeriodeEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableInvoiceTypePerProgram = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceTypePerProgram/InvoiceTypePerProgram'),
+  loading: Loader,
+});
+const LoadableInvoiceTypePerProgramEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoiceTypePerProgram/InvoiceTypePerProgramEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableInvoicePerStudentEnrollment = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoicePerStudentEnrollment/InvoicePerStudentEnrollment'),
+  loading: Loader,
+});
+const LoadableInvoicePerStudentEnrollmentEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/InvoicePerStudentEnrollment/InvoicePerStudentEnrollmentEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableFinancialTransaction = Loadable({
+  loader: () => import('./pages/tuition-fees/FinancialTransaction/FinancialTransaction'),
+  loading: Loader,
+});
+const LoadableFinancialTransactionEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/FinancialTransaction/FinancialTransactionEntryComponent'),
+  loading: Loader,
+});
+
+const LoadablePayment = Loadable({
+  loader: () => import('./pages/tuition-fees/Payment/Payment'),
+  loading: Loader,
+});
+const LoadablePaymentEntry = Loadable({
+  loader: () => import('./pages/tuition-fees/Payment/PaymentEntryComponent'),
+  loading: Loader,
+});
+const LoadableFinancialReport = Loadable({
+  loader: () => import('./pages/tuition-fees/Reports/FinancialReportComponent'),
+  loading: Loader,
+});
+/*/tuition fees*/
+/*course evaluation*/
+const LoadableCourseEvaluationStatusEntry = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyStatus/CourseEvaluationSurveyStatusEntryComponent'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationStatus = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyStatus/CourseEvaluationSurveyStatus'),
+  loading: Loader,
+});
+
+const LoadableReportManager = Loadable({
+  loader: () => import('./pages/reportmanager/ReportManager'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyQuestionEntry = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyQuestion/CourseEvaluationSurveyQuestionEntryComponent'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyQuestion = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyQuestion/CourseEvaluationSurveyQuestion'),
+  loading: Loader,
+});
+
+const LoadableCourseEvaluationSurveyOfferedAnswerEntry = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyOfferedAnswer/CourseEvaluationSurveyOfferedAnswerEntryComponent'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyOfferedAnswer = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyOfferedAnswer/CourseEvaluationSurveyOfferedAnswer'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyTemplateEntry = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyTemplate/CourseEvaluationSurveyTemplateEntryComponent'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyTemplate = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyTemplate/CourseEvaluationSurveyTemplate'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyPerSemester = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurvey/CourseEvaluationSurvey'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyPerSemesterEntry = Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurvey/CourseEvaluationSurveyEntryComponent'),
+  loading: Loader,
+});
+
+/*/course evaluation*/
+
+const LoadableAdmissionExamType= Loadable({
+  loader: () => import('./pages/admission/AdmissionExamType/AdmissionExamType'),
+  loading: Loader,
+});
+
+const LoadableAdmissionExamTypeEntry= Loadable({
+  loader: () => import('./pages/admission/AdmissionExamType/AdmissionExamTypeEntryComponent'),
+  loading: Loader,
+});
+
+const LoadableAdmissionAttachmentType= Loadable({
+  loader: () => import('./pages/admission/AdmissionAttachmentType/AdmissionAttachmentType'),
+  loading: Loader,
+});
+
+const LoadableAdmissionAttachmentTypeEntry= Loadable({
+  loader: () => import('./pages/admission/AdmissionAttachmentType/AdmissionAttachmentTypeEntryComponent'),
+  loading: Loader,
+});
+const LoadableAdmissionPeriode= Loadable({
+  loader: () => import('./pages/admission/AdmissionPeriode/AdmissionPeriode'),
+  loading: Loader,
+});
+
+const LoadableAdmissionPeriodeEntry= Loadable({
+  loader: () => import('./pages/admission/AdmissionPeriode/AdmissionPeriodeEntryComponent'),
+  loading: Loader,
+});
+const LoadableAdmissionDetail= Loadable({
+  loader: () => import('./pages/admission/AdmissionPeriode/AdmissionDetail/ReadAdmissionDetailComponent'),
+  loading: Loader,
+});
+const LoadableAdmissionPrerequisites= Loadable({
+  loader: () => import('./pages/admission/AdmissionPeriode/AdmissionPrerequisites/ReadAdmissionPrerequisitesComponent'),
+  loading: Loader,
+});
+
+const LoadableAdmissionUsers = Loadable({
+	loader: () => import('./pages/admission/AdmissionUser/AdmissionUser'),
+	loading: Loader,
+});
+const LoadableAdmissionUserEntry= Loadable({
+	loader: () => import('./pages/admission/AdmissionUser/AdmissionUserEntryComponent'),
+	loading: Loader,	
+});
+const LoadableAdmissionSettingsEntry= Loadable({
+	loader: () => import('./pages/admission/AdmissionSettings/AdmissionSettingsEntryComponent'),
+	loading: Loader,	
+});
+
+
+const LoadableCourseEvaluationSurveyAnswer= Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyAnswer/CourseEvaluationSurveyAnswer'),
+  loading: Loader,
+});
+const LoadableCourseEvaluationSurveyAnswerEntry= Loadable({
+  loader: () => import('./pages/course-evaluation/CourseEvaluationSurveyAnswer/CourseEvaluationSurveyAnswerEntryComponent'),
+  loading: Loader,
+});
+
+
+//cache
+var localCache = {
+    /**
+     * timeout for cache in millis
+     * @type {number}
+     */
+    timeout: 60000*10,//10 minutes
+    /** 
+     * @type {{_: number, data: {}}}
+     **/
+    data: {},
+    remove: function (url) {
+        delete localCache.data[url];
+    },
+    exist: function (url) {
+        return !!localCache.data[url] && ((new Date().getTime() - localCache.data[url]._) < localCache.timeout);
+    },
+    get: function (url) {
+        console.log('Getting in cache for url' + url);
+        //console.log(localCache.data[url].data);
+        return localCache.data[url].data;
+    },
+    set: function (url, cachedData, callback) {
+        localCache.remove(url);
+        localCache.data[url] = {
+            _: new Date().getTime(),
+            data: cachedData
+        };
+        if ($.isFunction(callback)) callback(cachedData);
+    },
+    reset: function(){
+		for (var member in localCache.data) delete localCache.data[member];		
+	}
+};
+
+$.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+    if (options.cache) {
+        var success = originalOptions.success || $.noop,
+		url = originalOptions.url;
+		//remove jQuery cache as we have our own localCache
+		options.cache = false;
+		options.beforeSend = function () {
+			if (localCache.exist(url)) {
+				success(localCache.get(url));
+				return false;
+			}
+			return true;
+		};
+		options.success = function (data, textStatus) {
+			localCache.set(url, data, success);
+		};
+    }
+});
+
+var { Header,
+      Brand,
+      Toggle,
+      Collapse
+       } = Navbar;
+
+class AppComp extends React.Component {
+    state = {
+      loggedIn: auth.loggedIn(),
+	  _notificationSystem:null,
+	  navbar_menu_visible:0,
+    };
+
+    updateAuth = (loggedIn) => {
+      this.setState({
+        loggedIn
+      })
+    };
+	componentDidMount() {
+		this.setState({_notificationSystem: this.refs.notificationSystem});
+		$('.sidebar ul li:has(ul li.active)').addClass('open');
+		let id = getUnivID();		
+		//load university logo
+		let url = UNIVERSITY_API_URL+'/universities/'+id;
+		$.ajax({
+			url, 			
+			success:function (data) {				
+				if(data.status==1){
+					let univ = data.message;
+					let univLogo = '';
+					if(univ.logo){					
+						univLogo = UNIVERSITY_API_URL+"/upload/"+SUBDOMAIN;
+						console.log('telo',SUBDOMAIN);
+						if(univ.logo.subDirectory){
+							univLogo += "/" +univ.logo.subDirectory;
+						}
+						univLogo += "/"+univ.logo.localfile;					
+						console.log('telo1',univLogo);
+					}
+					
+					let univName = univ.name;
+					let website = univ.website;
+					let bgImage ='';
+					if(univ.backgroundImage){
+						var src = UNIVERSITY_API_URL+"/upload/"+SUBDOMAIN;
+						var backgroundImage = univ.backgroundImage;
+
+						if(backgroundImage.subDirectory){
+							src += "/" +backgroundImage.subDirectory;
+						}
+						src += "/"+backgroundImage.localfile;
+						bgImage = src;
+					}
+						
+
+					this.setState({univLogo, univName, website, bgImage });
+				}else{
+					window.notify(data.message, 'error');
+				}								
+			}.bind(this),
+			error:function(error){							
+				console.log(error);
+				if(error.statusText!="abort"){
+					window.notify('Request Failed: '+error.responseText, 'error');
+				}
+			}
+		}).done(function(){
+			
+		});
+	}
+    componentWillMount() {
+      auth.onChange = this.updateAuth
+      //auth.login()
+      window.notify = this.notify;      
+      window.handleAjaxError = this.handleAjaxError;
+      window.redirect = this.redirect;
+      window.downloadPDF = this.downloadPDF;
+    }
+    redirect = (path) => {	
+		
+		//browserHistory.push('/admin/empty');
+		browserHistory.push('/admin'+path);
+		
+		//window.location.href = '/admin'+path;
+	}
+    notify = (text, type) => {
+		var prm = {message: text, level: type, position:'tc'};		
+		this.state._notificationSystem.addNotification(prm);
+	}
+	handleAjaxError = (data) => {
+		var msg = '';
+		console.log(data);
+		if (data.statusText === 'abort') {
+			return;
+		}
+		if (data.status === 0) {
+			 msg = 'Not connected. Verify your network.';
+		}else{
+			if(data.hasOwnProperty('error')){
+				msg = data.error.message;
+			}else if(data.hasOwnProperty('responseText')){
+				try{
+					var responseText = $.parseJSON(data.responseText);
+					if(responseText.error){				
+						if(responseText.error.title=='Exception'){
+						}							
+						msg = responseText.error.message;
+					}else{
+						msg = data.responseText;
+					}
+				}catch(err){
+					if(data.responseText==="You don't have access" || data.responseText==="Invalid Token"){
+						this.setState({loggedIn:false},()=>{
+							window.redirect('/logout');
+						});						
+					}else{
+
+						var ignored = ['Bad Authorization Header: Bearer'];
+						if(ignored.indexOf(data.responseText)>=0){
+						}else{
+							console.log('failed to parse json: ' +data.responseText);
+						}
+
+					}
+				}
+			}else{
+				msg = data.statusText;
+			}	
+		}
+		if(msg!=''){
+			this.notify(msg,'error');
+		}
+		
+	}
+	waitingForFile = (url,notification) => {
+		var timerForLoadingResult=  setInterval(checkServerForFile,4000);//call the fnction in every 4 seconds.write ajax in that function.
+		var nt = this.state._notificationSystem;
+		function checkServerForFile() {       
+			$.ajax({
+				url, 
+				headers:getHeader(),			
+				success:function (data) {				
+					clearInterval(timerForLoadingResult) ;       // clear timer     				
+					var newWindow = window.open();
+					if(newWindow==null){
+						alert("Mohon untuk meng enable popup window. Silahkan lihat https://support.google.com/chrome/answer/95472?co=GENIE.Platform%3DDesktop&hl=ID");
+						return;
+					}
+					newWindow.location = url;
+					nt.removeNotification(notification);
+				}.bind(this),
+				error:function(error){								
+					console.log(error);
+					if(error.statusText!="abort"){
+						//window.notify('Request Failed: '+error.responseText, 'error');
+					}
+				}
+			}).done(function(){				
+			});
+			         			
+        }
+	}
+	
+	downloadPDF = (url) => {
+		//request pdf
+		var prm = {message: 'Downloading...', level: 'info', position:'br'};		
+		var notification = this.state._notificationSystem.addNotification(prm);
+		
+		var that = this;
+		$.ajax({
+			url, 
+			headers:getHeader(),			
+			success:function (data) {				
+				if(data.status==1){
+					var urlx = UNIVERSITY_API_URL+'/reports/'+data.message;
+					that.waitingForFile(urlx,notification);
+				}else{
+					window.notify(data.message, 'error');
+				}								
+			}.bind(this),
+			error:function(error){							
+				console.log(error);
+				if(error.statusText!="abort"){
+					window.notify('Request Failed: '+error.responseText, 'error');
+				}
+			}
+		}).done(function(){
+			
+		});
+		
+		
+	}
+	pushMenu = (e) =>{
+		console.log('dasds');
+		var body = document.body;
+		if(body.clientWidth > 768){
+			if(body.className.indexOf('sidebar-mini') === -1){
+				body.className += ' sidebar-mini';
+			}else {
+				body.className = body.className.replace(' sidebar-mini', '');
+			}
+		}else{
+			if (body.className.indexOf('nav-open') === -1) {
+				body.className += ' nav-open';
+			}else{
+				body.className = body.className.replace(' nav-open','');
+			}
+		}
+	}
+	pushMenu2 = (e) =>{
+		e.preventDefault();
+		console.log('telooo');
+		var $toggle = $('.navbar-toggle');
+		var that = this;
+		if(this.state.navbar_menu_visible == 1) {
+			$('html').removeClass('nav-open');
+			this.state.navbar_menu_visible = 0;
+			setTimeout(function(){
+				$toggle.removeClass('toggled');
+				$('.close-layer').remove();
+			}, 550);
+
+		} else {
+			setTimeout(function(){
+				$toggle.addClass('toggled');
+			}, 580);
+
+			var $sidebar = $('body').find('.sidebar');
+			var $layer = $('<div class="close-layer"></div>');
+			var main_panel_height = $sidebar.length != 0 ? $('.main-panel')[0].scrollHeight : $('.wrapper')[0].scrollHeight;
+			$layer.css('height',main_panel_height + 'px');
+			$sidebar.length != 0 ? $layer.appendTo(".main-panel") : $layer.appendTo(".wrapper");
+
+			setTimeout(function(){
+				$layer.addClass('visible');
+			}, 100);
+
+			$layer.click(function() {
+				$('html').removeClass('nav-open');
+				that.state.navbar_menu_visible = 0;
+				$layer.removeClass('visible');
+
+				setTimeout(function(){
+					$layer.remove();
+					$toggle.removeClass('toggled');
+
+				}, 400);
+			});
+
+			$('html').addClass('nav-open');
+			this.state.navbar_menu_visible = 1;
+		}
+	}
+    render() {
+		var univName = this.state.univName;
+		
+		let avatarURL = localStorage.avatarURL;
+        if(!avatarURL){			
+			avatarURL = UNIVERSITY_API_URL+'/static/media/avatar-240x240.png';
+		}else{
+			avatarURL = UNIVERSITY_API_URL+'/upload/'+SUBDOMAIN+'/'+avatarURL;
+		}
+		var name = localStorage.name;
+		
+		return (    
+			<div>		 
+				<NotificationSystem ref="notificationSystem" />
+				{this.state.loggedIn ? (
+					<div className="logged-in wrapper">
+						<div className="sidebar" data-color="black" data-image="../assets/img/full-screen-image-3.jpg">							
+							<div className="logo">
+								<a href="https://amelaris.com" className="simple-text logo-mini">
+									<img src={UNIVERSITY_API_URL+'/static/media/amelaris.png?x=31'} />
+								</a>
+
+								<a href="https://amelaris.com" className="simple-text logo-normal">
+									Amelaris
+								</a>
+							</div>
+
+							<div className="sidebar-wrapper">
+								<div className="user">
+									<div className="info">
+										<div className="photo">
+											<img src={avatarURL} />
+										</div>
+
+										<a data-toggle="collapse" href="/admin/profile" className="collapsed" title={localStorage.staffId}>
+											<span>
+												<p>{name}</p>												
+											</span>
+										</a>										
+									</div>
+								</div>
+
+								<Navbar fluid  inverse >
+                  					<Nav  >
+										
+										<LinkContainer to="/admin/dashboard">
+											<NavItem eventKey={1}><i className="fa fa-dashboard "></i><span> Dashboard</span></NavItem>
+										</LinkContainer>
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-table "></i><span> Master Data</span> </div>}  id="mnMaster">
+											  <LinkContainer to="/admin/acl">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">UR</span><span className="sidebar-normal">User Role</span></MenuItem>    
+											  </LinkContainer>   
+											  <LinkContainer to="/admin/faculties">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">F</span><span className="sidebar-normal">Fakultas</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/programs">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">P</span><span className="sidebar-normal">Program Studi</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/semesters">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">S</span><span className="sidebar-normal">Semester</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/coursetypes">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">JMK</span><span className="sidebar-normal">Jenis MK</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/coursegroups">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">KMK</span><span className="sidebar-normal">Kelompok MK</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/rooms">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">R</span><span className="sidebar-normal">Ruang</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/reportmanager">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">P</span><span className="sidebar-normal">Report Manager</span></MenuItem>    
+											  </LinkContainer> 
+											  
+												<LinkContainer to="/admin/grades/university">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">NU</span><span className="sidebar-normal">Nilai Universitas</span></MenuItem>    
+												</LinkContainer> 
+												<LinkContainer to="/admin/grades/program">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">NP</span><span className="sidebar-normal">Nilai per Program</span></MenuItem>    
+												</LinkContainer>     
+												<LinkContainer to="/admin/honors/university">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">SN</span><span className="sidebar-normal">Skala Nilai</span></MenuItem>    
+												</LinkContainer>   
+												<LinkContainer to="/admin/retrieval-credits">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">BU</span><span className="sidebar-normal">Beban Studi Semester Universitas</span></MenuItem>    
+												</LinkContainer>   
+												<LinkContainer to="/admin/retrieval-credits-per-faculty">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">BF</span><span className="sidebar-normal">Beban Studi Semester Fakultas</span></MenuItem>    
+												</LinkContainer>   
+											  
+																
+										</NavDropdown>	
+										
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-university "></i><span> Perkuliahan</span> </div>} id="mnCourseSchedulled">
+											<LinkContainer to="/admin/rules">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">RM</span><span className="sidebar-normal">Rules Management</span></MenuItem>                                 
+											  </LinkContainer>
+											<LinkContainer to="/admin/calendars">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">KA</span><span className="sidebar-normal">Kalendar Akademik</span></MenuItem>                                 
+											  </LinkContainer>                          
+											  <LinkContainer to="/admin/courses-offered">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">MK</span><span className="sidebar-normal">Mata Kuliah</span></MenuItem>                                 
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/course-packages">
+												<MenuItem eventKey={1.3}><span className="sidebar-mini">PMK</span><span className="sidebar-normal">Paket Mata Kuliah</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/curriculums">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">DK</span><span className="sidebar-normal">Daftar Kurikulum</span></MenuItem>    
+											  </LinkContainer> 
+											<LinkContainer to="/admin/program-rooms">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">RK</span><span className="sidebar-normal">Ruang Kelas</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/course-class">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">KMK</span><span className="sidebar-normal">Kelas Mata Kuliah</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/student-activities">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">AP</span><span className="sidebar-normal">Aktivitas Perkuliahan</span></MenuItem>    
+											  </LinkContainer> 
+										</NavDropdown>					
+										  
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-user-circle "></i><span> Mahasiswa</span> </div>} id="mnStudent">
+											  <LinkContainer to="/admin/students">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">S</span><span className="sidebar-normal">Mahasiswa</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/students/irs">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">PI</span><span className="sidebar-normal">Pengisian IRS</span></MenuItem>    
+											  </LinkContainer> 
+											  <LinkContainer to="/admin/credit-transfers">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">TS</span><span className="sidebar-normal">Transfer SKS</span></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/graduations">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">LDO</span><span className="sidebar-normal">Lulus / Drop Out</span></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/transcripts">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">T</span><span className="sidebar-normal">Transcript</span></MenuItem>    
+											  </LinkContainer>
+										      <LinkContainer to="/admin/thesis">
+												  <MenuItem eventKey={1.3}><span className="sidebar-mini">ST</span><span className="sidebar-normal">Skripsi / Thesis</span></MenuItem>    
+											  </LinkContainer>
+											  
+										</NavDropdown>					
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-user "></i><span> Staf</span> </div>} id="mnStaff">
+											  <LinkContainer to="/admin/staffs">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">DS</span><span className="sidebar-normal">Daftar Staf</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/staffs/add-staff">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">TS</span><span className="sidebar-normal">Tambah Staf</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/supervisors">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">PA</span><span className="sidebar-normal">Pembimbing Akademik</span></MenuItem>    
+											  </LinkContainer> 
+										</NavDropdown>	
+												
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-calendar "></i><span> Jadwal</span> </div>} id="mnSchedule">
+											  <LinkContainer to="/admin/schedules">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">JKP</span><span className="sidebar-normal">Jadwal Kelas Perkuliahan</span ></MenuItem>    
+											  </LinkContainer>
+											   <LinkContainer to="/admin/assessment-schedules">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">JU</span><span className="sidebar-normal">Jadwal Ujian</span ></MenuItem>    
+											  </LinkContainer>                                   
+										</NavDropdown>	
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-money "></i><span> Biaya Perkuliahan</span> </div>} id="mnTuitionFees">
+											  <LinkContainer to="/admin/tuition-fees/banks">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">B</span><span className="sidebar-normal">Bank</span ></MenuItem>    
+											  </LinkContainer>
+											   <LinkContainer to="/admin/tuition-fees/invoice-categories">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">KT</span><span className="sidebar-normal">Kategori Tagihan</span ></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/tuition-fees/invoice-periode">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">PT</span><span className="sidebar-normal">Periode Tagihan</span ></MenuItem>    
+											  </LinkContainer>
+											   <LinkContainer to="/admin/tuition-fees/invoice-types">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">JT</span><span className="sidebar-normal">Jenis Tagihan</span ></MenuItem>    
+											  </LinkContainer>
+											   <LinkContainer to="/admin/tuition-fees/invoice-type-per-program">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">JTP</span><span className="sidebar-normal">Jenis Tagihan Per Program Studi</span ></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/tuition-fees/invoice-per-student-enrollment">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">TM</span><span className="sidebar-normal">Tagihan Mahasiswa</span ></MenuItem>    
+											  </LinkContainer>
+											   <LinkContainer to="/admin/tuition-fees/payments">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">PM</span><span className="sidebar-normal">Pembayaran Mahasiswa</span ></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/tuition-fees/reports">
+												<NavItem eventKey={1}><span className="sidebar-mini">R</span><span className="sidebar-normal">Reports</span ></NavItem>
+											</LinkContainer>
+											     
+										</NavDropdown>	
+										<NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-check-square-o"></i><span> Kuisioner</span> </div>} id="mnSurvey">
+											<LinkContainer to="/admin/course-evaluation-survey/status">
+												<NavItem eventKey={1}><span className="sidebar-mini">S</span><span className="sidebar-normal">Status</span></NavItem>
+											</LinkContainer>
+											<LinkContainer to="/admin/course-evaluation-survey/question">
+												<NavItem eventKey={1}><span className="sidebar-mini">P</span><span className="sidebar-normal">Pertanyaan</span></NavItem>
+											</LinkContainer>
+											<LinkContainer to="/admin/course-evaluation-survey/offered-answer">
+												<NavItem eventKey={1}><span className="sidebar-mini">JD</span><span className="sidebar-normal">Jawaban yg Ditawarkan</span></NavItem>
+											</LinkContainer>												
+											<LinkContainer to="/admin/course-evaluation-survey/template">
+												<NavItem eventKey={1}><span className="sidebar-mini">T</span><span className="sidebar-normal">Template</span></NavItem>
+											</LinkContainer>
+											<LinkContainer to="/admin/course-evaluation-survey/per-semester">
+												<NavItem eventKey={1}><span className="sidebar-mini">KS</span><span className="sidebar-normal">Kuisioner Per Semester</span></NavItem>
+											</LinkContainer>
+											<LinkContainer to="/admin/course-evaluation-survey/result">
+												<NavItem eventKey={1}><span className="sidebar-mini">H</span><span className="sidebar-normal">Hasil</span></NavItem>
+											</LinkContainer>
+											
+										  </NavDropdown>
+										  
+										   <NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-pencil-square-o "></i><span> PMB</span> </div>} id="mnPMB">
+											<LinkContainer to="/admin/admission/admission-exam-types">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">JU</span><span className="sidebar-normal">Jenis Ujian</span></MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/admission/admission-attachment-types">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">JB</span><span className="sidebar-normal">Jenis Berkas</span></MenuItem>    
+											  </LinkContainer>          
+											  <LinkContainer to="/admin/admission/admission-periode">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">PP</span><span className="sidebar-normal">Periode Pendaftaran</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/admission/users">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">UP</span><span className="sidebar-normal">User Pendaftar</span></MenuItem>    
+											  </LinkContainer>     
+											  <LinkContainer to="/admin/admission/settings">
+												  <MenuItem eventKey={1.2}><span className="sidebar-mini">S</span><span className="sidebar-normal">Setting</span></MenuItem>    
+											  </LinkContainer>
+											  
+										  </NavDropdown>
+										  	
+										  <NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-line-chart "></i><span> Analitics</span> </div>} id="mnReports">
+											<LinkContainer to="/admin/reports">
+												<NavItem eventKey={1}><span className="sidebar-mini">R</span><span className="sidebar-normal">Report</span></NavItem>
+											</LinkContainer>
+											<LinkContainer to="/admin/charts">
+												<NavItem eventKey={2}><span className="sidebar-mini">C</span><span className="sidebar-normal">Charts</span></NavItem>
+											</LinkContainer>		
+										  </NavDropdown>	
+										  	{/*
+										  <NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-upload "></i><span> Feeder</span> </div>} id="mnFeeder">
+											<LinkContainer to="/admin/feeder">
+												  <MenuItem eventKey={1.2}>Feeder per Program</MenuItem>    
+											  </LinkContainer>                                   
+											  <LinkContainer to="/admin/feeder-per-faculty">
+												  <MenuItem eventKey={1.3}>Feeder per Fakultas</MenuItem>    
+											  </LinkContainer>
+											  <LinkContainer to="/admin/feeder-master-data">
+												  <MenuItem eventKey={1.4}>Feeder Master Data</MenuItem>    
+											  </LinkContainer>                                   
+										  </NavDropdown>		
+										  */}
+										  <NavDropdown eventKey={1} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-wrench "></i><span> Seting</span> </div>} id="mnSetting">
+											  <LinkContainer to="/admin/settings">
+												  <MenuItem eventKey={1.1}><span className="sidebar-mini">S</span><span className="sidebar-normal">Setting</span></MenuItem>    
+											  </LinkContainer>												   
+										</NavDropdown>								  
+										  
+										<NavDropdown eventKey={2} href="#" title={<div style={{display: "inline-block"}}><i className="fa fa-address-book "></i><span> User</span> </div>} id="mnProfile">   
+											<LinkContainer to="/admin/profile">
+												<MenuItem><span className="sidebar-mini">P</span><span className="sidebar-normal">Profile</span></MenuItem>    
+											</LinkContainer>                   
+											<LinkContainer to="/admin/logout">
+												<MenuItem><span className="sidebar-mini">L</span><span className="sidebar-normal">Logout</span></MenuItem>    
+											</LinkContainer>     				                      
+										</NavDropdown>					
+									</Nav>	
+								
+
+								</Navbar>
+							</div>
+							<div className="sidebar-background" style={{  
+							backgroundImage: "url(" + this.state.bgImage + ")",
+							backgroundPosition: 'center',
+							backgroundSize: 'cover',
+							backgroundRepeat: 'no-repeat'
+							}}></div>
+						</div>
+    					<div className="main-panel">
+							<nav className="navbar navbar-default">
+								<div className="container-fluid">
+									<div className="navbar-minimize">
+										<button id="minimizeSidebar" className="btn btn-warning btn-fill btn-round btn-icon" onClick={this.pushMenu} >
+											<i className="fa fa-ellipsis-v visible-on-sidebar-regular"></i>
+											<i className="fa fa-navicon visible-on-sidebar-mini"></i>
+										</button>
+									</div>
+									<div className="navbar-header">
+										<button type="button" className="navbar-toggle tgl1" data-toggle="collapse" onClick={this.pushMenu2} >
+											<span className="sr-only">Toggle navigation</span>
+											<span className="icon-bar"></span>
+											<span className="icon-bar"></span>
+											<span className="icon-bar"></span>
+										</button>
+										<a className="navbar-brand" href="/admin"><img src={this.state.univLogo} className="img-responsive" /> {this.state.univName}</a>
+									</div>
+									
+								</div>
+							</nav>
+
+							<div className="main-content">
+								<div className="container-fluid">
+									<div className="content-wrapper">    						
+										<section className="content">
+											{this.props.children}
+										</section>    
+									</div>	
+								</div>
+							</div>
+
+
+							<footer className="footer">
+								<div className="container-fluid">
+									<nav className="pull-left">
+										<ul>
+											
+										</ul>
+									</nav>
+									<p className="copyright pull-right">
+									<a href="https://bit.ly/amelaris-super-admin" target="_blank">Manual Book</a> | <a href="#" onClick={()=>{
+										window.Sentry.showReportDialog();
+										}}>Send Feedback / Bug Report</a>
+									</p>
+								</div>
+							</footer>
+
+    					</div>    					
+					</div>				
+				):(
+					<div className="not-login">
+						<Navbar fluid collapseOnSelect>
+							<Navbar.Header>
+								<Navbar.Brand>
+									<a href={this.state.website}><img src={this.state.univLogo} className="img-responsive" /></a>
+									<div className="univNameBox">
+										<h3>{this.state.univName}</h3>										
+									</div>	
+								</Navbar.Brand>
+								
+								
+							</Navbar.Header>
+							<Navbar.Collapse>				                  
+								
+							</Navbar.Collapse>	
+						</Navbar>	
+						<div className="content container-fluid">
+							<div className="row">
+								<div className="col-md-12">
+									{this.props.children}
+								</div>							
+							</div>					
+						</div>
+					</div>		
+				)}                                    
+				
+				
+			</div>
+		)
+    }
+}
+
+
+
+
+class About extends React.Component {
+    render() {
+      return <h1>About</h1>
+    }
+}
+
+class Logout extends React.Component {
+    componentDidMount() {
+      auth.logout();
+      localCache.reset();
+		window.redirect('/login');
+    }
+
+    render() {
+      return <p>You are now logged out</p>
+    }
+}
+
+function requireAuth(nextState, replace) {
+  if (!auth.loggedIn()) {
+    replace({
+      pathname: '/admin/login',
+      state: { nextPathname: nextState.location.pathname }
+    })
+  }else{
+  }
+}
+
+class App extends Component {
+	constructor() {
+		super();
+
+		this.state = {
+			loading: true
+		};
+	}
+
+	componentDidMount() {
+		setTimeout(() => this.setState({ loading: false }), 1500); 
+	}
+
+	render() {
+		const { loading } = this.state;
+
+		if(loading) {
+			return (<Loader />); // render null when app is not ready
+		}
+		return (
+		
+		<Router history={browserHistory}>
+			<Route path="/admin" component={AppComp}>
+				<IndexRoute component={Dashboard}/>
+				<Route path="empty" component={null} key="empty"/>
+				<Route path="profile" component={LoadableUserProfile} />
+				<Route path="login" component={Login} />
+				<Route path="logout" component={Logout} />
+				<Route path="forgot" component={LoadableForgotPassword} />
+				<Route path="reset/:userId/:code" component={LoadableResetPassword} />				
+				
+				<Route path="faculties" component={LoadableFaculty} onEnter={requireAuth} />
+				<Route path="programs" component={LoadableProgram} onEnter={requireAuth} />
+				
+				<Route path="coursetypes" component={LoadableCourseType} onEnter={requireAuth} />
+				<Route path="coursegroups" component={LoadableCourseGroup} onEnter={requireAuth} />
+				<Route path="rooms" component={LoadableRoom} onEnter={requireAuth} />
+				<Route path="grades/university" component={LoadableUniversityGrade} onEnter={requireAuth} />
+				<Route path="grades/program" component={LoadableProgramGrade} onEnter={requireAuth} />
+				
+				<Route path="honors/university" component={LoadableUniversityHonor} onEnter={requireAuth} />
+				<Route path="retrieval-credits" component={LoadableUniversityRetrievalCredits} onEnter={requireAuth} />
+				<Route path="retrieval-credits-per-faculty" component={LoadableFacultyRetrievalCredits} onEnter={requireAuth} />
+				
+				<Route path="acl" component={LoadableReadUserRole} onEnter={requireAuth} />
+				
+				<Route path="curriculums" component={LoadableCurriculum} onEnter={requireAuth} />			
+				<Route path="programs/:programId/curriculums/:curriculumId/view" component={LoadableReadOneCurriculum} onEnter={requireAuth} />
+				<Route path="programs/:programId/curriculums/:curriculumId/edit" component={LoadableUpdateCurriculum} onEnter={requireAuth} />
+
+				<Route path="courses-offered" component={LoadableCourseOffered} onEnter={requireAuth} />
+				<Route path="programs/:programId/courses-offered/:courseId/view" component={LoadableReadOneCourseOffered} onEnter={requireAuth} />
+				<Route path="programs/:programId/courses-offered/:courseId/edit" component={LoadableUpdateCourseOffered} onEnter={requireAuth} />
+				
+				<Route path="students" component={LoadableStudent} onEnter={requireAuth} />
+				<Route path="students/:studentId/view" component={LoadableReadOneStudent} onEnter={requireAuth} />
+				<Route path="students/:studentId/edit" component={LoadableUpdateStudent} onEnter={requireAuth} />
+				
+				<Route path="students/:studentId/enrollments" component={LoadableStudentEnrollment} onEnter={requireAuth} />
+				<Route path="students/:studentId/activities" component={LoadableStudentActivity} onEnter={requireAuth} />
+				<Route path="students/:studentId/irs" component={LoadableStudentStudyProgramCard} onEnter={requireAuth} />
+				<Route path="students/:studentId/student-academic/:studentEnrollmentId" component={LoadableStudentAcademic} onEnter={requireAuth} />
+				
+				<Route path="credit-transfers" component={LoadableCreditTransfer} onEnter={requireAuth} />				
+				<Route path="credit-transfers/:id/edit" component={LoadableCreditTransferEntry} onEnter={requireAuth} />
+				
+				<Route path="students/irs" component={LoadableStudyProgramCard} onEnter={requireAuth} />
+				<Route path="irs/:id/details" component={LoadableUpdateStudyProgramCard} onEnter={requireAuth} />
+				<Route path="irs/:id/entry" component={LoadableStudyProgramCardEntry} onEnter={requireAuth} />
+				
+				<Route path="faculties/:facultyId/programs/:id/edit" component={LoadableProgramEntry} onEnter={requireAuth} />
+				
+				<Route path="transcripts" component={LoadableTranscript} onEnter={requireAuth} />				
+				<Route path="transcripts/:id/edit" component={LoadableTranscriptEntry} onEnter={requireAuth} />
+				
+				<Route path="thesis" component={LoadableThesis} onEnter={requireAuth} />				
+				<Route path="thesis/:id/edit" component={LoadableThesisEntry} onEnter={requireAuth} />
+				
+				<Route path="course-class" component={LoadableCourseSchedulled} onEnter={requireAuth} />
+				<Route path="course-class/:id/edit" component={LoadableUpdateCourseSchedulled} onEnter={requireAuth} />
+				<Route path="course-class/add/:programId/:semesterId" component={LoadableUpdateCourseSchedulled} onEnter={requireAuth} />
+				<Route path="course-class/:id/student-course-registrations" component={LoadableReadStudentCourseRegistration} onEnter={requireAuth} />
+				
+				<Route path="course-class/:id/staffs" component={LoadableReadCourseSchedulledStaff} onEnter={requireAuth} />
+				<Route path="course-class/:id/transfer" component={LoadableCourseClassTransfer} onEnter={requireAuth} />
+				
+				<Route path="course-packages" component={LoadableCoursePackages} onEnter={requireAuth} />
+				<Route path="course-packages/:id/edit" component={LoadableUpdateCoursePackages} onEnter={requireAuth} />
+				
+				<Route path="semesters" component={LoadableSemester} onEnter={requireAuth} />
+				
+				<Route path="options" component={LoadableSimpleMasterData} onEnter={requireAuth} />
+				
+				<Route path="staffs" component={LoadableStaff} onEnter={requireAuth} />
+				<Route path="staffs/add-staff" component={LoadableSimpegEntry} onEnter={requireAuth} />
+				<Route path="staffs/:id/edit" component={LoadableSimpegEntry} onEnter={requireAuth} />
+				
+				<Route path="supervisors" component={LoadableSupervisor} onEnter={requireAuth} />
+				<Route path="supervisors/:id/edit" component={LoadableUpdateSupervisor} onEnter={requireAuth} />
+				
+				<Route path="student-activities" component={LoadableStudentActivities} onEnter={requireAuth} />
+				<Route path="student-activities/:id/edit" component={LoadableStudentActivitiesEntry} onEnter={requireAuth} />
+				<Route path="student-activities/add" component={LoadableStudentActivitiesEntry} onEnter={requireAuth} />
+				
+				<Route path="calendars" component={LoadableCalendar} onEnter={requireAuth} />
+				<Route path="calendars/:id/edit" component={LoadableCreateCalendar} onEnter={requireAuth} />
+				
+				<Route path="program-rooms" component={LoadableProgramRoom} onEnter={requireAuth} />
+				
+				<Route path="settings" component={LoadableSettings} onEnter={requireAuth} />
+				{/*<Route path="feeder" component={LoadableFeeder} onEnter={requireAuth} />
+				<Route path="feeder-per-faculty" component={LoadableFeederPerFaculty} onEnter={requireAuth} />
+				<Route path="feeder-master-data" component={LoadableFeederMasterData} onEnter={requireAuth} />*/}
+				
+				<Route path="schedules" component={LoadableSchedules} onEnter={requireAuth} />
+				<Route path="assessment-schedules" component={LoadableAssessmentSchedules} onEnter={requireAuth} />
+				<Route path="assessment-schedules/:id/edit" component={LoadableCreateAssessmentSchedules} onEnter={requireAuth} />
+				
+				<Route path="graduations" component={LoadableGraduation} onEnter={requireAuth} />				
+				<Route path="graduations/:id/edit" component={LoadableGraduationEntry} onEnter={requireAuth} />
+				
+				<Route path="reports" component={LoadableReport} onEnter={requireAuth} />
+				<Route path="charts" component={LoadableChart} onEnter={requireAuth} />
+
+				<Route path="admission/admission-exam-types" component={LoadableAdmissionExamType} onEnter={requireAuth} />
+				<Route path="admission/admission-exam-types/:id/edit" component={LoadableAdmissionExamTypeEntry} onEnter={requireAuth} />
+				<Route path="admission/admission-attachment-types" component={LoadableAdmissionAttachmentType} onEnter={requireAuth} />
+				<Route path="admission/admission-attachment-types/:id/edit" component={LoadableAdmissionAttachmentTypeEntry} onEnter={requireAuth} />
+				<Route path="admission/admission-periode" component={LoadableAdmissionPeriode} onEnter={requireAuth} />
+				<Route path="admission/admission-periode/:id/edit" component={LoadableAdmissionPeriodeEntry} onEnter={requireAuth} />				
+				<Route path="admission/admission-periode/:id/details" component={LoadableAdmissionDetail} onEnter={requireAuth} />				
+				<Route path="admission/settings" component={LoadableAdmissionSettingsEntry} onEnter={requireAuth} />				
+				<Route path="admission/:id/prerequisites" component={LoadableAdmissionPrerequisites} onEnter={requireAuth} />				
+				
+
+				<Route path="admission/users" component={LoadableAdmissionUsers} onEnter={requireAuth} />				
+				<Route path="admission/users/:id/edit" component={LoadableAdmissionUserEntry} onEnter={requireAuth} />
+				
+
+				<Route path="dashboard" component={Dashboard} onEnter={requireAuth} />
+				<Route path="rules" component={LoadableRulesManagement} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/banks" component={LoadableBank} onEnter={requireAuth} />				
+				<Route path="tuition-fees/banks/:id/edit" component={LoadableBankEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/invoice-categories" component={LoadableInvoiceCategory} onEnter={requireAuth} />				
+				<Route path="tuition-fees/invoice-categories/:id/edit" component={LoadableInvoiceCategoryEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/invoice-types" component={LoadableInvoiceType} onEnter={requireAuth} />				
+				<Route path="tuition-fees/invoice-types/:id/edit" component={LoadableInvoiceTypeEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/invoice-periode" component={LoadableInvoicePeriode} onEnter={requireAuth} />				
+				<Route path="tuition-fees/invoice-periode/:id/edit" component={LoadableInvoicePeriodeEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/invoice-type-per-program" component={LoadableInvoiceTypePerProgram} onEnter={requireAuth} />				
+				<Route path="tuition-fees/invoice-type-per-program/:id/edit" component={LoadableInvoiceTypePerProgramEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/invoice-per-student-enrollment" component={LoadableInvoicePerStudentEnrollment} onEnter={requireAuth} />				
+				<Route path="tuition-fees/invoice-per-student-enrollment/:id/edit" component={LoadableInvoicePerStudentEnrollmentEntry} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/payments" component={LoadablePayment} onEnter={requireAuth} />				
+				<Route path="tuition-fees/payments/:id/edit" component={PaymentEntryComponent} onEnter={requireAuth} />
+				
+				<Route path="tuition-fees/reports" component={LoadableFinancialReport} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/status" component={LoadableCourseEvaluationStatus} onEnter={requireAuth} />				
+				<Route path="course-evaluation-survey/status/:id/edit" component={LoadableCourseEvaluationStatusEntry} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/question" component={LoadableCourseEvaluationSurveyQuestion} onEnter={requireAuth} />				
+				<Route path="course-evaluation-survey/question/:id/edit" component={LoadableCourseEvaluationSurveyQuestionEntry} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/offered-answer" component={LoadableCourseEvaluationSurveyOfferedAnswer} onEnter={requireAuth} />				
+				<Route path="course-evaluation-survey/offered-answer/:id/edit" component={LoadableCourseEvaluationSurveyOfferedAnswerEntry} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/template" component={LoadableCourseEvaluationSurveyTemplate} onEnter={requireAuth} />				
+				<Route path="course-evaluation-survey/template/:id/edit" component={LoadableCourseEvaluationSurveyTemplateEntry} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/per-semester" component={LoadableCourseEvaluationSurveyPerSemester} onEnter={requireAuth} />				
+				<Route path="course-evaluation-survey/per-semester/:id/edit" component={LoadableCourseEvaluationSurveyPerSemesterEntry} onEnter={requireAuth} />
+				
+				<Route path="course-evaluation-survey/result" component={LoadableCourseEvaluationSurveyAnswer} onEnter={requireAuth} />
+				<Route path="course-evaluation-survey/result/:id/view" component={LoadableCourseEvaluationSurveyAnswerEntry} onEnter={requireAuth} />
+
+				<Route path="reportmanager" component={LoadableReportManager} onEnter={requireAuth} />
+			</Route>
+		</Router>
+		
+		);
+	}
+}
+
+export default App;

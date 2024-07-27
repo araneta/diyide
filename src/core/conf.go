@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
+	_ "strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -20,19 +20,20 @@ type DB struct{
 
 type Config struct {
 	Port           string `yaml:"Port"`
+	/*
 	UserImagesPath string `yaml:"UserImagesPath"`
 	PublicURL      string `yaml:"PublicURL"`
 	Databases []*DB `yaml:"Databases"`
 	
+*/
+	//TimeZone string `yaml:"TimeZone"`
 
-	TimeZone string `yaml:"TimeZone"`
-
-	SMTPHost     string `yaml:"SMTPHost"`
+/*	SMTPHost     string `yaml:"SMTPHost"`
 	SMTPPort     int    `yaml:"SMTPPort"`
 	SMTPUsername string `yaml:"SMTPUsername"`
 	SMTPPassword string `yaml:"SMTPPassword"`
-
-	CallbackURL string `yaml:"CallbackURL"`
+*/
+	ParserPath string `yaml:"ParserPath"`
 }
 
 func (c *Config) GetConf() *Config {
@@ -47,11 +48,11 @@ func (c *Config) GetConf() *Config {
 		yamlFile, err = ioutil.ReadFile("iris.yml")
 	} else {
 		log.Println("using configuration from environment variables")
-		c.UserImagesPath = os.Getenv("UserImagesPath")
+		c.ParserPath = os.Getenv("ParserPath")
 
 		
 		//get first db
-		var db = new(DB)
+		/*var db = new(DB)
 		db.DBHost = os.Getenv("DBHost")
 		intPort, errPort := strconv.Atoi(os.Getenv("DBPort"))
 		if errPort == nil {
@@ -75,7 +76,7 @@ func (c *Config) GetConf() *Config {
 		c.SMTPUsername = os.Getenv("SMTPUsername")
 		c.SMTPPassword = os.Getenv("SMTPPassword")
 
-		c.PublicURL = os.Getenv("PublicURL")
+		c.PublicURL = os.Getenv("PublicURL")*/
 	}
 	if len(yamlFile) > 0 {
 		err = yaml.Unmarshal(yamlFile, c)
