@@ -17,26 +17,42 @@ let proxy = URL.createObjectURL(new Blob([`
 	};
 	importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');
 `], { type: 'text/javascript' }));
-// Function to parse code and find function definitions
 function parseFunctions(code) {
         const functions = [];
-        /*const ast = esprima.parseScript(code, { loc: true });
-        esprima.traverse(ast, {
-          enter: function(node) {
-            if (node.type === 'FunctionDeclaration') {
-              functions.push({
-                name: node.id.name,
-                startLine: node.loc.start.line
-              });
+        try {
+          const ast = Babel.transform(code, {
+            presets: ['react'],
+            plugins: ['@babel/plugin-syntax-jsx'],
+            ast: true
+          }).ast;
+
+          const traverse = (node, func) => {
+            if (node.type === 'FunctionDeclaration' || node.type === 'ArrowFunctionExpression') {
+              if (node.id) {
+                func(node);
+              }
             }
-          }
-        });*/
-        functions.push({
-		name: 'telox',
-		startLine: 22
-	  });
+            for (const key in node) {
+              if (node.hasOwnProperty(key) && typeof node[key] === 'object' && node[key] !== null) {
+                traverse(node[key], func);
+              }
+            }
+          };
+
+          traverse(ast, node => {
+            functions.push({
+              name: node.id ? node.id.name : 'anonymous',
+              startLine: node.loc.start.line
+            });
+          });
+        } catch (error) {
+          console.error('Error parsing code:', error);
+        }
         return functions;
       }
+
+
+
 
 
 
