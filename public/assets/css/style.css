@@ -1,3 +1,9 @@
+ html, body {
+  height: 100%;
+}
+.container-fluid, .row {
+  height: 100%;
+}
 .bg-login-image {
     background-position: center;
     background-size: contain;
@@ -62,12 +68,13 @@ display:none;
 }
 #pane2{
 	position:relative;
+	flex: 1;
 }
 #editor-container{
 	position:absolute;
 	width:100%;
 	left:0;
-	top:20px;
+	top:25px;
 	right:0;
 	bottom:0;
 }
@@ -78,5 +85,11 @@ display:none;
 	display:inline-block;
 	padding: 0px 12px;
     border: thin solid;
+    cursor:pointer;
     margin-bottom: 4px;
+}
+.close-tab{
+	display:inline;
+	color:#f00;
+	margin-left:5px;
 }
