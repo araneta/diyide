@@ -91,13 +91,7 @@ jQuery(document).ready(function($){
 			  contentType: 'application/json',
 			  data: JSON.stringify(formData),
 			  success: function(data) {
-				const fileName = file.split('/').pop();
-				
-				//method 1
-				/*				
-				addTab(tid, fileName);
-				createEditor(tid, data);
-				switchEditor(tid);*/
+				const fileName = file.split('/').pop();				
 				addTab(file,data);
 			  },
 			  error: function(jqXHR, textStatus, errorThrown) {
@@ -109,7 +103,44 @@ jQuery(document).ready(function($){
 			$('.dirFiles').fileTree({script: 'api/files/filetree', root: file }, function(file) {
 				//alert(file);
 			});	
+		}).on('filetreeclicked', function(e, data)	{ 
+			console.log('tree',data); 
 		});	
+	});
+	
+	$('#frmAutocomplete').submit(function(e){
+		e.preventDefault();
+		
+		var formData = Object.fromEntries(new FormData(e.target).entries());
+		formData.root = $('#folderpath').val();
+		console.log(formData);
+
+		$.ajax({
+		  url: 'api/files/words',
+		  method: 'POST',
+		  contentType: 'application/json',
+		  data: JSON.stringify(formData),
+		  success: function(data) {
+				
+				if(data.status ==1){
+					if(data.message){
+						setAutoComplete(formData.language,data.message);
+					}
+				}else{
+					alert('Error')
+					console.log(data);
+				}
+				
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+			console.error('Error: ' + textStatus, errorThrown);
+		  }
+		});
+			
+
+			
+	}).on('filetreeclicked', function(e, data)	{ 
+			console.log('tree',data); 		
 	});
 	
 	
@@ -184,9 +215,17 @@ jQuery(document).ready(function($){
         }
       });
     }
-	function closeEditor(id){
+	function closeEditor(id,fpath){
 		console.log('close',id);
-		
+		var m = editorModels.get(id);
+		monaco.editor.getModels().forEach(function(model){
+			console.log(model.uri.path);
+			if(fpath==model.uri.path){
+				console.log('found');
+			 model.dispose();
+			}
+		});
+
 		editorModels.delete(id);
 		$('#'+id).remove();
 		console.log('editorModels',editorModels);
@@ -263,7 +302,21 @@ jQuery(document).ready(function($){
 		};
 		const extension = getFileExtension(fpath);
 		const lang = extensionToLanguageMap[extension.toLowerCase()] || 'Unknown';
-		return monaco.editor.createModel(data, lang);
+		return monaco.editor.createModel(data, lang, monaco.Uri.file(fpath));
+	}
+	
+	function setAutoComplete(lang, allWords){
+		
+		monaco.languages.registerCompletionItemProvider(lang, {
+			provideCompletionItems: function(model, position) {
+			  const suggestions = allWords.map(word => ({
+				label: word,
+				kind: monaco.languages.CompletionItemKind.Text,
+				insertText: word
+			  }));
+			  return { suggestions: suggestions };
+			}
+		});
 	}
 	
 });

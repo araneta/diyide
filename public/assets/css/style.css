@@ -1,7 +1,7 @@
  html, body {
   height: 100%;
 }
-.container-fluid, .row {
+.container-fluid.second-row, .row {
   height: 100%;
 }
 .bg-login-image {

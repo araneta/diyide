@@ -140,6 +140,7 @@ func main() {
 		API.Post("/files/filetree", adminCont.OpenFolder)	
 		API.Post("/files/read", adminCont.ReadFile)		
 		API.Post("/files/write", adminCont.WriteFile)	
+		API.Post("/files/words", adminCont.GetWords)	
 	}
 
 	app.Listen(":" + port)
