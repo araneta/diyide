@@ -93,3 +93,6 @@ display:none;
 	color:#f00;
 	margin-left:5px;
 }
+#editor-tabs>.tab.active{
+	color:#0f0;
+}

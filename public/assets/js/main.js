@@ -5,7 +5,7 @@ const container = document.getElementById('editor-container');
 const tabsContainer = document.getElementById('editor-tabs');
 const editors = {};
 let activeEditor = null;		
-var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state}
+var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path}
 
 
 
@@ -117,10 +117,26 @@ jQuery(document).ready(function($){
 	window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 's') {
           event.preventDefault();
-          const content = editor.getValue();
+          //const content = editor.getValue();
           //saveFile(content, 'code.js');
           console.log('activeEditor',activeEditor);
-          console.log('content',content);
+          //console.log('content',content);
+          const formData = {
+			  fpath: editorModels.get(activeEditor).fpath,		
+			  buffer: editor.getValue()	  
+			};
+          $.ajax({
+			  url: 'api/files/write',
+			  method: 'POST',
+			  contentType: 'application/json',
+			  data: JSON.stringify(formData),
+			  success: function(data) {
+				console.log(data);
+			  },
+			  error: function(jqXHR, textStatus, errorThrown) {
+				console.error('Error: ' + textStatus, errorThrown);
+			  }
+			});
         }
       });
 
@@ -134,7 +150,9 @@ jQuery(document).ready(function($){
 			var mod = editorModels.get(activeEditor);
 			console.log('editorModels',editorModels);
 			console.log('mod',mod)
-			editorModels.get(activeEditor).state = currentState;
+			if(mod){
+				editorModels.get(activeEditor).state = currentState;
+			}
 		}
 						
 		var sel = editorModels.get(id);
@@ -144,6 +162,9 @@ jQuery(document).ready(function($){
 		editor.getDomNode().style.display = 'block';
 		editor.layout();
 		activeEditor = id;	
+		
+		$('.tabs .tab').removeClass('active');
+		$('#'+id).addClass('active');
 
 	}
 	function generateHash(input) {
@@ -165,14 +186,24 @@ jQuery(document).ready(function($){
     }
 	function closeEditor(id){
 		console.log('close',id);
+		
 		editorModels.delete(id);
 		$('#'+id).remove();
+		console.log('editorModels',editorModels);
+		const entries = Array.from(editorModels.entries());
+		if (entries.length > 0) {
+			const firstEntry = entries[0];
+			const id = firstEntry[0];
+			switchEditor(id);
+		}
 	}
 	
 	function addTab(fpath,data){
 		generateHash(fpath).then(function(hash) {
 			const id = 't'+hash;
-			if (editorModels.has(fpath)) {
+			console.log('id',id);
+			if (editorModels.has(id)) {
+				console.log('id',id);
 				switchEditor(id);
 			}else{
 				
@@ -196,7 +227,7 @@ jQuery(document).ready(function($){
 				tab.appendChild(closetab);
 				
 				tabsContainer.appendChild(tab);
-				editorModels.set(id,{model: createModel(fpath,data), state:null});
+				editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath});
 				switchEditor(id);			
 			}
 		});

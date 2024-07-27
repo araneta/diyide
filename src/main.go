@@ -139,6 +139,7 @@ func main() {
 		API.Get("/test", adminCont.Test)		
 		API.Post("/files/filetree", adminCont.OpenFolder)	
 		API.Post("/files/read", adminCont.ReadFile)		
+		API.Post("/files/write", adminCont.WriteFile)	
 	}
 
 	app.Listen(":" + port)

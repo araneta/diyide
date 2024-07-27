@@ -5,6 +5,8 @@ import (
 	"os"
 	_ "path/filepath"
 	_ "strconv"
+	"bufio"
+
 	"html"
 	"path/filepath"
 	"fmt"
@@ -14,8 +16,46 @@ import (
 type ReadFile struct {
 	FPath string `json:"fpath"`	
 }
+type WriteFile struct {
+	FPath string `json:"fpath"`	
+	Buffer string `json:"buffer"`	
+}
 func (c *AdminController) Test(ctx iris.Context) {
 	ctx.JSON(iris.Map{"status": "1", "message": ""})
+}
+
+func (c *AdminController) WriteFile(ctx iris.Context) {
+	var writef WriteFile
+	err := ctx.ReadJSON(&writef)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	fpath := writef.FPath
+	fmt.Println(fpath)	
+    file, err := os.Create(fpath)
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+    defer file.Close()
+
+    writer := bufio.NewWriter(file)
+    _, err = writer.WriteString(writef.Buffer)
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+
+    err = writer.Flush()
+    if err != nil {
+        ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
+		return
+    }
+	ctx.WriteString( "ok")
 }
 func (c *AdminController) ReadFile(ctx iris.Context) {
 	var readf ReadFile
