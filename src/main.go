@@ -142,6 +142,7 @@ func main() {
 		API.Post("/files/read", adminCont.ReadFile)		
 		API.Post("/files/write", adminCont.WriteFile)	
 		API.Post("/files/words", adminCont.GetWords)	
+		API.Post("/files", adminCont.ListFiles)	
 		API.Post("/parser", adminCont.Parser)	
 	}
 

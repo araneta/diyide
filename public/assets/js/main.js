@@ -24,6 +24,9 @@ function getFileExtension(fileName) {
   const lastDotIndex = fileName.lastIndexOf('.');
   return lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
 }
+function getExtensionsOfLang(lang) {
+  return Object.keys(extensionToLanguageMap).filter(key => extensionToLanguageMap[key] === lang);
+}
 function getFileLang(fpath){		
 	const extension = getFileExtension(fpath);
 	const lang = extensionToLanguageMap[extension.toLowerCase()] || 'Unknown';
@@ -38,6 +41,7 @@ const breadcrumbsDiv = document.getElementById('breadcrumbs');
 const functionDropdown = document.getElementById('functionDropdown');
 
 let activeEditor = null;		
+var projectDir = '';
 var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path}
 
 
@@ -201,9 +205,9 @@ jQuery(document).ready(function($){
 	
 	$('#frmAutocomplete').submit(function(e){
 		e.preventDefault();
-		
+		const dir = $('#folderpath').val();
 		var formData = Object.fromEntries(new FormData(e.target).entries());
-		formData.root = $('#folderpath').val();
+		formData.root = dir;
 		console.log(formData);
 
 		$.ajax({
@@ -215,6 +219,7 @@ jQuery(document).ready(function($){
 				
 				if(data.status ==1){
 					if(data.message){
+						projectDir = dir;
 						setAutoComplete(formData.language,data.message);
 					}
 				}else{
@@ -366,17 +371,86 @@ jQuery(document).ready(function($){
 	function createModel(fpath,data){					
 		return monaco.editor.createModel(data, getFileLang(fpath), monaco.Uri.file(fpath));
 	}
-	
+	// Fetch available files and directories from the server
+	function fetchFiles(extensions) {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+			  url: 'api/files',
+			  method: 'POST',
+			  contentType: 'application/json',
+			  data: JSON.stringify({dir:projectDir, extensions: extensions}),
+			  success: function(data) {
+				console.log(data);
+					if(data.status==1 && data.message.length>0){
+					  var ret = data.message.map(function(file) {
+						  return {
+							label: file,
+							kind: monaco.languages.CompletionItemKind.File,
+							insertText: file,
+							documentation: 'Import from ' + file
+						  };
+					  });
+					  resolve(ret);
+				  }else{
+					  resolve([]);
+				  }		
+			  },
+			  error: function(jqXHR, textStatus, errorThrown) {
+				console.error('Error: ' + textStatus, errorThrown);
+				reject(errorThrown);
+			  }
+			});
+		});
+		
+		
+	}
+
+
+	var cachedFiles = null;
+
 	function setAutoComplete(lang, allWords){
 		
 		monaco.languages.registerCompletionItemProvider(lang, {
 			provideCompletionItems: function(model, position) {
-			  const suggestions = allWords.map(word => ({
-				label: word,
-				kind: monaco.languages.CompletionItemKind.Text,
-				insertText: word
-			  }));
-			  return { suggestions: suggestions };
+				const extensions = getExtensionsOfLang(lang);
+				if(lang=='javascript'){
+					var textUntilPosition = model.getValueInRange({
+					startLineNumber: 1,
+					startColumn: 1,
+					endLineNumber: position.lineNumber,
+					endColumn: position.column
+				  });
+
+				  var textLine = textUntilPosition.split('\n').pop();
+				  var importMatch = textLine.match(/import\s.*\sfrom\s['"]([^'"]*)$/);
+
+				  if (importMatch) {
+					if (!cachedFiles) {
+					  return fetchFiles(extensions).then(function(files) {
+						  console.log('files',files);
+						cachedFiles = files;
+						var pathPrefix = importMatch[1];
+						var suggestions = cachedFiles.filter(function(file) {
+						  return file.label.indexOf(pathPrefix) === 0;
+						});
+						return { suggestions: suggestions };
+					  });
+					} else {
+					  var pathPrefix = importMatch[1];
+					  var suggestions = cachedFiles.filter(function(file) {
+						return file.label.indexOf(pathPrefix) === 0;
+					  });
+					  return { suggestions: suggestions };
+					}
+				  }
+
+				}
+				const suggestions2 = allWords.map(word => ({
+					label: word,
+					kind: monaco.languages.CompletionItemKind.Text,
+					insertText: word
+				}));
+				return { suggestions: suggestions2 };
 			}
 		});
 	}

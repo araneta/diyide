@@ -44,6 +44,10 @@ type Function struct {
 type ParserResult struct {
 	Functions []Function  `json:"functions"`	
 }
+type ListFileForm struct {
+	Dir string `json:"dir"`	
+	Extensions []string `json:"extensions"`	
+}
 
 func (c *AdminController) Test(ctx iris.Context) {
 	ctx.JSON(iris.Map{"status": "1", "message": ""})
@@ -100,6 +104,29 @@ func (c *AdminController) ReadFile(ctx iris.Context) {
 		return
 	}
 	ctx.WriteString( string(dat))
+}
+func (c *AdminController) ListFiles(ctx iris.Context) {
+	var form ListFileForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	excludedDirs := []string{"node_modules", "dist", "build"}
+
+	files, err := findFilesWithExtensions(form.Dir, form.Extensions,excludedDirs)
+	if err != nil {
+		ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error finding files: %v\n", err)})
+		return
+	}
+	var ret []string
+	for _, file := range files {
+		ret = append(ret, strings.Replace(file, form.Dir, "", 1))
+	}
+	ctx.JSON(iris.Map{"status": "1", "message": ret})
 }
 func (c *AdminController) OpenFolder(ctx iris.Context) {
 	postDir := ctx.PostValue("dir")
@@ -302,15 +329,17 @@ func (c *AdminController) Parser(ctx iris.Context) {
 		return
     }
 	
-
-	parser := absolutePath+"/javascript/parserFunctions.js"
-	fmt.Println(parser)
-	functions, err := parseJSFunctions(parser, fpath)
-	if err != nil {
-		ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
-		return
-	}
 	var res ParserResult
-	res.Functions = functions
+	if(form.Language=="javascript"){
+		parser := absolutePath+"/javascript/parserFunctions.js"
+		fmt.Println(parser)
+		functions, err := parseJSFunctions(parser, fpath)
+		if err != nil {
+			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
+			return
+		}
+		res.Functions = functions
+	}
+	
 	ctx.JSON(iris.Map{"status": "1", "message": res})
 }
