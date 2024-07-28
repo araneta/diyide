@@ -30,31 +30,15 @@ function getFileLang(fpath){
 	return lang;
 }
 require.config({ paths: { 'vs': '/assets/package/min/vs' }});
-window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+
 var editor;
 const container = document.getElementById('editor-container');
 const tabsContainer = document.getElementById('editor-tabs');
 const breadcrumbsDiv = document.getElementById('breadcrumbs');
+const functionDropdown = document.getElementById('functionDropdown');
 
-const editors = {};
 let activeEditor = null;		
 var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path}
-
-
-
-let proxy = URL.createObjectURL(new Blob([`
-	self.MonacoEnvironment = {
-		baseUrl: '/assets/package/min/'
-	};
-	importScripts('/assets/package/min/vs/base/worker/workerMain.js');
-`], { type: 'text/javascript' }));
-function parseFunctions(code) {
-        
-}
-
-
-
-
 
 
 // Function to update breadcrumbs
@@ -74,38 +58,52 @@ function updateBreadcrumbs() {
 	  contentType: 'application/json',
 	  data: JSON.stringify(formData),
 	  success: function(data) {
-		console.log(data);
+			//console.log(data);
+			if(data.status==1){
+				const functions = data.message.functions;
+				
+				functionDropdown.innerHTML = '<option value="">Select a function...</option>';
+				functions.forEach(func => {
+				  const option = document.createElement('option');
+				  option.value = func.line;
+				  option.textContent = func.name;
+				  functionDropdown.appendChild(option);
+				});
+				// Event listener for select dropdown change
+				  functionDropdown.addEventListener('change', function() {
+					const lineNumber = parseInt(this.value, 10);
+					if (!isNaN(lineNumber)) {
+					  editor.revealPositionInCenter({ lineNumber, column: 1 });
+					  editor.setPosition({ lineNumber, column: 1 });
+					  editor.focus();
+					}
+				  });
+				/*
+				functions.forEach(func => {
+						const breadcrumb = document.createElement('span');
+						breadcrumb.className = 'breadcrumb';
+						breadcrumb.textContent = func.name;
+						breadcrumb.onclick = () => {
+							const npos = { lineNumber: func.line, column: 1 };
+							console.log(npos);
+							editor.revealPositionInCenter(npos);
+							editor.setPosition(npos);
+							editor.focus();
+						};
+						breadcrumbsDiv.appendChild(breadcrumb);
+				});*/
+			}
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
 		console.error('Error: ' + textStatus, errorThrown);
 	  }
 	});
 	
-	/*const functions = parseFunctions(code);
-
-	breadcrumbsDiv.innerHTML = 'Breadcrumbs: ';
-	functions.forEach(func => {
-			const breadcrumb = document.createElement('span');
-			breadcrumb.className = 'breadcrumb';
-			breadcrumb.textContent = func.name;
-			breadcrumb.onclick = () => {
-				editor.setPosition({ lineNumber: func.startLine, column: 1 });
-				editor.focus();
-			};
-			breadcrumbsDiv.appendChild(breadcrumb);
-	});*/
+	
 }
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {
-		/*let editor = monaco.editor.create(document.getElementById('container'), {
-			value: [
-				'function x() {',
-				'\tconsole.log("Hello world!");',
-				'}'
-			].join('\n'),
-			language: 'javascript',
-			theme: 'vs-dark'
-		});*/
+		
 		console.log('monaco ready');
 		editor = monaco.editor.create(container, {
 			value: 'loremimdsf sdfsd dsfds',
@@ -121,10 +119,6 @@ function loadEditor(){
 		editor.layout();
 		 // Update breadcrumbs on editor content change
 		editor.onDidChangeModelContent(updateBreadcrumbs);
-
-		  // Initial update
-		updateBreadcrumbs();
-		
 	});
 }
 loadEditor();
@@ -290,8 +284,8 @@ jQuery(document).ready(function($){
 		activeEditor = id;	
 		
 		$('.tabs .tab').removeClass('active');
-		$('#'+id).addClass('active');
-
+		$('#'+id).addClass('active'); 
+		updateBreadcrumbs();
 	}
 	function generateHash(input) {
       return new Promise(function(resolve, reject) {

@@ -280,7 +280,7 @@ func (c *AdminController) Parser(ctx iris.Context) {
 	}
 
 	//save to temp file
-	fpath := absolutePath+"/"+hashStringXXHash(form.FPath)
+	fpath := absolutePath+"/temp/"+hashStringXXHash(form.FPath)
 	fmt.Println(fpath)	
     file, err := os.Create(fpath)
     if err != nil {

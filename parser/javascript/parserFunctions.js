@@ -11,12 +11,24 @@ const ast = babelParser.parse(code, {
 });
 
 const functions = [];
+let currentClass = null;
 
 function addFunction(name, line) {
   functions.push({ name, line });
 }
 
 traverse(ast, {
+  ClassDeclaration(path) {
+    currentClass = path.node.id.name;
+    path.traverse({
+      ClassMethod(classMethodPath) {
+        const methodName = classMethodPath.node.key.name;
+        const line = classMethodPath.node.loc.start.line;
+        addFunction(`${currentClass}.${methodName}`, line);
+      }
+    });
+    currentClass = null;
+  },
   FunctionDeclaration(path) {
     const name = path.node.id.name;
     const line = path.node.loc.start.line;
@@ -33,11 +45,6 @@ traverse(ast, {
     addFunction(name, line);
   },
   ObjectMethod(path) {
-    const name = path.node.key.name;
-    const line = path.node.loc.start.line;
-    addFunction(name, line);
-  },
-  ClassMethod(path) {
     const name = path.node.key.name;
     const line = path.node.loc.start.line;
     addFunction(name, line);

@@ -16,17 +16,34 @@
 </style>
 <div class="container-fluid">
 	<div class="row">
-		<div class="col">
-			<form action="/load-folder" method="post" id="frmFolder">
-				<input type="text" id="folderpath" name="folderpath" value="/media/aldo/data/projects/aldoapp-university/apps/react-admin" />
-				<button id="btnBrowse" type="submit">Browse Folder</button>
+		<div class="col-auto">			
+			<form action="/load-folder" method="post" id="frmFolder" class="form form-inline row">
+				<div class="col-auto">
+					<label>Folder</label>
+				</div>
+				<div class="col-auto">
+					<input type="text" id="folderpath" class="form-control" name="folderpath" value="/media/aldo/data/projects/aldoapp-university/apps/react-admin" />
+				</div>
+				<div class="col-auto">	
+					<button id="btnBrowse" class="btn btn-success" type="submit">Browse Folder</button>
+				</div>	
 			</form>
 		</div>
-		<div class="col">
-			<form action="/load-folder" method="post" id="frmAutocomplete">
-				<input type="text" placeholder="extensions" name="extensions" value=".js, .jsx, .ts, .tsx" />
-				<input type="text" placeholder="language" name="language" value="javascript" />
-				<button id="btnAutoComplete" type="submit">Autocomplete</button>
+		<div class="col-auto">
+		
+			<form action="/load-folder" method="post" id="frmAutocomplete" class="form form-inline row">
+				<div class="col-auto">
+					<label>Autocomplete</label>
+				</div>
+				<div class="col-auto">
+					<input type="text" class="form-control" placeholder="extensions" name="extensions" value=".js, .jsx, .ts, .tsx" />
+				</div>
+				<div class="col-auto">
+					<input type="text" class="form-control" placeholder="language" name="language" value="javascript" />
+				</div>
+				<div class="col-auto">	
+					<button id="btnAutoComplete" class="btn btn-info" type="submit">Go</button>
+				</div>	
 			</form>	
 		</div>
 	</div>
@@ -43,7 +60,13 @@
 			  <div class="splitter" id="splitter"></div>
 			  <div id="pane2">
 					<div class="tabs" id="editor-tabs"></div>
-					<div id="breadcrumbs">Breadcrumbs: </div>
+					<div id="breadcrumbs">
+						<div id="functionSelect">
+							<select id="functionDropdown" class="form-control">
+							  <option value="">Select a function...</option>
+							</select>
+						  </div>
+					</div>
 					<div id="editor-container"></div>
 			  </div>
 			  
@@ -54,8 +77,9 @@
 {% endblock %}
 
 {% block jsfiles%}
-<script src="/assets/package/min/vs/loader.js"></script>
 
+<script src="/assets/package/min/vs/loader.js"></script>
+<script>require.config({ paths: { 'vs': '/assets/package/min/vs' }});</script>
 <script type="text/javascript" src="assets/js/main.js"></script>
 
 {% endblock %}
