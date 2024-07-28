@@ -81,29 +81,13 @@ function updateBreadcrumbs() {
 					  editor.setPosition({ lineNumber, column: 1 });
 					  editor.focus();
 					}
-				  });
-				/*
-				functions.forEach(func => {
-						const breadcrumb = document.createElement('span');
-						breadcrumb.className = 'breadcrumb';
-						breadcrumb.textContent = func.name;
-						breadcrumb.onclick = () => {
-							const npos = { lineNumber: func.line, column: 1 };
-							console.log(npos);
-							editor.revealPositionInCenter(npos);
-							editor.setPosition(npos);
-							editor.focus();
-						};
-						breadcrumbsDiv.appendChild(breadcrumb);
-				});*/
+				  });				
 			}
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
 		console.error('Error: ' + textStatus, errorThrown);
 	  }
-	});
-	
-	
+	});		
 }
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {
@@ -123,15 +107,90 @@ function loadEditor(){
 		editor.layout();
 		 // Update breadcrumbs on editor content change
 		editor.onDidChangeModelContent(updateBreadcrumbs);
+		setGotoDefinition();
+	});
+}
+function setGotoDefinition(){
+	// Function to resolve definitions (placeholder example)
+	function getDefinition(model, position) {
+		const word = model.getWordAtPosition(position);
+		if (!word) return [];
+		console.log('word',word);
+		const lang = model.getLanguageId();
+		console.log('lang',lang);
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+			  url: 'api/definitions',
+			  method: 'POST',
+			  contentType: 'application/json',
+			  data: JSON.stringify({dir:projectDir, extensions: getExtensionsOfLang(lang), word: word.word, language: lang}),
+			  success: function(data) {
+				console.log(data);
+					if(data.status==1 && data.message.length>0){
+					  var ret = data.message.map(function(item) {
+						  return {
+							uri: monaco.Uri.file(item.file),
+							range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
+						  };
+					  });
+					  resolve(ret);
+				  }else{
+					  resolve([]);
+				  }		
+			  },
+			  error: function(jqXHR, textStatus, errorThrown) {
+				console.error('Error: ' + textStatus, errorThrown);
+				reject(errorThrown);
+			  }
+			});
+		});
+		
+	}
+
+	// Register a definition provider for JavaScript
+	monaco.languages.registerDefinitionProvider('javascript', {
+		provideDefinition(model, position) {
+			return getDefinition(model, position);
+		}
+	});
+
+	// Add Ctrl+Click behavior for "go to definition"
+	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, function() {
+		const position = editor.getPosition();
+		getDefinition(editor.getModel(), position).then(definitions => {
+          if (definitions.length > 0) {
+            const definition = definitions[0];
+            switchModel(definition.uri.path.split('/').pop()); // Switch to the model containing the definition
+            editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+            editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+          }
+        });
+
+	});
+
+	// Add hover for Ctrl+Click
+	editor.onMouseDown(function(e) {
+		if (e.event.ctrlKey) {
+			const position = e.target.position;
+			const definitions = getDefinition(editor.getModel(), position);
+			if (definitions.length > 0) {
+				editor.getDomNode().style.cursor = 'pointer';
+			} else {
+				editor.getDomNode().style.cursor = 'default';
+			}
+		}
+	});
+
+	editor.onMouseUp(function(e) {
+		editor.getDomNode().style.cursor = 'default';
 	});
 }
 loadEditor();
 
 jQuery(document).ready(function($){
 	console.log('ready');
-	
-	// Standard
-	// script.js
+		
+	// get element
 	const splitter = document.getElementById('splitter');
 	const pane1 = document.getElementById('pane1');
 	const pane2 = document.getElementById('pane2');
@@ -140,7 +199,8 @@ jQuery(document).ready(function($){
 	$('#pane1').css('height', divHeight+'px');;
 
 	let isDragging = false;
-
+	
+	//splitter
 	splitter.addEventListener('mousedown', (e) => {
 		isDragging = true;
 		document.addEventListener('mousemove', onMouseMove);
@@ -165,7 +225,10 @@ jQuery(document).ready(function($){
 		document.removeEventListener('mousemove', onMouseMove);
 		document.removeEventListener('mouseup', onMouseUp);
 	}
+	//end splitter
+	
 	var tid = 0;
+	//forms
 	$('#frmFolder').submit(function(e){
 		e.preventDefault();
 		
@@ -241,6 +304,7 @@ jQuery(document).ready(function($){
 	
 	
 	//monaco
+	//save to file
 	window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 's') {
           event.preventDefault();
@@ -407,13 +471,21 @@ jQuery(document).ready(function($){
 
 
 	var cachedFiles = null;
-
+	
+	function getImportMatch(lang,textLine){
+		var importMatch = null;
+		if(lang=='javascript'){
+			importMatch = textLine.match(/import\s.*\sfrom\s['"]([^'"]*)$/);
+		}
+		return importMatch;
+	}
+	
 	function setAutoComplete(lang, allWords){
 		
 		monaco.languages.registerCompletionItemProvider(lang, {
 			provideCompletionItems: function(model, position) {
 				const extensions = getExtensionsOfLang(lang);
-				if(lang=='javascript'){
+				
 					var textUntilPosition = model.getValueInRange({
 					startLineNumber: 1,
 					startColumn: 1,
@@ -422,7 +494,7 @@ jQuery(document).ready(function($){
 				  });
 
 				  var textLine = textUntilPosition.split('\n').pop();
-				  var importMatch = textLine.match(/import\s.*\sfrom\s['"]([^'"]*)$/);
+				  var importMatch = getImportMatch(lang, textLine);
 
 				  if (importMatch) {
 					if (!cachedFiles) {
@@ -444,7 +516,7 @@ jQuery(document).ready(function($){
 					}
 				  }
 
-				}
+				
 				const suggestions2 = allWords.map(word => ({
 					label: word,
 					kind: monaco.languages.CompletionItemKind.Text,
@@ -454,6 +526,8 @@ jQuery(document).ready(function($){
 			}
 		});
 	}
+	
+	
 	
 	
 	

@@ -38,8 +38,12 @@ type ParserForm struct {
 	Language string `json:"language"`
 }
 type Function struct {
-	Name string `json:"name"`
-	Line int    `json:"line"`
+	Name        string `json:"name"`
+	StartLine   int    `json:"startLine"`
+	StartColumn int    `json:"startColumn"`
+	EndLine     int    `json:"endLine"`
+	EndColumn   int    `json:"endColumn"`
+
 }
 type ParserResult struct {
 	Functions []Function  `json:"functions"`	
@@ -47,6 +51,16 @@ type ParserResult struct {
 type ListFileForm struct {
 	Dir string `json:"dir"`	
 	Extensions []string `json:"extensions"`	
+}
+type DefinitionForm struct {
+	Word string `json:"word"`	
+	Dir string `json:"dir"`	
+	Language string `json:"language"`	
+	Extensions []string `json:"extensions"`	
+}
+type DefinitionResult struct {
+	File string `json:"file"`	
+	Function Function  `json:"function"`	
 }
 
 func (c *AdminController) Test(ctx iris.Context) {
@@ -105,6 +119,7 @@ func (c *AdminController) ReadFile(ctx iris.Context) {
 	}
 	ctx.WriteString( string(dat))
 }
+
 func (c *AdminController) ListFiles(ctx iris.Context) {
 	var form ListFileForm
 	err := ctx.ReadJSON(&form)
@@ -342,4 +357,55 @@ func (c *AdminController) Parser(ctx iris.Context) {
 	}
 	
 	ctx.JSON(iris.Map{"status": "1", "message": res})
+}
+func (c *AdminController) getJSDefinition(files  []string, word string)(DefinitionResult,error){
+	var ret DefinitionResult
+	absolutePath, err := filepath.Abs(c.ParserPath)
+	if err != nil {		
+		return ret,err
+	}
+	parser := absolutePath+"/javascript/parserFunctions.js"
+	fmt.Println(parser)
+	for _, file := range files {
+		functions, err := parseJSFunctions(parser, file)
+		if err != nil {			
+			return ret, err
+		}
+
+		for _, function := range functions {
+			if function.Name == word{
+				ret.File = file
+				ret.Function = function
+				return ret, nil
+			}
+		}
+	}
+	return ret,nil
+}
+func (c *AdminController) Definitions(ctx iris.Context) {
+	var form DefinitionForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	excludedDirs := []string{"node_modules", "dist", "build"}
+
+	files, err := findFilesWithExtensions(form.Dir, form.Extensions,excludedDirs)
+	if err != nil {
+		ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error finding files: %v\n", err)})
+		return
+	}
+	var ret DefinitionResult
+	if(form.Language=="javascript"){
+		ret,err = c.getJSDefinition(files, form.Word)
+		if err != nil{
+			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error get definitions files: %v\n", err)})
+			return
+		}
+	}
+	ctx.JSON(iris.Map{"status": "1", "message": ret})
 }
