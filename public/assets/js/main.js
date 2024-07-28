@@ -122,8 +122,7 @@ function loadEditor(){
 	});
 }
 loadEditor();
-//todo:
-//1. add button open folder and language
+
 jQuery(document).ready(function($){
 	console.log('ready');
 	
@@ -132,6 +131,9 @@ jQuery(document).ready(function($){
 	const splitter = document.getElementById('splitter');
 	const pane1 = document.getElementById('pane1');
 	const pane2 = document.getElementById('pane2');
+	const firstRow = document.getElementById('first-row');
+	const divHeight = ($(window).height()-$('#first-row').height()-20);
+	$('#pane1').css('height', divHeight+'px');;
 
 	let isDragging = false;
 
