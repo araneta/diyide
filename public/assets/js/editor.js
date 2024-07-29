@@ -24,6 +24,9 @@ let activeEditor = null;
 var projectDir = '';
 var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path, isdirty:true/false}
 var editor;
+var activeTab;//for contex menu
+var timeout; //for breadcrumb functions
+
 require.config({ paths: { 'vs': '/assets/package/min/vs' }});
 
 function getFileExtension(fileName) {
@@ -87,7 +90,7 @@ function showConfirmationDlg(title, msg) {
   })
 }
 
-var timeout;
+
 function onChangeModelContent(){
 	console.log('change');
 	clearTimeout(timeout);
@@ -234,6 +237,50 @@ function bindDragTab(){
 		}
 	});
 }
+
+function setTabContextMenu(){
+	var contextMenu = document.getElementById('context-menu');
+	var closeTab = document.getElementById('close-tab');
+	var closeOtherTabs = document.getElementById('close-other-tabs');	
+	var tabList = document.getElementById('editor-tabs');
+	
+	tabList.addEventListener('contextmenu', function (event) {
+		console.log('tel1');
+        event.preventDefault();
+        var target = event.target.closest('.tab');
+        if (target) {
+          activeTab = target;
+          contextMenu.style.top = event.clientY + 'px';
+          contextMenu.style.left = event.clientX + 'px';
+          contextMenu.style.display = 'block';
+        }
+      });
+	document.addEventListener('click', function () {
+		console.log('tel2');
+		contextMenu.style.display = 'none';
+	});
+
+	closeTab.addEventListener('click', function () {
+		console.log('tel3');
+		if (activeTab) {
+			console.log('close tab');
+			activeTab.querySelector('.close-tab').click();			
+			contextMenu.style.display = 'none';
+		}
+	});
+
+	closeOtherTabs.addEventListener('click', function () {
+		console.log('tel5');
+		var tabs = tabList.querySelectorAll('#editor-tabs .tab');
+		tabs.forEach(function (tab) {
+			if (tab !== activeTab) {
+				console.log('close tab');
+				tab.querySelector('.close-tab').click();
+			}
+		});
+		contextMenu.style.display = 'none';
+	});
+}
 function addTab(fpath,data){
 	generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;
@@ -260,7 +307,7 @@ function addTab(fpath,data){
 				e.stopPropagation();
 				var m = editorModels.get(id);
 				if(m.isdirty){
-					showConfirmationDlg('Confirmation','Do you want to save the changes?').then(result=>{
+					showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
 						console.log('res',result);
 						if(result){
 							saveContent();
@@ -280,6 +327,7 @@ function addTab(fpath,data){
 			switchEditor(id);			
 		}
 		bindDragTab();
+		//setTabContextMenu();
 	});
 }
 function setGotoDefinition(){

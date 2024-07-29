@@ -101,7 +101,23 @@ width: 30px;
 #editor-tabs>.tab.active{
 	color:#0f0;
 }
+.context-menu {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+}
 
+.context-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background-color: #007bff;
+  color: white;
+}
 #functionDropdown{
     font-size: 14px;
     padding: 0 4px;

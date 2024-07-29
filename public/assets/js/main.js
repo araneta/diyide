@@ -123,7 +123,7 @@ jQuery(document).ready(function($){
 
 	window.addEventListener('beforeunload', handleBeforeUnload);
 
-	
+	setTabContextMenu();
 	
 	
 });
