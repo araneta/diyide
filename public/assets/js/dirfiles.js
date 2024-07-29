@@ -168,6 +168,21 @@ function openDir(dir){
 			
 		})
 		.on('move_node.jstree', function (e, data) {
+			const formData = { 'id' : hexDecode(data.node.id), 'parent' : hexDecode(data.parent)};
+			$.ajax({
+				url: 'api/files/move',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(datax) {					
+					data.instance.refresh();					
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Error: ' + textStatus, errorThrown);
+					data.instance.refresh();
+				}
+			});	
+			/*
 			$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
 				.done(function (d) {
 					//data.instance.load_node(data.parent);
@@ -175,7 +190,7 @@ function openDir(dir){
 				})
 				.fail(function () {
 					data.instance.refresh();
-				});
+				});*/
 		})
 		.on('copy_node.jstree', function (e, data) {
 			const formData = { 'id' : hexDecode(data.original.id), 'parent' : hexDecode(data.parent)};
@@ -191,16 +206,7 @@ function openDir(dir){
 					console.error('Error: ' + textStatus, errorThrown);
 					data.instance.refresh();
 				}
-			});	
-			/*
-			$.get('?operation=copy_node', { 'id' : data.original.id, 'parent' : data.parent })
-				.done(function (d) {
-					//data.instance.load_node(data.parent);
-					data.instance.refresh();
-				})
-				.fail(function () {
-					data.instance.refresh();
-				});*/
+			});				
 		})
 		.on('changed.jstree', function (e, data) {
 			if(data && data.selected && data.selected.length) {
