@@ -26,6 +26,17 @@ type NodeState struct {
 	Opened   bool `json:"opened"`
 	Disabled bool `json:"disabled"`
 }
+
+type CreateNodeForm struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+	Type string `json:"type"`
+}
+type RenameNodeForm struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
 func encodePath(path string) string {
 	//return url.QueryEscape(path)
 	return hex.EncodeToString([]byte(path))
@@ -59,6 +70,7 @@ func (c *AdminController) OpenDir(ctx iris.Context) {
 		}
 		root = string(decoded)
 	}
+	fmt.Println("root"+root)
 	files, err := os.ReadDir(root)
 	if err != nil {
 		fmt.Println("error")
@@ -108,5 +120,58 @@ func (c *AdminController) OpenDir(ctx iris.Context) {
 		nodes = []Node{rootNode}
 	}
 
-	ctx.JSON(nodes)
+	if len(nodes)==0{
+		emptyArray := []int{}
+		ctx.JSON(emptyArray)
+	}else{
+		ctx.JSON(nodes)
+	}
+	
+}
+
+
+func (c *AdminController) CreateFileOrDir(ctx iris.Context) {
+	var form CreateNodeForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	newDirPath := filepath.Join(form.ID, form.Text)
+	fmt.Println(newDirPath)
+	err = os.Mkdir(newDirPath, 0755)
+	if err != nil {
+		ctx.StatusCode(iris.StatusInternalServerError)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]string{"status": "success"})
+}
+
+
+func (c *AdminController) RenameFileOrDir(ctx iris.Context) {
+	var form RenameNodeForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	dirPath := filepath.Dir(form.ID)
+	//oldDirName := filepath.Base(form.ID)
+	newDirPath := filepath.Join(dirPath, form.Text)
+
+	err = os.Rename(form.ID, newDirPath)
+	if err != nil {
+		ctx.StatusCode(iris.StatusInternalServerError)
+		ctx.WriteString(err.Error())
+		return
+	}
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]string{"status": "success"})
 }

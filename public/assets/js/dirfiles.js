@@ -12,6 +12,17 @@ function hexDecode(hex) {
 	}
 	return str;
 }
+function hexEncode(str) {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(str);
+    let hex = '';
+    for (let i = 0; i < bytes.length; i++) {
+        hex += bytes[i].toString(16).padStart(2, '0');
+    }
+    return hex;
+}
+
+
 function openDir(dir){
 	console.log('opebn',dir);
 	$('#dirtree')
@@ -19,8 +30,10 @@ function openDir(dir){
 			'core' : {
 				'data' : {
 					'url' : '/api/files/filetree',
-					'data' : function (node) {						
+					'data' : function (node) {				
+						console.log('getdir',node);						
 						return { 'dir' : node.id,'basedir':dir };
+						
 					}
 				},
 				'check_callback' : function(o, n, p, i, m) {
@@ -91,22 +104,58 @@ function openDir(dir){
 				});
 		})
 		.on('create_node.jstree', function (e, data) {
-			$.get('/api/files/create', { 'type' : data.node.type, 'id' : hexDecode(data.node.parent), 'text' : data.node.text })
-				.done(function (d) {
-					data.instance.set_id(data.node, d.id);
-				})
-				.fail(function () {
+			const parentPath = hexDecode(data.node.parent);
+			const formData = { 'type' : data.node.type, 'id' : parentPath, 'text' : data.node.text };
+			$.ajax({
+				url: 'api/files/create',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(datax) {
+					if(datax.status=='success'){
+						//data.instance.set_id(data.node, d.id);
+						const npath = parentPath+'/'+data.node.text;
+						console.log('new',npath);
+						data.instance.set_id(data.node, hexEncode(npath));
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Error: ' + textStatus, errorThrown);
 					data.instance.refresh();
-				});
+				}
+			});	
+						
 		})
 		.on('rename_node.jstree', function (e, data) {
+			const parentPath = hexDecode(data.node.parent);
+			const prev = hexDecode(data.node.id);
+			const formData = { 'id' : prev, 'text' : data.text};
+			$.ajax({
+				url: 'api/files/rename',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(datax) {
+					if(datax.status=='success'){
+						//data.instance.set_id(data.node, d.id);
+						const npath = parentPath+'/'+data.text;
+						console.log('nrenamed',npath);
+						data.instance.set_id(data.node, hexEncode(npath));
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Error: ' + textStatus, errorThrown);
+					data.instance.refresh();
+				}
+			});	
+			/*
 			$.get('?operation=rename_node', { 'id' : data.node.id, 'text' : data.text })
 				.done(function (d) {
 					data.instance.set_id(data.node, d.id);
 				})
 				.fail(function () {
 					data.instance.refresh();
-				});
+				});*/
 		})
 		.on('move_node.jstree', function (e, data) {
 			$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
@@ -138,6 +187,7 @@ function openDir(dir){
 					console.log('type',dtype);
 					if(dtype=='d'){
 						$.get('/api/files/filetree?dir=' + data.selected.join(':'), function (d) {
+							console.log('readdir',d);
 							if(d && typeof d.type !== 'undefined') {
 								$('#data .content').hide();
 								switch(d.type) {

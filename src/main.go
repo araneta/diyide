@@ -143,6 +143,8 @@ func main() {
 		API.Post("/files/read", adminCont.ReadFile)		
 		API.Post("/files/write", adminCont.WriteFile)	
 		API.Post("/files/words", adminCont.GetWords)	
+		API.Post("/files/create", adminCont.CreateFileOrDir)	
+		API.Post("/files/rename", adminCont.RenameFileOrDir)	
 		API.Post("/files", adminCont.ListFiles)	
 		API.Post("/parser", adminCont.Parser)	
 		API.Post("/definitions", adminCont.Definitions)	
