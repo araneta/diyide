@@ -178,6 +178,7 @@ function loadEditor(){
 		editor = monaco.editor.create(container, {
 			value: 'loremimdsf sdfsd dsfds',
 			language: 'javascript',
+			automaticLayout: true,
 			theme: 'vs-dark',
 			 breadcrumbs: {
 			  enabled: true,

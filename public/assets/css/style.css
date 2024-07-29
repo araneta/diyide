@@ -59,6 +59,7 @@
   -webkit-overflow-scrolling: touch;
 }
 #editor-tabs>.tab{
+    position: relative;
 	display: table-cell;
 	vertical-align: middle;
 	height:30px;
@@ -68,9 +69,9 @@
     margin-bottom: 4px;
     
     max-width: 200px; /* the element needs a fixed width (in px, em, %, etc) */
-  overflow: hidden; /* make sure it hides the content that overflows */
-  white-space: nowrap; /* don't break the line */
-  text-overflow: ellipsis; /* give the beautiful '...' effect */
+	overflow: hidden; /* make sure it hides the content that overflows */
+	white-space: nowrap; /* don't break the line */
+	text-overflow: ellipsis; /* give the beautiful '...' effect */
 }
 .tabs-container {
   display: flex;
@@ -87,12 +88,15 @@
 width: 30px;
 }
 .tab.dirty{
-	color:#f00;
+	color:#f00 !important;
 }
 .close-tab{
-	display:inline;
-	color:#f00;
-	margin-left:5px;
+	display: inline;
+    color: #f00;
+    margin-left: 5px;
+    position: absolute;
+    right: 10px;
+    z-index: 999;
 }
 #editor-tabs>.tab.active{
 	color:#0f0;
@@ -101,4 +105,6 @@ width: 30px;
 #functionDropdown{
     font-size: 14px;
     padding: 0 4px;
-    color: #000;
+    color: #fff;
+    background-color: #333;
+}

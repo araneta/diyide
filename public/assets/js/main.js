@@ -6,6 +6,7 @@ jQuery(document).ready(function($){
 		$('#pane1').css('height', divHeight+'px');;
 		var we = $('#editor-container').width();
 		$('#editor-tabs').css('maxWidth',we+"px");
+		  editor.layout();
 	}
 	
 	$( window ).bind( "resize", adjustLayout ); 
