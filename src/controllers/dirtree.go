@@ -36,6 +36,9 @@ type RenameNodeForm struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
 }
+type DeleteNodeForm struct {
+	ID   string `json:"id"`	
+}
 
 func encodePath(path string) string {
 	//return url.QueryEscape(path)
@@ -141,15 +144,40 @@ func (c *AdminController) CreateFileOrDir(ctx iris.Context) {
 	}
 	newDirPath := filepath.Join(form.ID, form.Text)
 	fmt.Println(newDirPath)
-	err = os.Mkdir(newDirPath, 0755)
-	if err != nil {
-		ctx.StatusCode(iris.StatusInternalServerError)
-		ctx.WriteString(err.Error())
-		return
+	var node Node
+	if(form.Type=="file"){
+		// Create the file
+		file, err := os.Create(newDirPath)
+		if err != nil {
+			fmt.Println("Error creating file:", err)
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.WriteString(err.Error())			
+			return
+		}
+		// Ensure the file is closed when done
+		defer file.Close()
+		node = Node{
+			//Text: file.Name(),
+			ID:   encodePath(newDirPath),
+			Icon: "jstree-file",
+		}
+	}else{
+		err = os.Mkdir(newDirPath, 0755)
+		if err != nil {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.WriteString(err.Error())
+			return
+		}
+		node = Node{
+			//Text: file.Name(),
+			ID:   encodePath(newDirPath),
+			Icon: "jstree-folder",
+		}
 	}
+	
 
 	ctx.StatusCode(iris.StatusOK)
-	ctx.JSON(map[string]string{"status": "success"})
+	ctx.JSON(node)
 }
 
 
@@ -173,5 +201,25 @@ func (c *AdminController) RenameFileOrDir(ctx iris.Context) {
 		return
 	}
 	ctx.StatusCode(iris.StatusOK)
-	ctx.JSON(map[string]string{"status": "success"})
+	ctx.JSON(map[string]string{"id": encodePath(newDirPath)})
+}
+
+func (c *AdminController) DeleteFileOrDir(ctx iris.Context) {
+	var form DeleteNodeForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	// Delete the file
+    err1 := os.RemoveAll(form.ID)
+    if err1 != nil {
+        ctx.StatusCode(iris.StatusInternalServerError)
+		ctx.WriteString(err1.Error())		
+        return
+    }
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]string{"status": "OK"})
 }

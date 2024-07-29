@@ -98,10 +98,26 @@ function openDir(dir){
 			'plugins' : ['state','dnd','sort','types','contextmenu','unique']
 		})
 		.on('delete_node.jstree', function (e, data) {
-			$.get('?operation=delete_node', { 'id' : data.node.id })
-				.fail(function () {
+			const formData = { 'id' : hexDecode(data.node.id) };
+			$.ajax({
+				url: 'api/files/delete',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(datax) {
+					if(datax.id){
+						//data.instance.set_id(data.node, d.id);
+						const npath = parentPath+'/'+data.node.text;
+						console.log('new',npath);
+						data.instance.set_id(data.node, hexEncode(npath));
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Error: ' + textStatus, errorThrown);
 					data.instance.refresh();
-				});
+				}
+			});	
+			
 		})
 		.on('create_node.jstree', function (e, data) {
 			const parentPath = hexDecode(data.node.parent);
@@ -112,7 +128,7 @@ function openDir(dir){
 				contentType: 'application/json',
 				data: JSON.stringify(formData),
 				success: function(datax) {
-					if(datax.status=='success'){
+					if(datax.id){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.node.text;
 						console.log('new',npath);
@@ -128,6 +144,7 @@ function openDir(dir){
 		})
 		.on('rename_node.jstree', function (e, data) {
 			const parentPath = hexDecode(data.node.parent);
+			console.log('data.node.id',data.node.id);
 			const prev = hexDecode(data.node.id);
 			const formData = { 'id' : prev, 'text' : data.text};
 			$.ajax({
@@ -136,7 +153,7 @@ function openDir(dir){
 				contentType: 'application/json',
 				data: JSON.stringify(formData),
 				success: function(datax) {
-					if(datax.status=='success'){
+					if(datax.id){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.text;
 						console.log('nrenamed',npath);
@@ -148,14 +165,7 @@ function openDir(dir){
 					data.instance.refresh();
 				}
 			});	
-			/*
-			$.get('?operation=rename_node', { 'id' : data.node.id, 'text' : data.text })
-				.done(function (d) {
-					data.instance.set_id(data.node, d.id);
-				})
-				.fail(function () {
-					data.instance.refresh();
-				});*/
+			
 		})
 		.on('move_node.jstree', function (e, data) {
 			$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
