@@ -91,7 +91,7 @@ function openDir(dir){
 				});
 		})
 		.on('create_node.jstree', function (e, data) {
-			$.get('?operation=create_node', { 'type' : data.node.type, 'id' : data.node.parent, 'text' : data.node.text })
+			$.get('/api/files/create', { 'type' : data.node.type, 'id' : hexDecode(data.node.parent), 'text' : data.node.text })
 				.done(function (d) {
 					data.instance.set_id(data.node, d.id);
 				})

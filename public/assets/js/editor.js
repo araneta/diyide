@@ -106,7 +106,7 @@ function loadEditor(){
 		editor.layout();
 		 // Update breadcrumbs on editor content change
 		editor.onDidChangeModelContent(updateBreadcrumbs);
-		setGotoDefinition();
+		//setGotoDefinition();
 	});
 }
 function generateHash(input) {
