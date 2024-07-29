@@ -206,6 +206,19 @@ function generateHash(input) {
 	}
   });
 }
+function bindDragTab(){
+	var tabList = document.getElementById('editor-tabs');
+	console.log('onx;');
+
+	Sortable.create(tabList, {
+		animation: 150,
+		ghostClass: 'sortable-ghost',
+		handle: '.tab',
+		onEnd: function (evt) {
+		console.log('Reordered:', evt.oldIndex, '->', evt.newIndex);
+		}
+	});
+}
 function addTab(fpath,data){
 	generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;
@@ -251,6 +264,7 @@ function addTab(fpath,data){
 			editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
 			switchEditor(id);			
 		}
+		bindDragTab();
 	});
 }
 function setGotoDefinition(){

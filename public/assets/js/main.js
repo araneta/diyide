@@ -1,12 +1,17 @@
 jQuery(document).ready(function($){
 	console.log('ready');
 		
+	function adjustLayout(){
+		const divHeight = ($(window).height()-$('#first-row').height()-20);
+		$('#pane1').css('height', divHeight+'px');;
+		var we = $('#editor-container').width();
+		$('#editor-tabs').css('maxWidth',we+"px");
+	}
+	$( window ).bind( "resize", adjustLayout ); 
+	adjustLayout();
 	
-	const divHeight = ($(window).height()-$('#first-row').height()-20);
-	$('#pane1').css('height', divHeight+'px');;
-
-	let isDragging = false;
 	
+	let isDragging = false;	
 	//splitter
 	splitter.addEventListener('mousedown', (e) => {
 		isDragging = true;
@@ -93,7 +98,7 @@ jQuery(document).ready(function($){
           saveContent();
         }
 	});
-
+	
 	
 	
 	

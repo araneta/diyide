@@ -50,6 +50,7 @@
 }
 #editor-tabs{
 	display:flex;
+	overflow: scroll;
 }
 #editor-tabs>.tab{
 	display:inline-block;
