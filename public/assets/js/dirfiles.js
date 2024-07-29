@@ -178,6 +178,21 @@ function openDir(dir){
 				});
 		})
 		.on('copy_node.jstree', function (e, data) {
+			const formData = { 'id' : hexDecode(data.original.id), 'parent' : hexDecode(data.parent)};
+			$.ajax({
+				url: 'api/files/copy',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify(formData),
+				success: function(datax) {					
+					data.instance.refresh();					
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Error: ' + textStatus, errorThrown);
+					data.instance.refresh();
+				}
+			});	
+			/*
 			$.get('?operation=copy_node', { 'id' : data.original.id, 'parent' : data.parent })
 				.done(function (d) {
 					//data.instance.load_node(data.parent);
@@ -185,7 +200,7 @@ function openDir(dir){
 				})
 				.fail(function () {
 					data.instance.refresh();
-				});
+				});*/
 		})
 		.on('changed.jstree', function (e, data) {
 			if(data && data.selected && data.selected.length) {

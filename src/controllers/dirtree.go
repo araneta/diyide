@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/hex"
 
-
+	"io"
 	"os"
 	"path/filepath"
 	"fmt"
@@ -38,6 +38,10 @@ type RenameNodeForm struct {
 }
 type DeleteNodeForm struct {
 	ID   string `json:"id"`	
+}
+type CopyNodeForm struct {
+	ID   string `json:"id"`
+	Parent string `json:"parent"`
 }
 
 func encodePath(path string) string {
@@ -222,4 +226,124 @@ func (c *AdminController) DeleteFileOrDir(ctx iris.Context) {
     }
 	ctx.StatusCode(iris.StatusOK)
 	ctx.JSON(map[string]string{"status": "OK"})
+}
+func copyFile(src, dst string) error {
+    sourceFile, err := os.Open(src)
+    if err != nil {
+        return err
+    }
+    defer sourceFile.Close()
+
+    destinationFile, err := os.Create(dst)
+    if err != nil {
+        return err
+    }
+    defer destinationFile.Close()
+
+    _, err = io.Copy(destinationFile, sourceFile)
+    if err != nil {
+        return err
+    }
+
+    sourceInfo, err := os.Stat(src)
+    if err != nil {
+        return err
+    }
+    err = os.Chmod(dst, sourceInfo.Mode())
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+func copyDir(src string, dst string) error {
+    srcInfo, err := os.Stat(src)
+    if err != nil {
+        return err
+    }
+
+    // Create the destination directory with the same permissions as the source directory
+    err = os.MkdirAll(dst, srcInfo.Mode())
+    if err != nil {
+        return err
+    }
+
+    entries, err := os.ReadDir(src)
+    if err != nil {
+        return err
+    }
+
+    // If the directory is empty, return early to ensure it is created
+    if len(entries) == 0 {
+        return nil
+    }
+
+    for _, entry := range entries {
+        srcPath := filepath.Join(src, entry.Name())
+        dstPath := filepath.Join(dst, entry.Name())
+
+        if entry.IsDir() {
+            err = copyDir(srcPath, dstPath)
+            if err != nil {
+                return err
+            }
+        } else {
+            err = copyFile(srcPath, dstPath)
+            if err != nil {
+                return err
+            }
+        }
+    }
+    return nil
+}
+
+
+
+func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
+	
+	var form CopyNodeForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		fmt.Println("error11")
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	
+	srcDirfileInfo, errsrcDir := os.Stat(form.ID)
+	if errsrcDir != nil {
+		fmt.Println("error15")
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(errsrcDir.Error())
+		return
+	}
+	dirName := filepath.Base(form.ID)
+
+	dstDirfileInfo, errdstDir := os.Stat(form.Parent)
+	if errdstDir != nil {
+		fmt.Println("error16")
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(errdstDir.Error())
+		
+		return
+	}
+	if srcDirfileInfo.IsDir() && dstDirfileInfo.IsDir() {
+		newDirPath := filepath.Join(form.Parent, dirName)
+
+		fmt.Println("copy dir")
+		fmt.Println(form.ID)
+		fmt.Println(newDirPath)
+		errcpy := copyDir(form.ID, newDirPath)
+		if errcpy != nil {
+			fmt.Println("error17")
+			ctx.StatusCode(iris.StatusBadRequest)
+			ctx.WriteString(errcpy.Error())
+			return
+		}
+	}
+	
+	ctx.StatusCode(iris.StatusOK)
+	ctx.JSON(map[string]string{"id": encodePath(form.Parent)})
 }
