@@ -7,8 +7,12 @@ jQuery(document).ready(function($){
 		var we = $('#editor-container').width();
 		$('#editor-tabs').css('maxWidth',we+"px");
 	}
+	
 	$( window ).bind( "resize", adjustLayout ); 
-	adjustLayout();
+	setTimeout(function(){
+		adjustLayout();
+	},2000);
+	
 	
 	
 	let isDragging = false;	
@@ -51,6 +55,7 @@ jQuery(document).ready(function($){
 		openDir(data.folderpath);
 		document.title = title;		
 		$('.second-row').removeClass('d-none');
+		adjustLayout();
 	});
 	
 	$('#frmAutocomplete').submit(function(e){
@@ -99,6 +104,24 @@ jQuery(document).ready(function($){
         }
 	});
 	
+	function handleBeforeUnload(e) {
+		// Iterating over values
+		var isDirty = false;
+		for (const value of editorModels.values()) {
+			//console.log(`Value: ${value}`);
+			if(value.isdirty){
+				isDirty = true;
+				break;
+			}
+		}		
+		if (isDirty) {
+			e.preventDefault();
+			e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+		}
+	}
+
+	window.addEventListener('beforeunload', handleBeforeUnload);
+
 	
 	
 	

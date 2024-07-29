@@ -4,15 +4,12 @@
 <div class="container-fluid first-row" >
 	<div class="row">
 		<div class="col-auto">			
-			<form action="/load-folder" method="post" id="frmFolder" class="form form-inline row">
+			<form action="/load-folder" method="post" id="frmFolder" class="form form-inline row">				
 				<div class="col-auto">
-					<label>Folder</label>
-				</div>
-				<div class="col-auto">
-					<input type="text" id="folderpath" class="form-control" name="folderpath" value="/media/aldo/data/projects/aldoapp-university/apps/react-admin" />
+					<input type="text" placeholder="Folder" id="folderpath" class="form-control" name="folderpath" value="/media/aldo/data/projects/aldoapp-university/apps/react-admin" />
 				</div>
 				<div class="col-auto">	
-					<button id="btnBrowse" class="btn btn-success" type="submit">Browse Folder</button>
+					<button id="btnBrowse" class="btn btn-success" type="submit">Browse</button>
 				</div>	
 			</form>
 		</div>
@@ -46,7 +43,11 @@
 			  </div>
 			  <div class="splitter" id="splitter"></div>
 			  <div id="pane2">
-					<div class="tabs" id="editor-tabs"></div>
+					<div class="tabs-container">
+						<button class="scroll-button" id="scroll-left">&lt;</button>
+						<div class="tabs" id="editor-tabs"></div>
+						<button class="scroll-button" id="scroll-right">&gt;</button>
+					</div>
 					<div id="breadcrumbs">
 						<div id="functionSelect">
 							<select id="functionDropdown" class="form-control">

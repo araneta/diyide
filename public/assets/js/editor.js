@@ -101,8 +101,9 @@ function setDirtyStatus(){
 	const model = editor.getModel();
 	const fpath = model.uri.path;
 	generateHash(fpath).then(function(hash) {
-		const id = 't'+hash;
+		const id = 't'+hash;		
 		editorModels.get(id).isdirty = true;
+		$('#'+id).addClass('dirty');
 	});
 }
 function saveContent(){
@@ -117,6 +118,8 @@ function saveContent(){
 	  data: JSON.stringify(formData),
 	  success: function(data) {
 		console.log(data);
+		editorModels.get(activeEditor).isdirty = false;
+		$('#'+activeEditor).removeClass('dirty');
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
 		console.error('Error: ' + textStatus, errorThrown);
@@ -208,7 +211,18 @@ function generateHash(input) {
 }
 function bindDragTab(){
 	var tabList = document.getElementById('editor-tabs');
-	console.log('onx;');
+	console.log('onx;');	
+	var scrollLeftButton = document.getElementById('scroll-left');
+	var scrollRightButton = document.getElementById('scroll-right');
+	var scrollAmount = 50; // Adjust the scroll amount as needed
+
+	scrollLeftButton.addEventListener('click', function () {
+		tabList.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+	});
+
+	scrollRightButton.addEventListener('click', function () {
+		tabList.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+	});
 
 	Sortable.create(tabList, {
 		animation: 150,
