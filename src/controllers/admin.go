@@ -3,9 +3,6 @@ package controllers
 import (
 	"github.com/cespare/xxhash/v2"
 
-	_ "teloeditor/common"	
-	_ "path/filepath"
-	_ "strconv"
 	"bufio"	
 	"bytes"
 	"io/ioutil"
@@ -20,6 +17,7 @@ import (
 	
 	"github.com/kataras/iris/v12"	 
 )
+
 type ReadFile struct {
 	FPath string `json:"fpath"`	
 }
@@ -143,6 +141,9 @@ func (c *AdminController) ListFiles(ctx iris.Context) {
 	}
 	ctx.JSON(iris.Map{"status": "1", "message": ret})
 }
+
+
+//deprecated
 func (c *AdminController) OpenFolder(ctx iris.Context) {
 	postDir := ctx.PostValue("dir")
 	onlyFolders := ctx.PostValue("onlyFolders") == "true"

@@ -138,7 +138,8 @@ func main() {
 	API := app.Party("/api")
 	{
 		API.Get("/test", adminCont.Test)		
-		API.Post("/files/filetree", adminCont.OpenFolder)	
+		API.Post("/files/filetree", adminCont.OpenFolder)	//deprecated
+		API.Get("/files/filetree", adminCont.OpenDir)	
 		API.Post("/files/read", adminCont.ReadFile)		
 		API.Post("/files/write", adminCont.WriteFile)	
 		API.Post("/files/words", adminCont.GetWords)	
