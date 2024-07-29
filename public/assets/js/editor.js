@@ -22,7 +22,7 @@ const extensionToLanguageMap = {
 };
 let activeEditor = null;		
 var projectDir = '';
-var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path}
+var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path, isdirty:true/false}
 var editor;
 require.config({ paths: { 'vs': '/assets/package/min/vs' }});
 
@@ -43,9 +43,89 @@ function createModel(fpath,data){
 	console.log('fpath',fpath);			
 	return monaco.editor.createModel(data, getFileLang(fpath), monaco.Uri.file(fpath));
 }
+function showConfirmationDlg(title, msg) {
+  const modalElem = document.createElement('div')
+  modalElem.id = "modal-confirm"
+  modalElem.className = "modal"
+  modalElem.innerHTML = `
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">    
+		<div class="modal-header">
+			<h5 class="modal-title">${title}</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>         
+        <div class="modal-body fs-6">
+          <p>${msg}</p>          
+      </div>    <!-- modal-body -->
+      <div class="modal-footer" style="border-top:0px">             
+        <button id="modal-btn-descartar" type="button" class="btn btn-secondary">No</button>
+        <button id="modal-btn-aceptar" type="button" class="btn btn-primary">Yes</button>
+      </div>
+    </div>
+  </div>
+  `
+  const myModal = new bootstrap.Modal(modalElem, {
+    keyboard: false,
+    backdrop: 'static'
+  })
+  myModal.show()
+
+  return new Promise((resolve, reject) => {
+    document.body.addEventListener('click', response)
+
+    function response(e) {
+      let bool = false
+      if (e.target.id == 'modal-btn-descartar') bool = false
+      else if (e.target.id == 'modal-btn-aceptar') bool = true
+      else return
+
+      document.body.removeEventListener('click', response)
+      document.body.querySelector('.modal-backdrop').remove()
+      modalElem.remove()
+      resolve(bool)
+    }
+  })
+}
+
+var timeout;
+function onChangeModelContent(){
+	console.log('change');
+	clearTimeout(timeout);
+	timeout = setTimeout(function() {
+	   updateBreadcrumbs();
+	}, 3000); // <-- choose some sensible value here                                      
+	
+	setDirtyStatus();
+}
+function setDirtyStatus(){
+	const model = editor.getModel();
+	const fpath = model.uri.path;
+	generateHash(fpath).then(function(hash) {
+		const id = 't'+hash;
+		editorModels.get(id).isdirty = true;
+	});
+}
+function saveContent(){
+	const formData = {
+	  fpath: editorModels.get(activeEditor).fpath,		
+	  buffer: editor.getValue()	  
+	};
+	$.ajax({
+	  url: 'api/files/write',
+	  method: 'POST',
+	  contentType: 'application/json',
+	  data: JSON.stringify(formData),
+	  success: function(data) {
+		console.log(data);
+	  },
+	  error: function(jqXHR, textStatus, errorThrown) {
+		console.error('Error: ' + textStatus, errorThrown);
+	  }
+	});
+}
 // Function to update breadcrumbs
 function updateBreadcrumbs() {
-	console.log('change');
+		
 	const model = editor.getModel();
 	const code = model.getValue();
 	const formData = {
@@ -105,7 +185,7 @@ function loadEditor(){
 		editor.getDomNode().style.display = 'block';
 		editor.layout();
 		 // Update breadcrumbs on editor content change
-		editor.onDidChangeModelContent(updateBreadcrumbs);
+		editor.onDidChangeModelContent(onChangeModelContent);
 		//setGotoDefinition();
 	});
 }
@@ -150,12 +230,25 @@ function addTab(fpath,data){
 			closetab.innerText = 'x';
 			closetab.onclick = function(e){
 				e.stopPropagation();
-				closeEditor(id,fpath);
+				var m = editorModels.get(id);
+				if(m.isdirty){
+					showConfirmationDlg('Confirmation','Do you want to save the changes?').then(result=>{
+						console.log('res',result);
+						if(result){
+							saveContent();
+						}
+						closeEditor(id,fpath);
+					});	
+					
+				}else{
+					closeEditor(id,fpath);
+				}
+				
 			};
 			tab.appendChild(closetab);
 			
 			tabsContainer.appendChild(tab);
-			editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath});
+			editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
 			switchEditor(id);			
 		}
 	});
@@ -264,7 +357,7 @@ function switchEditor(id) {
 
 function closeEditor(id,fpath){
 	console.log('close',id);
-	var m = editorModels.get(id);
+	
 	monaco.editor.getModels().forEach(function(model){
 		console.log(model.uri.path);
 		if(fpath==model.uri.path){

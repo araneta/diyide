@@ -1,5 +1,5 @@
 1. save [done]
 2. auto complete from multi file [DONE]
-3. function breadcrumb
-3. create new file, rename file, del file
-
+3. function breadcrumb [done]
+3. create new file, rename file, del file [done]
+5. go to reference

@@ -8,3 +8,4 @@ const splitter = document.getElementById('splitter');
 const pane1 = document.getElementById('pane1');
 const pane2 = document.getElementById('pane2');
 const firstRow = document.getElementById('first-row');
+const secondRow = document.getElementById('second-row');

@@ -1,6 +1,3 @@
-
-
-
 jQuery(document).ready(function($){
 	console.log('ready');
 		
@@ -37,7 +34,7 @@ jQuery(document).ready(function($){
 	}
 	//end splitter
 	
-	var tid = 0;
+	
 	loadEditor();
 	//forms
 	$('#frmFolder').submit(function(e){
@@ -47,39 +44,8 @@ jQuery(document).ready(function($){
 		const title = data.folderpath;
 		console.log(data)
 		openDir(data.folderpath);
-		document.title = title;
-		/*
-		$('.dirFiles').fileTree({script: 'api/files/filetree', root: data.folderpath }, function(file) {
-			console.log(file);
-			
-			const formData = {
-			  fpath: file,			  
-			};
-
-			$.ajax({
-			  url: 'api/files/read',
-			  method: 'POST',
-			  contentType: 'application/json',
-			  data: JSON.stringify(formData),
-			  success: function(data) {
-				const fileName = file.split('/').pop();				
-				document.title = title;
-				addTab(file,data);
-			  },
-			  error: function(jqXHR, textStatus, errorThrown) {
-				console.error('Error: ' + textStatus, errorThrown);
-			  }
-			});
-			
-
-			$('.dirFiles').fileTree({script: 'api/files/filetree', root: file }, function(file) {
-				//alert(file);
-			});	
-		}).on('filetreeclicked', function(e, data)	{ 
-			console.log('tree',data); 
-		});	
-		*/
-		
+		document.title = title;		
+		$('.second-row').removeClass('d-none');
 	});
 	
 	$('#frmAutocomplete').submit(function(e){
@@ -123,35 +89,11 @@ jQuery(document).ready(function($){
 	//save to file
 	window.addEventListener('keydown', function(event) {
         if (event.ctrlKey && event.key === 's') {
-          event.preventDefault();
-          //const content = editor.getValue();
-          //saveFile(content, 'code.js');
-          console.log('activeEditor',activeEditor);
-          //console.log('content',content);
-          const formData = {
-			  fpath: editorModels.get(activeEditor).fpath,		
-			  buffer: editor.getValue()	  
-			};
-          $.ajax({
-			  url: 'api/files/write',
-			  method: 'POST',
-			  contentType: 'application/json',
-			  data: JSON.stringify(formData),
-			  success: function(data) {
-				console.log(data);
-			  },
-			  error: function(jqXHR, textStatus, errorThrown) {
-				console.error('Error: ' + textStatus, errorThrown);
-			  }
-			});
+          event.preventDefault();          
+          saveContent();
         }
-      });
+	});
 
-	
-	//metod2
-	
-	
-	
 	
 	
 	

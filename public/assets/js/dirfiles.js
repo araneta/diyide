@@ -80,6 +80,16 @@ function openDir(dir){
 							}
 						}
 					};
+					tmp.refresh = {
+						"label":"Refresh",
+						"action"			: function (data) {
+							console.log(data);
+							var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+							console.log('obj',obj);		
+							$('#dirtree').jstree(true).refresh_node(obj.id)
+						}
+					};
 					if(this.get_type(node) === "file") {
 						delete tmp.create;
 					}
@@ -98,6 +108,10 @@ function openDir(dir){
 			'plugins' : ['state','dnd','sort','types','contextmenu','unique']
 		})
 		.on('delete_node.jstree', function (e, data) {
+			if(!window.confirm('Are you sure?')){
+				data.instance.refresh();
+				return;
+			}
 			const formData = { 'id' : hexDecode(data.node.id) };
 			$.ajax({
 				url: 'api/files/delete',
@@ -182,15 +196,7 @@ function openDir(dir){
 					data.instance.refresh();
 				}
 			});	
-			/*
-			$.get('?operation=move_node', { 'id' : data.node.id, 'parent' : data.parent })
-				.done(function (d) {
-					//data.instance.load_node(data.parent);
-					data.instance.refresh();
-				})
-				.fail(function () {
-					data.instance.refresh();
-				});*/
+			
 		})
 		.on('copy_node.jstree', function (e, data) {
 			const formData = { 'id' : hexDecode(data.original.id), 'parent' : hexDecode(data.parent)};
