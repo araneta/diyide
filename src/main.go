@@ -151,6 +151,7 @@ func main() {
 		API.Post("/files", adminCont.ListFiles)	
 		API.Post("/parser", adminCont.Parser)	
 		API.Post("/definitions", adminCont.Definitions)	
+		
 	}
 
 	app.Listen(":" + port)

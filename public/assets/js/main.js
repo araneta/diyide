@@ -65,7 +65,7 @@ jQuery(document).ready(function($){
 		var formData = Object.fromEntries(new FormData(e.target).entries());
 		formData.root = dir;
 		console.log(formData);
-
+		//get words for auto complete
 		$.ajax({
 		  url: 'api/files/words',
 		  method: 'POST',
@@ -89,7 +89,31 @@ jQuery(document).ready(function($){
 		  }
 		});
 			
-
+		//get function definitions used in this file
+		const model = editor.getModel();		
+		formData.fpath = model.uri.path;
+		$.ajax({
+		  url: 'api/definitions',
+		  method: 'POST',
+		  contentType: 'application/json',
+		  data: JSON.stringify(formData),
+		  success: function(data) {
+				
+				if(data.status ==1){
+					if(data.message){
+						projectDir = dir;
+						setAutoComplete(formData.language,data.message);
+					}
+				}else{
+					alert('Error')
+					console.log(data);
+				}
+				
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+			console.error('Error: ' + textStatus, errorThrown);
+		  }
+		});
 			
 	}).on('filetreeclicked', function(e, data)	{ 
 			console.log('tree',data); 		

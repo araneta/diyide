@@ -193,7 +193,7 @@ function loadEditor(){
 		editor.layout();
 		 // Update breadcrumbs on editor content change
 		editor.onDidChangeModelContent(onChangeModelContent);
-		//setGotoDefinition();
+		setGotoDefinition();
 	});
 }
 function generateHash(input) {
@@ -327,72 +327,100 @@ function addTab(fpath,data){
 			switchEditor(id);			
 		}
 		bindDragTab();
-		//setTabContextMenu();
+		
 	});
 }
+//buggy
+var suggestionsMap = new Map();
 function setGotoDefinition(){
+	//https://github.com/microsoft/monaco-editor/issues/2407
+	
 	// Function to resolve definitions (placeholder example)
 	function getDefinition(model, position) {
 		const word = model.getWordAtPosition(position);
 		if (!word) return [];
-		console.log('word',word);
+		console.log('word',word.word);
+		if(suggestionsMap.has(word.word)){
+			const sug = suggestionsMap.get(word.word);
+			console.log('found',sug)
+			return sug;
+		}
 		const lang = model.getLanguageId();
 		console.log('lang',lang);
-		return new Promise(function(resolve, reject) {
-			$.ajax({
-			  url: 'api/definitions',
-			  method: 'POST',
-			  contentType: 'application/json',
-			  data: JSON.stringify({dir:projectDir, extensions: getExtensionsOfLang(lang), word: word.word, language: lang}),
-			  success: function(data) {
+		var exts = getExtensionsOfLang(lang);
+		if(exts){
+			exts = exts.join(',');
+		}
+		
+		$.ajax({
+		  url: 'api/definitions',
+		  method: 'POST',
+		  contentType: 'application/json',
+		  data: JSON.stringify({fpath:model.uri.path, extensions: exts, word: word.word, language: lang}),
+		  success: function(data) {
 				console.log(data);
-					if(data.status==1 && data.message.length>0){
-					  var ret = data.message.map(function(item) {
-						  return {
-							uri: monaco.Uri.file(item.file),
-							range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
-						  };
-					  });
-					  resolve(ret);
-				  }else{
-					  resolve([]);
-				  }		
-			  },
-			  error: function(jqXHR, textStatus, errorThrown) {
-				console.error('Error: ' + textStatus, errorThrown);
-				reject(errorThrown);
-			  }
-			});
+				if(data.status==1 && data.message){
+					console.log('uxux');
+					const item = data.message.function;
+					console.log('item',item);
+					//TODO: if this data.message.file not in editormodels then add it
+					suggestionsMap.set(word.word, {
+						uri: monaco.Uri.file(data.message.file),
+						range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
+					});
+					console.log('suggestionsMap',suggestionsMap);
+				}else{
+					
+				}		
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+			console.error('Error: ' + textStatus, errorThrown);
+			reject(errorThrown);
+		  }
 		});
+		return [];
 		
 	}
 
 	// Register a definition provider for JavaScript
 	monaco.languages.registerDefinitionProvider('javascript', {
-		provideDefinition(model, position) {
+		provideDefinition: function(model, position, token) {
+
 			return getDefinition(model, position);
 		}
 	});
+	
+
 
 	// Add Ctrl+Click behavior for "go to definition"
-	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, function() {
+	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12,async function() {
+		console.log('ctrl');
 		const position = editor.getPosition();
-		getDefinition(editor.getModel(), position).then(definitions => {
+		//getDefinition(editor.getModel(), position).then(definitions => {
+		var definitions = await getDefinition(editor.getModel(), position);
+			console.log('def ctrl');
           if (definitions.length > 0) {
+			  console.log('def ctrl',definitions);
             const definition = definitions[0];
-            switchModel(definition.uri.path.split('/').pop()); // Switch to the model containing the definition
+            console.log('def definition',definition);
+            const xm = definition.uri.path.split('/').pop();
+            switchModel(xm); // Switch to the model containing the definition
+            console.log('def definition',xm);
             editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
             editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
           }
-        });
+        //});
 
 	});
 
 	// Add hover for Ctrl+Click
 	editor.onMouseDown(function(e) {
 		if (e.event.ctrlKey) {
+			console.log('def ctrl xx');
 			const position = e.target.position;
 			const definitions = getDefinition(editor.getModel(), position);
+			
+			console.log('def ctrl',definitions);
 			if (definitions.length > 0) {
 				editor.getDomNode().style.cursor = 'pointer';
 			} else {
@@ -492,7 +520,7 @@ function fetchFiles(extensions) {
 
 
 var cachedFiles = null;
-
+//TODO: refactor this
 function getImportMatch(lang,textLine){
 	var importMatch = null;
 	if(lang=='javascript'){

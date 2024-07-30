@@ -36,6 +36,7 @@
 }
 .pane1{
 	overflow:scroll;
+	scrollbar-color: dark;
 }
 #pane2{
 	position:relative;
@@ -63,7 +64,7 @@
 	display: table-cell;
 	vertical-align: middle;
 	height:30px;
-	padding: 0px 12px;
+	padding: 0px 23px 0 12px;
     border: thin solid;
     cursor:pointer;
     margin-bottom: 4px;
