@@ -42,8 +42,7 @@ function getFileLang(fpath){
 	return lang;
 }
 
-function createModel(fpath,data){		
-	console.log('fpath',fpath);			
+function createModel(fpath,data){			
 	return monaco.editor.createModel(data, getFileLang(fpath), monaco.Uri.file(fpath));
 }
 function showConfirmationDlg(title, msg) {
@@ -91,8 +90,7 @@ function showConfirmationDlg(title, msg) {
 }
 
 
-function onChangeModelContent(){
-	console.log('change');
+function onChangeModelContent(){	
 	clearTimeout(timeout);
 	timeout = setTimeout(function() {
 	   updateBreadcrumbs();
@@ -110,6 +108,7 @@ function setDirtyStatus(){
 	});
 }
 function saveContent(){
+	setStatusProcess('Saving...');
 	const formData = {
 	  fpath: editorModels.get(activeEditor).fpath,		
 	  buffer: editor.getValue()	  
@@ -119,13 +118,21 @@ function saveContent(){
 	  method: 'POST',
 	  contentType: 'application/json',
 	  data: JSON.stringify(formData),
-	  success: function(data) {
-		console.log(data);
-		editorModels.get(activeEditor).isdirty = false;
-		$('#'+activeEditor).removeClass('dirty');
+	  success: function(data) {			
+			if(data=='ok'){
+				setStatusProcess('Done');
+				editorModels.get(activeEditor).isdirty = false;
+				$('#'+activeEditor).removeClass('dirty');
+			}else{
+			  setStatusProcess(data.message);
+			  alert(data.message);
+			}
+			
+			
 	  },
 	  error: function(jqXHR, textStatus, errorThrown) {
-		console.error('Error: ' + textStatus, errorThrown);
+			console.error('Error: ' + textStatus, errorThrown);
+			alert('Error: ' + textStatus);
 	  }
 	});
 }
@@ -146,7 +153,7 @@ function updateBreadcrumbs() {
 	  contentType: 'application/json',
 	  data: JSON.stringify(formData),
 	  success: function(data) {
-			//console.log(data);
+			
 			if(data.status==1){
 				const functions = data.message.functions;
 				
@@ -160,7 +167,7 @@ function updateBreadcrumbs() {
 				// Event listener for select dropdown change
 				  functionDropdown.addEventListener('change', function() {
 					const lineNumber = parseInt(this.value, 10);
-					console.log('onchange',this.value, lineNumber);
+					
 					if (!isNaN(lineNumber)) {
 					  editor.revealPositionInCenter({ lineNumber, column: 1 });
 					  editor.setPosition({ lineNumber, column: 1 });
@@ -174,10 +181,12 @@ function updateBreadcrumbs() {
 	  }
 	});		
 }
+function logCursorPosition() {
+	const position = editor.getPosition();
+	$('#statusLine').html(`Line: ${position.lineNumber}, Column: ${position.column}`);
+}
 function loadEditor(){
-	require(["vs/editor/editor.main"], function () {
-		
-		console.log('monaco ready');
+	require(["vs/editor/editor.main"], function () {				
 		editor = monaco.editor.create(container, {
 			value: 'loremimdsf sdfsd dsfds',
 			language: 'javascript',
@@ -193,6 +202,10 @@ function loadEditor(){
 		editor.layout();
 		 // Update breadcrumbs on editor content change
 		editor.onDidChangeModelContent(onChangeModelContent);
+		editor.onDidChangeCursorPosition(() => {
+			logCursorPosition();
+		});
+		logCursorPosition();
 		setGotoDefinition();
 	});
 }
@@ -215,7 +228,7 @@ function generateHash(input) {
 }
 function bindDragTab(){
 	var tabList = document.getElementById('editor-tabs');
-	console.log('onx;');	
+	
 	var scrollLeftButton = document.getElementById('scroll-left');
 	var scrollRightButton = document.getElementById('scroll-right');
 	var scrollAmount = 50; // Adjust the scroll amount as needed
@@ -233,7 +246,7 @@ function bindDragTab(){
 		ghostClass: 'sortable-ghost',
 		handle: '.tab',
 		onEnd: function (evt) {
-		console.log('Reordered:', evt.oldIndex, '->', evt.newIndex);
+		
 		}
 	});
 }
@@ -245,7 +258,7 @@ function setTabContextMenu(){
 	var tabList = document.getElementById('editor-tabs');
 	
 	tabList.addEventListener('contextmenu', function (event) {
-		console.log('tel1');
+		
         event.preventDefault();
         var target = event.target.closest('.tab');
         if (target) {
@@ -256,25 +269,25 @@ function setTabContextMenu(){
         }
       });
 	document.addEventListener('click', function () {
-		console.log('tel2');
+		
 		contextMenu.style.display = 'none';
 	});
 
 	closeTab.addEventListener('click', function () {
-		console.log('tel3');
+		
 		if (activeTab) {
-			console.log('close tab');
+			
 			activeTab.querySelector('.close-tab').click();			
 			contextMenu.style.display = 'none';
 		}
 	});
 
 	closeOtherTabs.addEventListener('click', function () {
-		console.log('tel5');
+		
 		var tabs = tabList.querySelectorAll('#editor-tabs .tab');
 		tabs.forEach(function (tab) {
 			if (tab !== activeTab) {
-				console.log('close tab');
+				
 				tab.querySelector('.close-tab').click();
 			}
 		});
@@ -296,6 +309,7 @@ function openFile(file){
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
 			console.error('Error: ' + textStatus, errorThrown);
+			alert('Error: ' + textStatus);
 			reject(errorThrown);
 		  }
 		});
@@ -320,7 +334,7 @@ function addTabElement(id, fpath){
 		var m = editorModels.get(id);
 		if(m.isdirty){
 			showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
-				console.log('res',result);
+				
 				if(result){
 					saveContent();
 				}
@@ -337,12 +351,12 @@ function addTabElement(id, fpath){
 	tabsContainer.appendChild(tab);
 }
 function addTab(fpath,data){
-	console.log('fpath',fpath);
+	
 	generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;
-		console.log('id',id);
+		
 		if (editorModels.has(id)) {
-			console.log('id',id);
+			
 			const prevtab = document.getElementById(id);
 			if(!prevtab){
 				addTabElement(id, fpath);
@@ -363,31 +377,31 @@ function setGotoDefinition(){
 	//https://github.com/microsoft/monaco-editor/issues/2407
 	function fetchDefinition(model,word){
 		const lang = model.getLanguageId();
-		console.log('lang',lang);
+		
 		var exts = getExtensionsOfLang(lang);
 		if(exts){
 			exts = exts.join(',');
 		}
-		
+		setStatusProcess('Fetching definition: '+word);
 		$.ajax({
 		  url: 'api/definitions',
 		  method: 'POST',
 		  contentType: 'application/json',
 		  data: JSON.stringify({fpath:model.uri.path, extensions: exts, word: word, language: lang}),
 		  success: function(data) {
-				console.log(data);
+				
 				if(data.status==1 && data.message){
-					console.log('uxux');
+					setStatusProcess('Found definition: '+word);
 					const item = data.message.function;
-					console.log('item',item);
+					
 					
 					//if this data.message.file not in editormodels then add it
 					const fpath = data.message.file;
 					if(fpath){
-						console.log('fpath',fpath);
+						
 						generateHash(fpath).then(function(hash) {
 							const id = 't'+hash;
-							console.log('id',id);
+							
 							openFile(fpath).then((data)=>{
 								if(!editorModels.has(id)){
 									editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
@@ -397,12 +411,12 @@ function setGotoDefinition(){
 									range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
 								};
 								suggestionsMap.set(word, {state:1, suggestion:sugx} );
-								console.log('suggestionsMap',suggestionsMap);
+								
 							});
 						});
 					}else{
 						suggestionsMap.set(word, {state:1, suggestion:null} );
-						console.log('suggestionsMap',suggestionsMap);
+					
 					}
 					
 					
@@ -412,6 +426,7 @@ function setGotoDefinition(){
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
 			console.error('Error: ' + textStatus, errorThrown);
+			alert('Error: ' + textStatus);
 			reject(errorThrown);
 		  }
 		});
@@ -423,15 +438,16 @@ function setGotoDefinition(){
 		}
 		const word = model.getWordAtPosition(position);
 		if (!word) return [];
-		console.log('word',word.word);
+		
 		if(suggestionsMap.has(word.word)){
 			const sug = suggestionsMap.get(word.word);
-			console.log('found',sug)
+			
 			if(sug.state==0){//loading
 				return null;
 			}
 			return sug.suggestion;
 		}else{//new
+			
 			suggestionsMap.set(word.word, {state:0, suggestion:null});
 			fetchDefinition(model,word.word);
 		}
@@ -452,16 +468,16 @@ function setGotoDefinition(){
 
 	// Add Ctrl+Click behavior for "go to definition"
 	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, function() {
-		console.log('ctrl');
+		
 		const position = editor.getPosition();
 		//getDefinition(editor.getModel(), position).then(definitions => {
 		var definition = getDefinition(editor.getModel(), position);
 		if (definition) {
-			console.log('def definition',definition);
+			
             const fpath = definition.uri.path;
 			generateHash(fpath).then(function(hash) {
 				const id = 't'+hash;
-				console.log('id',id);
+				
 				const prevtab = document.getElementById(id);
 				if(!prevtab){
 					addTabElement(id, fpath);
@@ -479,17 +495,17 @@ function setGotoDefinition(){
 	// Add hover for Ctrl+Click
 	editor.onMouseDown(function(e) {
 		if (e.event.ctrlKey) {
-			console.log('def ctrl xx');
+			
 			const position = e.target.position;
-			console.log('position',position);
+			
 			const definition = getDefinition(editor.getModel(), position);
 						
 			if (definition) {
-				console.log('def definition',definition);
+				
 				const fpath = definition.uri.path;
 				generateHash(fpath).then(function(hash) {
 					const id = 't'+hash;
-					console.log('id',id);
+					
 					const prevtab = document.getElementById(id);
 					if(!prevtab){
 						addTabElement(id, fpath);
@@ -514,13 +530,12 @@ function setGotoDefinition(){
 }
 
 function switchEditor(id) {
-	console.log('switch',id);
+	
 	var currentState = editor.saveViewState();
-	console.log('activeEditor',activeEditor);
+	
 	if(activeEditor){
 		var mod = editorModels.get(activeEditor);
-		console.log('editorModels',editorModels);
-		console.log('mod',mod)
+		
 		if(mod){
 			editorModels.get(activeEditor).state = currentState;
 		}
@@ -540,12 +555,11 @@ function switchEditor(id) {
 }
 
 function closeEditor(id,fpath){
-	console.log('close',id);
+	
 	
 	monaco.editor.getModels().forEach(function(model){
-		console.log(model.uri.path);
-		if(fpath==model.uri.path){
-			console.log('found');
+		
+		if(fpath==model.uri.path){			
 		 model.dispose();
 		}
 	});
@@ -553,7 +567,7 @@ function closeEditor(id,fpath){
 	editorModels.delete(id);
 	editorModels.delete(id);
 	$('#'+id).remove();
-	console.log('editorModels',editorModels);
+	
 	const entries = Array.from(editorModels.entries());
 	if (entries.length > 0) {
 		const firstEntry = entries[0];
@@ -566,14 +580,14 @@ function closeEditor(id,fpath){
 
 // Fetch available files and directories from the server
 function fetchFiles(extensions) {
+	
 	return new Promise(function(resolve, reject) {
 		$.ajax({
 		  url: 'api/files',
 		  method: 'POST',
 		  contentType: 'application/json',
 		  data: JSON.stringify({dir:projectDir, extensions: extensions}),
-		  success: function(data) {
-			console.log(data);
+		  success: function(data) {			
 				if(data.status==1 && data.message.length>0){
 				  var ret = data.message.map(function(file) {
 					  return {
@@ -628,7 +642,7 @@ function setAutoComplete(lang, allWords){
 			  if (importMatch) {
 				if (!cachedFiles) {
 				  return fetchFiles(extensions).then(function(files) {
-					  console.log('files',files);
+					  
 					cachedFiles = files;
 					var pathPrefix = importMatch[1];
 					var suggestions = cachedFiles.filter(function(file) {

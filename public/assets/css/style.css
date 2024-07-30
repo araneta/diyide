@@ -2,8 +2,8 @@
   height: 100%;
   background:#000;
 }
-.container-fluid.second-row, .row {
-  height: 100%;
+.container-fluid.second-row{
+  
 }
 #pane1{
 	overflow:scroll;	
@@ -137,4 +137,12 @@ width: 30px;
     padding: 0 4px;
     color: #fff;
     background-color: #333;
+}
+#row-status{
+	height:20px;
+	color:#fff;
+	background-color:#0078d4;
+}
+.status-row{
+    z-index:999;
 }

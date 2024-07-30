@@ -24,14 +24,14 @@ function hexEncode(str) {
 
 
 function openDir(dir){
-	console.log('opebn',dir);
+	
 	$('#dirtree')
 		.jstree({
 			'core' : {
 				'data' : {
 					'url' : '/api/files/filetree',
 					'data' : function (node) {				
-						console.log('getdir',node);						
+										
 						return { 'dir' : node.id,'basedir':dir };
 						
 					}
@@ -83,10 +83,10 @@ function openDir(dir){
 					tmp.refresh = {
 						"label":"Refresh",
 						"action"			: function (data) {
-							console.log(data);
+							
 							var inst = $.jstree.reference(data.reference),
 									obj = inst.get_node(data.reference);
-							console.log('obj',obj);		
+							
 							$('#dirtree').jstree(true).refresh_node(obj.id)
 						}
 					};
@@ -122,12 +122,13 @@ function openDir(dir){
 					if(datax.id){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.node.text;
-						console.log('new',npath);
+						
 						data.instance.set_id(data.node, hexEncode(npath));
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					console.error('Error: ' + textStatus, errorThrown);
+					alert('Error: ' + textStatus);
 					data.instance.refresh();
 				}
 			});	
@@ -145,7 +146,7 @@ function openDir(dir){
 					if(datax.id){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.node.text;
-						console.log('new',npath);
+						
 						data.instance.set_id(data.node, hexEncode(npath));
 					}
 				},
@@ -158,7 +159,7 @@ function openDir(dir){
 		})
 		.on('rename_node.jstree', function (e, data) {
 			const parentPath = hexDecode(data.node.parent);
-			console.log('data.node.id',data.node.id);
+			
 			const prev = hexDecode(data.node.id);
 			const formData = { 'id' : prev, 'text' : data.text};
 			$.ajax({
@@ -170,7 +171,7 @@ function openDir(dir){
 					if(datax.id){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.text;
-						console.log('nrenamed',npath);
+						
 						data.instance.set_id(data.node, hexEncode(npath));
 					}
 				},
@@ -216,15 +217,17 @@ function openDir(dir){
 		})
 		.on('changed.jstree', function (e, data) {
 			if(data && data.selected && data.selected.length) {
-				console.log('d.type',data.selected);
+				
 				if(data.selected && data.selected.length==1){
 					const ext = '#'+data.selected;
-					console.log(ext);
+					
 					var dtype = $(ext).attr('data-type');
-					console.log('type',dtype);
+					
 					if(dtype=='d'){
-						$.get('/api/files/filetree?dir=' + data.selected.join(':'), function (d) {
-							console.log('readdir',d);
+						const dirx = data.selected.join(':');
+						setStatusProcess('Reading: '+dirx);
+						$.get('/api/files/filetree?dir=' + dirx, function (d) {
+							setStatusProcess('Done Reading: '+dirx);
 							if(d && typeof d.type !== 'undefined') {
 								$('#data .content').hide();
 								switch(d.type) {
@@ -257,12 +260,13 @@ function openDir(dir){
 							}
 						});
 					}else if(dtype=='f'){
-						console.log('before',data.selected[0]);
+						
 						let file = hexDecode(data.selected[0]);
-						console.log('file',file);
+						setStatusProcess('Opening file: '+file);
 						openFile(file).then((data)=>{
 							const fileName = file.split('/').pop();											
 							addTab(file,data);
+							setStatusProcess('Done');
 						});
 					}
 				}

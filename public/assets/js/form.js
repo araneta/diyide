@@ -31,7 +31,7 @@ jQuery(document).ready(function($){
 		var request_method = $(this).attr("method"); //get form GET/POST method
 		//var form_data = $(this).serialize(); //Encode form elements for submission
 		var formData = new FormData(this);
-		console.log('formdata',formData);
+		
 		formData.delete('return-url');
 		formData.delete('success-message');
 		
@@ -49,7 +49,7 @@ jQuery(document).ready(function($){
 				datatype = ctype;
 			}
 			var xvalue = value;
-			console.log('data',key,value,datatype);
+			
 			if(datatype=='int'){
 				xvalue = parseInt(value,10);
 			}else if(datatype=='date'){

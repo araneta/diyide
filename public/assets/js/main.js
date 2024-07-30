@@ -1,8 +1,8 @@
 jQuery(document).ready(function($){
-	console.log('ready');
+	setStatusProcess('ready');
 		
 	function adjustLayout(){
-		const divHeight = ($(window).height()-$('#first-row').height()-20);
+		const divHeight = ($(window).height()-$('.first-row').height()-$('.status-row').height()-3);
 		$('#pane1').css('height', divHeight+'px');;
 		var we = $('#editor-container').width();
 		$('#editor-tabs').css('maxWidth',we+"px");
@@ -47,15 +47,24 @@ jQuery(document).ready(function($){
 	
 	loadEditor();
 	//forms
+	let lastFolder = localStorage.getItem('lastFolder');
+	if(lastFolder){
+		$('#folderpath').val(lastFolder);
+	}
+
 	$('#frmFolder').submit(function(e){
 		e.preventDefault();
 		
 		const data = Object.fromEntries(new FormData(e.target).entries());
 		const title = data.folderpath;
-		console.log(data)
+		
 		openDir(data.folderpath);
+		//save to local storage
+		localStorage.setItem("lastFolder", data.folderpath);
+
 		document.title = title;		
 		$('.second-row').removeClass('d-none');
+		$('.status-row').removeClass('d-none');
 		adjustLayout();
 	});
 	
@@ -64,7 +73,7 @@ jQuery(document).ready(function($){
 		const dir = $('#folderpath').val();
 		var formData = Object.fromEntries(new FormData(e.target).entries());
 		formData.root = dir;
-		console.log(formData);
+		
 		//get words for auto complete
 		$.ajax({
 		  url: 'api/files/words',
@@ -80,19 +89,20 @@ jQuery(document).ready(function($){
 					}
 				}else{
 					alert('Error')
-					console.log(data);
+					
 				}
 				
 		  },
 		  error: function(jqXHR, textStatus, errorThrown) {
 			console.error('Error: ' + textStatus, errorThrown);
+			alert('Error: ' + textStatus);
 		  }
 		});
 			
 		
 			
 	}).on('filetreeclicked', function(e, data)	{ 
-			console.log('tree',data); 		
+			
 	});
 	
 	
@@ -109,7 +119,7 @@ jQuery(document).ready(function($){
 		// Iterating over values
 		var isDirty = false;
 		for (const value of editorModels.values()) {
-			//console.log(`Value: ${value}`);
+			
 			if(value.isdirty){
 				isDirty = true;
 				break;
