@@ -86,7 +86,7 @@ func (c *AdminController) WriteFile(ctx iris.Context) {
 	}
 
 	fpath := writef.FPath
-	fmt.Println(fpath)	
+	//fmt.Println(fpath)	
     file, err := os.Create(fpath)
     if err != nil {
         ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
@@ -119,7 +119,7 @@ func (c *AdminController) ReadFile(ctx iris.Context) {
 	}
 
 	fpath := readf.FPath
-	fmt.Println(fpath)
+	//fmt.Println(fpath)
 	dat, err := os.ReadFile(fpath)
     if err != nil {
 		ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
@@ -238,7 +238,7 @@ func getAllWords(files []string) ([]string, error) {
 	wordRegex := regexp.MustCompile(`\w+`)
 
 	for _, file := range files {
-		fmt.Println(file)
+		//fmt.Println(file)
 		content, err := ioutil.ReadFile(file)
 		if err != nil {
 			return nil, err
@@ -360,7 +360,7 @@ func (c *AdminController) Parser(ctx iris.Context) {
 
 	//save to temp file
 	fpath := absolutePath+"/temp/"+hashStringXXHash(form.FPath)
-	fmt.Println(fpath)	
+	//fmt.Println(fpath)	
     file, err := os.Create(fpath)
     if err != nil {
         ctx.JSON(iris.Map{"status": "0", "message":  "ERROR: Unable to read file: "+fpath+err.Error()})		
@@ -384,7 +384,7 @@ func (c *AdminController) Parser(ctx iris.Context) {
 	var res ParserResult
 	if(form.Language=="javascript"){
 		parser := absolutePath+"/javascript/parserFunctions.js"
-		fmt.Println(parser)
+		//fmt.Println(parser)
 		functions, err := parseJSFunctions(parser, fpath)
 		if err != nil {
 			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
@@ -402,7 +402,7 @@ func (c *AdminController) getJSDefinition(files  []string, word string)(Definiti
 		return ret,err
 	}
 	parser := absolutePath+"/javascript/parserFunctions.js"
-	fmt.Println(parser)
+	//fmt.Println(parser)
 	for _, file := range files {
 		functions, err := parseJSFunctions(parser, file)
 		if err != nil {			
@@ -456,7 +456,7 @@ func (c *AdminController) Definitions(ctx iris.Context) {
 	var ret DefinitionResult
 	if(form.Language=="javascript"){
 		parser := absolutePath+"/javascript/parserFunctionsRecursive.js"
-		fmt.Println(parser)
+		//fmt.Println(parser)
 		files, err := parseJSImport(parser, form.FPath)
 		if err != nil {
 			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})

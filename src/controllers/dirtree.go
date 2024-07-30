@@ -77,10 +77,10 @@ func (c *AdminController) OpenDir(ctx iris.Context) {
 		}
 		root = string(decoded)
 	}
-	fmt.Println("root"+root)
+	//fmt.Println("root"+root)
 	files, err := os.ReadDir(root)
 	if err != nil {
-		fmt.Println("error")
+		//fmt.Println("error")
 		ctx.StatusCode(iris.StatusInternalServerError)
 		ctx.WriteString(err.Error())
 		return
@@ -147,7 +147,7 @@ func (c *AdminController) CreateFileOrDir(ctx iris.Context) {
 		return
 	}
 	newDirPath := filepath.Join(form.ID, form.Text)
-	fmt.Println(newDirPath)
+	//fmt.Println(newDirPath)
 	var node Node
 	if(form.Type=="file"){
 		// Create the file
@@ -306,7 +306,7 @@ func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
 	err := ctx.ReadJSON(&form)
 
 	if err != nil {
-		fmt.Println("error11")
+		
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(err.Error())
 		return
@@ -314,7 +314,7 @@ func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
 	
 	srcDirfileInfo, errsrcDir := os.Stat(form.ID)
 	if errsrcDir != nil {
-		fmt.Println("error15")
+		
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(errsrcDir.Error())
 		return
@@ -323,7 +323,7 @@ func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
 
 	dstDirfileInfo, errdstDir := os.Stat(form.Parent)
 	if errdstDir != nil {
-		fmt.Println("error16")
+		
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(errdstDir.Error())
 		
@@ -334,12 +334,10 @@ func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
 		dirName := filepath.Base(form.ID)
 		dst := filepath.Join(form.Parent, dirName)
 
-		fmt.Println("copy dir")
-		fmt.Println(form.ID)
-		fmt.Println(dst)
+		
 		errcpy := copyDir(form.ID, dst)
 		if errcpy != nil {
-			fmt.Println("error17")
+			
 			ctx.StatusCode(iris.StatusBadRequest)
 			ctx.WriteString(errcpy.Error())
 			return
@@ -347,13 +345,12 @@ func (c *AdminController) CopyFileOrDir(ctx iris.Context) {
 	}
 	if !srcDirfileInfo.IsDir() && dstDirfileInfo.IsDir(){
 		fileName := filepath.Base(form.ID)
-		fmt.Println("copy file")
+		
 		dst := filepath.Join(form.Parent, fileName)
-		fmt.Println(form.ID)
-		fmt.Println(dst)
+		
 		errcpy := copyFile(form.ID, dst)
 		if errcpy != nil {
-			fmt.Println("error17")
+		
 			ctx.StatusCode(iris.StatusBadRequest)
 			ctx.WriteString(errcpy.Error())
 			return
@@ -369,7 +366,7 @@ func (c *AdminController) MoveFileOrDir(ctx iris.Context) {
 	err := ctx.ReadJSON(&form)
 
 	if err != nil {
-		fmt.Println("error11")
+		
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(err.Error())
 		return
@@ -378,7 +375,7 @@ func (c *AdminController) MoveFileOrDir(ctx iris.Context) {
 	dst := filepath.Join(form.Parent, dirName)
 	err2 := os.Rename(form.ID, dst)
 	if err2 != nil {
-		fmt.Println("error11")
+		
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(err2.Error())
 		return
