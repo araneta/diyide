@@ -14,7 +14,14 @@ jQuery(document).ready(function($){
 		adjustLayout();
 	},2000);
 	
-	
+	$(window).on("error", function(evt) {		
+		var e = evt.originalEvent; // get the javascript event		
+		if (e.message) { 
+			alert("Error:\n\t" + e.message + "\nLine:\n\t" + e.lineno + "\nFile:\n\t" + e.filename);
+		} else {
+			alert("Error:\n\t" + e.type + "\nElement:\n\t" + (e.srcElement || e.target));
+		}
+	});
 	
 	let isDragging = false;	
 	//splitter

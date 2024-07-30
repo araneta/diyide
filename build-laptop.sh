@@ -21,7 +21,17 @@ go mod tidy
 #go build main.go
 
 #@build release linux 
-go build -ldflags "-s -w"
+go build -ldflags "-s -w"  -o "../../dist/teloeditor"
 
 #@build release win
 #env GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o "../../dist/goder.exe"
+cd ..
+rm -R ../dist/public
+cp -r public ../dist/
+
+rm -R ../dist/parser
+cp -r parser ../dist/
+rm ../dist/parser/temp/*
+
+rm -R ../dist/templates
+cp -r src/templates ../dist/
