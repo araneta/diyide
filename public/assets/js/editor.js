@@ -26,7 +26,7 @@ var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: m
 var editor;
 var activeTab;//for contex menu
 var timeout; //for breadcrumb functions
-
+var suggestionsMap = new Map();//key: word, value:{state: [0:loading, 1:ready], suggestion:monacosuggestion}
 require.config({ paths: { 'vs': '/assets/package/min/vs' }});
 
 function getFileExtension(fileName) {
@@ -358,7 +358,7 @@ function addTab(fpath,data){
 	});
 }
 
-var suggestionsMap = new Map();//key: word, value:{state: [0:loading, 1:ready], suggestion:monacosuggestion}
+
 function setGotoDefinition(){
 	//https://github.com/microsoft/monaco-editor/issues/2407
 	function fetchDefinition(model,word){
@@ -383,22 +383,27 @@ function setGotoDefinition(){
 					
 					//if this data.message.file not in editormodels then add it
 					const fpath = data.message.file;
-					generateHash(fpath).then(function(hash) {
-						const id = 't'+hash;
-						console.log('id',id);
-						openFile(fpath).then((data)=>{
-							if(!editorModels.has(id)){
-								editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
-							}
-							const sugx = {
-								uri: monaco.Uri.file(fpath),
-								range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
-							};
-							suggestionsMap.set(word, {state:1, suggestion:sugx} );
-							console.log('suggestionsMap',suggestionsMap);
+					if(fpath){
+						console.log('fpath',fpath);
+						generateHash(fpath).then(function(hash) {
+							const id = 't'+hash;
+							console.log('id',id);
+							openFile(fpath).then((data)=>{
+								if(!editorModels.has(id)){
+									editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
+								}
+								const sugx = {
+									uri: monaco.Uri.file(fpath),
+									range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
+								};
+								suggestionsMap.set(word, {state:1, suggestion:sugx} );
+								console.log('suggestionsMap',suggestionsMap);
+							});
 						});
-					});
-						
+					}else{
+						suggestionsMap.set(word, {state:1, suggestion:null} );
+						console.log('suggestionsMap',suggestionsMap);
+					}
 					
 					
 				}else{
@@ -545,6 +550,7 @@ function closeEditor(id,fpath){
 		}
 	});
 
+	editorModels.delete(id);
 	editorModels.delete(id);
 	$('#'+id).remove();
 	console.log('editorModels',editorModels);
