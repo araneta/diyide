@@ -330,21 +330,11 @@ function addTab(fpath,data){
 		
 	});
 }
-//buggy
-var suggestionsMap = new Map();
+
+var suggestionsMap = new Map();//key: word, value:{state: [0:loading, 1:ready], suggestion:monacosuggestion}
 function setGotoDefinition(){
 	//https://github.com/microsoft/monaco-editor/issues/2407
-	
-	// Function to resolve definitions (placeholder example)
-	function getDefinition(model, position) {
-		const word = model.getWordAtPosition(position);
-		if (!word) return [];
-		console.log('word',word.word);
-		if(suggestionsMap.has(word.word)){
-			const sug = suggestionsMap.get(word.word);
-			console.log('found',sug)
-			return sug;
-		}
+	function fetchDefinition(model,word){
 		const lang = model.getLanguageId();
 		console.log('lang',lang);
 		var exts = getExtensionsOfLang(lang);
@@ -356,7 +346,7 @@ function setGotoDefinition(){
 		  url: 'api/definitions',
 		  method: 'POST',
 		  contentType: 'application/json',
-		  data: JSON.stringify({fpath:model.uri.path, extensions: exts, word: word.word, language: lang}),
+		  data: JSON.stringify({fpath:model.uri.path, extensions: exts, word: word, language: lang}),
 		  success: function(data) {
 				console.log(data);
 				if(data.status==1 && data.message){
@@ -364,10 +354,11 @@ function setGotoDefinition(){
 					const item = data.message.function;
 					console.log('item',item);
 					//TODO: if this data.message.file not in editormodels then add it
-					suggestionsMap.set(word.word, {
+					const sugx = {
 						uri: monaco.Uri.file(data.message.file),
 						range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
-					});
+					};
+					suggestionsMap.set(word, {state:1, suggestion:sugx} );
 					console.log('suggestionsMap',suggestionsMap);
 				}else{
 					
@@ -378,6 +369,24 @@ function setGotoDefinition(){
 			reject(errorThrown);
 		  }
 		});
+	}
+	// Function to resolve definitions (placeholder example)
+	function getDefinition(model, position) {
+		const word = model.getWordAtPosition(position);
+		if (!word) return [];
+		console.log('word',word.word);
+		if(suggestionsMap.has(word.word)){
+			const sug = suggestionsMap.get(word.word);
+			console.log('found',sug)
+			if(sug.state==0){//loading
+				return [];
+			}
+			return sug.suggestion;
+		}else{//new
+			suggestionsMap.set(word.word, {state:0, suggestion:null});
+			fetchDefinition(model,word.word);
+		}
+		
 		return [];
 		
 	}

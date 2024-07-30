@@ -7,6 +7,7 @@
 }
 #pane1{
 	overflow:scroll;	
+	scrollbar-color: dark;
 }
 .split, .gutter.gutter-horizontal {
   float: left;
@@ -36,7 +37,7 @@
 }
 .pane1{
 	overflow:scroll;
-	scrollbar-color: dark;
+	
 }
 #pane2{
 	position:relative;
