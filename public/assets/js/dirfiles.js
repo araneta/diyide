@@ -260,21 +260,9 @@ function openDir(dir){
 						console.log('before',data.selected[0]);
 						let file = hexDecode(data.selected[0]);
 						console.log('file',file);
-						const formData = {
-							fpath: file,			  
-						};
-						$.ajax({
-						  url: 'api/files/read',
-						  method: 'POST',
-						  contentType: 'application/json',
-						  data: JSON.stringify(formData),
-						  success: function(data) {
+						openFile(file).then((data)=>{
 							const fileName = file.split('/').pop();											
 							addTab(file,data);
-						  },
-						  error: function(jqXHR, textStatus, errorThrown) {
-							console.error('Error: ' + textStatus, errorThrown);
-						  }
 						});
 					}
 				}

@@ -281,48 +281,75 @@ function setTabContextMenu(){
 		contextMenu.style.display = 'none';
 	});
 }
+function openFile(file){
+	return new Promise(function(resolve, reject) {
+		const formData = {
+			fpath: file,			  
+		};
+		$.ajax({
+		  url: 'api/files/read',
+		  method: 'POST',
+		  contentType: 'application/json',
+		  data: JSON.stringify(formData),
+		  success: function(data) {			
+			resolve(data);
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+			console.error('Error: ' + textStatus, errorThrown);
+			reject(errorThrown);
+		  }
+		});
+	});
+	
+}
+function addTabElement(id, fpath){
+	const fileName = fpath.split('/').pop();
+	const tab = document.createElement('div');
+		
+	tab.id = id;
+	tab.title = fpath;
+	tab.className = 'tab';
+	tab.innerText = fileName;
+	tab.onclick = () => switchEditor(id);
+	//close
+	const closetab = document.createElement('div');
+	closetab.className = 'close-tab';
+	closetab.innerText = 'x';
+	closetab.onclick = function(e){
+		e.stopPropagation();
+		var m = editorModels.get(id);
+		if(m.isdirty){
+			showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
+				console.log('res',result);
+				if(result){
+					saveContent();
+				}
+				closeEditor(id,fpath);
+			});	
+			
+		}else{
+			closeEditor(id,fpath);
+		}
+		
+	};
+	tab.appendChild(closetab);
+	
+	tabsContainer.appendChild(tab);
+}
 function addTab(fpath,data){
+	console.log('fpath',fpath);
 	generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;
 		console.log('id',id);
 		if (editorModels.has(id)) {
 			console.log('id',id);
+			const prevtab = document.getElementById(id);
+			if(!prevtab){
+				addTabElement(id, fpath);
+			}
 			switchEditor(id);
 		}else{
-			
-			const fileName = fpath.split('/').pop();
-			const tab = document.createElement('div');
-			
-			console.log('hash',hash);
-			tab.id = id;
-			tab.title = fpath;
-			tab.className = 'tab';
-			tab.innerText = fileName;
-			tab.onclick = () => switchEditor(id);
-			//close
-			const closetab = document.createElement('div');
-			closetab.className = 'close-tab';
-			closetab.innerText = 'x';
-			closetab.onclick = function(e){
-				e.stopPropagation();
-				var m = editorModels.get(id);
-				if(m.isdirty){
-					showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
-						console.log('res',result);
-						if(result){
-							saveContent();
-						}
-						closeEditor(id,fpath);
-					});	
-					
-				}else{
-					closeEditor(id,fpath);
-				}
-				
-			};
-			tab.appendChild(closetab);
-			
-			tabsContainer.appendChild(tab);
+			addTabElement(id,fpath);			
 			editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
 			switchEditor(id);			
 		}
@@ -353,13 +380,27 @@ function setGotoDefinition(){
 					console.log('uxux');
 					const item = data.message.function;
 					console.log('item',item);
-					//TODO: if this data.message.file not in editormodels then add it
-					const sugx = {
-						uri: monaco.Uri.file(data.message.file),
-						range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
-					};
-					suggestionsMap.set(word, {state:1, suggestion:sugx} );
-					console.log('suggestionsMap',suggestionsMap);
+					
+					//if this data.message.file not in editormodels then add it
+					const fpath = data.message.file;
+					generateHash(fpath).then(function(hash) {
+						const id = 't'+hash;
+						console.log('id',id);
+						openFile(fpath).then((data)=>{
+							if(!editorModels.has(id)){
+								editorModels.set(id,{model: createModel(fpath,data), state:null, fpath:fpath, isdirty: false});
+							}
+							const sugx = {
+								uri: monaco.Uri.file(fpath),
+								range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
+							};
+							suggestionsMap.set(word, {state:1, suggestion:sugx} );
+							console.log('suggestionsMap',suggestionsMap);
+						});
+					});
+						
+					
+					
 				}else{
 					
 				}		
@@ -379,7 +420,7 @@ function setGotoDefinition(){
 			const sug = suggestionsMap.get(word.word);
 			console.log('found',sug)
 			if(sug.state==0){//loading
-				return [];
+				return null;
 			}
 			return sug.suggestion;
 		}else{//new
@@ -387,7 +428,7 @@ function setGotoDefinition(){
 			fetchDefinition(model,word.word);
 		}
 		
-		return [];
+		return null;
 		
 	}
 
@@ -402,23 +443,28 @@ function setGotoDefinition(){
 
 
 	// Add Ctrl+Click behavior for "go to definition"
-	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12,async function() {
+	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, function() {
 		console.log('ctrl');
 		const position = editor.getPosition();
 		//getDefinition(editor.getModel(), position).then(definitions => {
-		var definitions = await getDefinition(editor.getModel(), position);
-			console.log('def ctrl');
-          if (definitions.length > 0) {
-			  console.log('def ctrl',definitions);
-            const definition = definitions[0];
-            console.log('def definition',definition);
-            const xm = definition.uri.path.split('/').pop();
-            switchModel(xm); // Switch to the model containing the definition
-            console.log('def definition',xm);
-            editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-            editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-          }
-        //});
+		var definition = getDefinition(editor.getModel(), position);
+		if (definition) {
+			console.log('def definition',definition);
+            const fpath = definition.uri.path;
+			generateHash(fpath).then(function(hash) {
+				const id = 't'+hash;
+				console.log('id',id);
+				const prevtab = document.getElementById(id);
+				if(!prevtab){
+					addTabElement(id, fpath);
+				}
+				switchEditor(id);
+				editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+				editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+				editor.getDomNode().style.cursor = 'pointer';
+			});
+          
+        }
 
 	});
 
@@ -427,11 +473,25 @@ function setGotoDefinition(){
 		if (e.event.ctrlKey) {
 			console.log('def ctrl xx');
 			const position = e.target.position;
-			const definitions = getDefinition(editor.getModel(), position);
-			
-			console.log('def ctrl',definitions);
-			if (definitions.length > 0) {
-				editor.getDomNode().style.cursor = 'pointer';
+			console.log('position',position);
+			const definition = getDefinition(editor.getModel(), position);
+						
+			if (definition) {
+				console.log('def definition',definition);
+				const fpath = definition.uri.path;
+				generateHash(fpath).then(function(hash) {
+					const id = 't'+hash;
+					console.log('id',id);
+					const prevtab = document.getElementById(id);
+					if(!prevtab){
+						addTabElement(id, fpath);
+					}
+					switchEditor(id);
+					editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+					editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+					editor.getDomNode().style.cursor = 'pointer';
+				});
+				
 			} else {
 				editor.getDomNode().style.cursor = 'default';
 			}
@@ -441,6 +501,8 @@ function setGotoDefinition(){
 	editor.onMouseUp(function(e) {
 		editor.getDomNode().style.cursor = 'default';
 	});
+	
+	
 }
 
 function switchEditor(id) {
