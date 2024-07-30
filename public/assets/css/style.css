@@ -9,6 +9,18 @@
 	overflow:scroll;	
 	scrollbar-color: dark;
 }
+ #pane1 ::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+#pane1 ::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 10px;
+}
+
+#pane1 ::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
 .split, .gutter.gutter-horizontal {
   float: left;
 }

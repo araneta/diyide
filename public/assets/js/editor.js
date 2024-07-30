@@ -413,6 +413,9 @@ function setGotoDefinition(){
 	}
 	// Function to resolve definitions (placeholder example)
 	function getDefinition(model, position) {
+		if(!position || !model){
+			return null;
+		}
 		const word = model.getWordAtPosition(position);
 		if (!word) return [];
 		console.log('word',word.word);
