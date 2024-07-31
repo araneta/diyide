@@ -310,8 +310,11 @@ select option {
 .tabs-container {
   display: flex;
   align-items: center;
+  border: thin solid;
 }
-
+#breadcrumbs{
+border: thin solid;
+}
 .scroll-button {
   background-color: #4444;
   color: white;
