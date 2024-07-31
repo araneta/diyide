@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/cespare/xxhash/v2"
-
+	"sort"
 	"bufio"	
 	"bytes"
 	"io/ioutil"
@@ -43,6 +43,14 @@ type Function struct {
 	EndColumn   int    `json:"endColumn"`
 
 }
+// Define a type that is a slice of Function
+type ByName []Function
+
+// Implement sort.Interface methods for ByName
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
 type ParserResult struct {
 	Functions []Function  `json:"functions"`	
 }
@@ -390,6 +398,8 @@ func (c *AdminController) Parser(ctx iris.Context) {
 			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
 			return
 		}
+		// Sort the functions slice
+		sort.Sort(ByName(functions))
 		res.Functions = functions
 	}
 	
