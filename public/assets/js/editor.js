@@ -60,8 +60,8 @@ function showConfirmationDlg(title, msg) {
           <p>${msg}</p>          
       </div>    <!-- modal-body -->
       <div class="modal-footer" style="border-top:0px">             
-        <button id="modal-btn-descartar" type="button" class="btn btn-secondary">No</button>
-        <button id="modal-btn-aceptar" type="button" class="btn btn-primary">Yes</button>
+        <button id="modal-btn-descartar" type="button" class="">No</button>
+        <button id="modal-btn-aceptar" type="button" class="">Yes</button>
       </div>
     </div>
   </div>

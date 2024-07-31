@@ -2,14 +2,58 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: black black;
+
 }
  html, body {
-  height: 100%;
-font-size:12px;  
-  background:#000;
-  background-color: black;
+	height: 100%;
+	scrollbar-width: thin; /* For IE, Edge, and future browsers */
+	scrollbar-color: black black;
+
+	font-size:12px;  
+	background:#000;
+	background-color: black;
 	color: limegreen;
 	font-family: 'Courier New', Courier, monospace;
+}
+
+/* Custom scrollbar styling for WebKit browsers */
+body::-webkit-scrollbar,#pane1::-webkit-scrollbar {
+    width: 12px;
+}
+
+body::-webkit-scrollbar-track,#pane1::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Dark background */
+}
+
+body::-webkit-scrollbar-thumb,#pane1::-webkit-scrollbar-thumb {
+    background: #888; /* Grey thumb */
+    border-radius: 6px;
+}
+
+body::-webkit-scrollbar-thumb:hover,#pane1::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker grey on hover */
+}
+
+body::-webkit-scrollbar-thumb:active,#pane1::-webkit-scrollbar-thumb:active {
+    background: #333; /* Even darker grey on active */
+}
+
+body::-webkit-scrollbar-button,#pane1::-webkit-scrollbar-button {
+    display: none; /* Hide scrollbar buttons */
+}
+
+/* Custom scrollbar styling for Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #1e1e1e; /* Grey thumb, dark background */
+}
+
+/* Custom scrollbar styling for other browsers */
+body {
+    scrollbar-width: thin; /* For IE, Edge, and future browsers */
+    scrollbar-color: #888 #1e1e1e; /* Grey thumb, dark background */
 }
 input[type="submit"],button  {
  border: thin solid limegreen;
@@ -125,6 +169,53 @@ select option {
     background-color: black;
     color: limegreen;
 }
+/* Matrix modal styling */
+.modal-content {
+    background-color: black;
+    color: limegreen;
+    border: 2px solid limegreen;
+}
+
+.modal-title {
+    color: limegreen;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: limegreen;
+    font-size: 1.5rem;
+    padding: 0;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: darkgreen;
+}
+
+.modal-body {
+    background-color: black;
+    color: limegreen;
+}
+
+.modal-button {
+    background-color: black;
+    color: limegreen;
+    border: 1px solid limegreen;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.modal-button:hover {
+    background-color: limegreen;
+    color: black;
+}
+
+.modal-button:focus {
+    background-color: darkgreen;
+    color: black;
+}
+
+
 .container-fluid.second-row{
   
 }
