@@ -1,6 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
  html, body {
   height: 100%;
+font-size:12px;  
   background:#000;
+  background-color: black;
+	color: limegreen;
+	font-family: 'Courier New', Courier, monospace;
+}
+input[type="submit"],button  {
+ border: thin solid limegreen;
+ background: none;
+ box-shadow: none;
+ border-radius: 0px;
+}
+
+/* Matrix button styling */
+button {
+    background-color: transparent;
+    color: limegreen;
+    font-size: 14px;
+    padding: 3px 5px;
+    cursor: pointer;
+    outline: none;
+    border: thin solid limegreen;
+    position: relative;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+button::before,
+button::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background: limegreen;
+    transition: 0.3s;
+}
+
+button::before {
+    top: 0;
+    left: 0;
+}
+
+button::after {
+    bottom: 0;
+    right: 0;
+}
+
+button:hover::before,
+button:hover::after {
+    width: 100%;
+}
+
+button:hover {
+    background-color: limegreen;
+    color: black;
+}
+
+button:active {
+    background-color: darkgreen;
+    color: black;
+}
+
+input {
+    background-color: transparent;
+    color: limegreen;
+    font-size: 14px;
+    padding: 4px;
+    border: thin solid limegreen;
+    outline: none;
+    border-bottom: 2px solid limegreen;
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+}
+
+input::placeholder {
+    color: limegreen;
+}
+
+input:focus {
+    border-bottom: 2px solid darkgreen;
+    background-color: limegreen;
+    color: black;
+}
+
+input:focus::placeholder {
+    color: black;
+}
+select {
+    background-color: transparent;
+    color: limegreen;
+    font-size: 14px;
+    padding: 3px;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid limegreen;
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    appearance: none; /* Remove default styling */
+    -webkit-appearance: none; /* Remove default styling for Safari */
+    -moz-appearance: none; /* Remove default styling for Firefox */
+    position: relative;
+    cursor: pointer;
+}
+
+select:focus {
+    border-bottom: 2px solid darkgreen;
+    background-color: limegreen;
+    color: black;
+}
+
+/* Custom arrow for the select */
+select::after {
+    content: '\25BC'; /* Unicode character for down arrow */
+    color: limegreen;
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+}
+
+select option {
+    background-color: black;
+    color: limegreen;
 }
 .container-fluid.second-row{
   
@@ -28,7 +151,10 @@
   cursor: ew-resize;
 }
 
-
+.first-row{
+	padding:8px 10px;
+	border-bottom:thin solid limegreen;
+}
 .containerx {
     display: flex;
     height: 100%;
@@ -50,6 +176,9 @@
 .pane1{
 	overflow:scroll;
 	
+}
+#dirtree{
+	font-size:12px;
 }
 #pane2{
 	position:relative;
@@ -133,15 +262,13 @@ width: 30px;
   color: white;
 }
 #functionDropdown{
-    font-size: 14px;
-    padding: 0 4px;
-    color: #fff;
-    background-color: #333;
+    font-size: 12px;
+    padding: 0 4px;    
+    width:100%;
 }
 #row-status{
-	height:20px;
-	color:#fff;
-	background-color:#0078d4;
+	padding:4px 10px;
+	color:limegreen;
 }
 .status-row{
     z-index:999;
