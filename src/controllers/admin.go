@@ -483,3 +483,40 @@ func (c *AdminController) Definitions(ctx iris.Context) {
 	
 	ctx.JSON(iris.Map{"status": "1", "message": ret})
 }
+
+
+
+func (c *AdminController) TreeStructure(ctx iris.Context) {
+	var form ParserForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	absolutePath, err := filepath.Abs(c.ParserPath)
+	if err != nil {
+		//log.Fatalf("Error getting absolute path: %v", err)
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	
+	var res ParserResult
+	if(form.Language=="javascript"){
+		parser := absolutePath+"/javascript/parserFunctions.js"
+		//fmt.Println(parser)
+		functions, err := parseJSFunctions(parser, fpath)
+		if err != nil {
+			ctx.JSON(iris.Map{"status": "0", "message":  fmt.Sprintf("Error parsing content: %v\n", err)})
+			return
+		}
+		// Sort the functions slice
+		sort.Sort(ByName(functions))
+		res.Functions = functions
+	}
+	
+	ctx.JSON(iris.Map{"status": "1", "message": res})
+}

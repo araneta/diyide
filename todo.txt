@@ -2,4 +2,6 @@
 2. auto complete from multi file [DONE]
 3. function breadcrumb [done]
 3. create new file, rename file, del file [done]
-5. go to reference
+5. go to reference [done]
+6. tree structure
+7. prevent crash https://www.thyngster.com/step-by-step-guide-measuring-javascript-memory-usage-on-your-web-pages/
