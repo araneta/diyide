@@ -724,6 +724,9 @@ function updateFileStructurePanel(){
 	});
 }
 function convertObjectProperties(properties) {
+	if (!properties || !Array.isArray(properties)) {
+		return [];
+	}
 	return properties.map(prop => {
 		if (prop.type === "object") {
 			return {
