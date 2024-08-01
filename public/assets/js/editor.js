@@ -411,7 +411,7 @@ function setGotoDefinition(){
 									range: new monaco.Range(item.startLine, item.startColumn, item.endLine, item.endColumn)
 								};
 								suggestionsMap.set(word, {state:1, suggestion:sugx} );
-								
+								goToDefinition(sugx);
 							});
 						});
 					}else{
@@ -464,7 +464,21 @@ function setGotoDefinition(){
 		}
 	});
 	
-
+	function goToDefinition(definition){
+		const fpath = definition.uri.path;
+		generateHash(fpath).then(function(hash) {
+			const id = 't'+hash;
+			
+			const prevtab = document.getElementById(id);
+			if(!prevtab){
+				addTabElement(id, fpath);
+			}
+			switchEditor(id);
+			editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+			editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
+			editor.getDomNode().style.cursor = 'pointer';
+		});
+	}
 
 	// Add Ctrl+Click behavior for "go to definition"
 	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, function() {
@@ -473,21 +487,7 @@ function setGotoDefinition(){
 		//getDefinition(editor.getModel(), position).then(definitions => {
 		var definition = getDefinition(editor.getModel(), position);
 		if (definition) {
-			
-            const fpath = definition.uri.path;
-			generateHash(fpath).then(function(hash) {
-				const id = 't'+hash;
-				
-				const prevtab = document.getElementById(id);
-				if(!prevtab){
-					addTabElement(id, fpath);
-				}
-				switchEditor(id);
-				editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-				editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-				editor.getDomNode().style.cursor = 'pointer';
-			});
-          
+			goToDefinition(definition);                      
         }
 
 	});
@@ -500,22 +500,8 @@ function setGotoDefinition(){
 			
 			const definition = getDefinition(editor.getModel(), position);
 						
-			if (definition) {
-				
-				const fpath = definition.uri.path;
-				generateHash(fpath).then(function(hash) {
-					const id = 't'+hash;
-					
-					const prevtab = document.getElementById(id);
-					if(!prevtab){
-						addTabElement(id, fpath);
-					}
-					switchEditor(id);
-					editor.setPosition({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-					editor.revealPositionInCenter({ lineNumber: definition.range.startLineNumber, column: definition.range.startColumn });
-					editor.getDomNode().style.cursor = 'pointer';
-				});
-				
+			if (definition) {				
+				goToDefinition(definition);				
 			} else {
 				editor.getDomNode().style.cursor = 'default';
 			}
