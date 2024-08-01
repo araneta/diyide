@@ -162,6 +162,9 @@ function openDir(dir){
 			
 			const prev = hexDecode(data.node.id);
 			const formData = { 'id' : prev, 'text' : data.text};
+						
+			var obj = data.instance.get_node(data.node.parent);
+			
 			$.ajax({
 				url: 'api/files/rename',
 				method: 'POST',
@@ -172,8 +175,10 @@ function openDir(dir){
 						//data.instance.set_id(data.node, d.id);
 						const npath = parentPath+'/'+data.text;
 						
-						data.instance.set_id(data.node, hexEncode(npath));
+						data.instance.set_id(data.node, hexEncode(npath));						
 					}
+					console.log('refres',obj.id);
+					$('#dirtree').jstree(true).refresh_node(obj.id);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					console.error('Error: ' + textStatus, errorThrown);
