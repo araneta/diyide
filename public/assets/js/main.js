@@ -142,5 +142,9 @@ jQuery(document).ready(function($){
 
 	setTabContextMenu();
 	
-	
+	$('#syntaxtree').jstree({
+		'core': {
+		'data': null
+		}
+	});
 });

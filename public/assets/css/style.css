@@ -219,6 +219,7 @@ select option {
 .container-fluid.second-row{
   
 }
+.nav-link{color:limegreen !important;}
 #pane1{
 	overflow:scroll;	
 	scrollbar-color: dark;

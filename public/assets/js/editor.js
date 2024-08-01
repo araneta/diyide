@@ -552,6 +552,7 @@ function switchEditor(id) {
 	$('.tabs .tab').removeClass('active');
 	$('#'+id).addClass('active'); 
 	updateBreadcrumbs();
+	updateFileStructurePanel();
 }
 
 function closeEditor(id,fpath){
@@ -669,3 +670,109 @@ function setAutoComplete(lang, allWords){
 		}
 	});
 }
+
+function updateFileStructurePanel(){
+	const model = editor.getModel();
+	const code = model.getValue();
+	const formData = {
+		fpath: model.uri.path,
+		buffer: code,
+		language: getFileLang(model.uri.path),
+	};
+	$.ajax({
+	  url: 'api/tree-structure',
+	  method: 'POST',
+	  contentType: 'application/json',
+	  data: JSON.stringify(formData),
+	  success: function(data) {			
+			if(data){
+				if(data.status==1){					
+					const existing = $("#syntaxtree").jstree(true);
+					if(existing){
+						existing.destroy();
+					}
+					const jsTreeData = convertToJsTreeFormat(data.message);
+					$('#syntaxtree').jstree({
+						'core': {
+						'data': jsTreeData
+						}
+					});
+				}else{
+					alert('Error '+data.message);
+				}
+			}
+	  },
+	  error: function(jqXHR, textStatus, errorThrown) {
+		console.error('Error: ' + textStatus, errorThrown);
+		alert('Error: ' + textStatus);
+		
+	  }
+	});
+}
+function convertObjectProperties(properties) {
+	return properties.map(prop => {
+		if (prop.type === "object") {
+			return {
+				text: `Object: ${prop.name} (Line: ${prop.startLine})`,
+				children: convertObjectProperties(prop.properties)
+			};
+		} else {
+			return {
+				text: `${prop.type.charAt(0).toUpperCase() + prop.type.slice(1)}: ${prop.name} (Line: ${prop.startLine})`
+			};
+		}
+	});
+}
+
+function convertToJsTreeFormat(treeStructure) {
+	const jsTreeData = [];
+
+	if (treeStructure.classes) {
+		treeStructure.classes.forEach(cls => {
+			const classNode = {
+				text: `Class: ${cls.name}`,
+				children: []
+			};
+
+			cls.methods.forEach(method => {
+				classNode.children.push({
+					text: `Method: ${method.name} (Line: ${method.startLine})`
+				});
+			});
+
+			cls.fields.forEach(field => {
+				if (field.type === "object") {
+					classNode.children.push({
+						text: `Object: ${field.name} (Line: ${field.startLine})`,
+						children: convertObjectProperties(field.properties)
+					});
+				} else {
+					classNode.children.push({
+						text: `Field: ${field.name} (Line: ${field.startLine})`
+					});
+				}
+			});
+
+			jsTreeData.push(classNode);
+		});
+	}
+
+	if (treeStructure.functions) {
+		treeStructure.functions.forEach(func => {
+			jsTreeData.push({
+				text: `Function: ${func.name} (Line: ${func.startLine})`
+			});
+		});
+	}
+
+	if (treeStructure.variables) {
+		treeStructure.variables.forEach(variable => {
+			jsTreeData.push({
+				text: `Variable: ${variable.name} (Line: ${variable.startLine})`
+			});
+		});
+	}
+
+	return jsTreeData;
+}
+
