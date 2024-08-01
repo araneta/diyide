@@ -697,6 +697,20 @@ function updateFileStructurePanel(){
 						'data': jsTreeData
 						}
 					});
+					$('#syntaxtree').on("select_node.jstree", function (e, data) {
+						const node = data.node;
+						const startLine = node.data.startLine;
+						if (startLine) {
+							//alert(`Start Line: ${startLine}`);
+							const lineNumber = parseInt(startLine, 10);
+					
+							if (!isNaN(lineNumber)) {
+							  editor.revealPositionInCenter({ lineNumber, column: 1 });
+							  editor.setPosition({ lineNumber, column: 1 });
+							  editor.focus();
+							}
+						}
+					});
 				}else{
 					alert('Error '+data.message);
 				}
@@ -713,12 +727,16 @@ function convertObjectProperties(properties) {
 	return properties.map(prop => {
 		if (prop.type === "object") {
 			return {
-				text: `Object: ${prop.name} (Line: ${prop.startLine})`,
-				children: convertObjectProperties(prop.properties)
+				text: `${prop.name} (Line: ${prop.startLine})`,
+				children: convertObjectProperties(prop.properties),
+				icon: 'fa fa-cube',
+				data: { startLine: prop.startLine },
 			};
 		} else {
 			return {
-				text: `${prop.type.charAt(0).toUpperCase() + prop.type.slice(1)}: ${prop.name} (Line: ${prop.startLine})`
+				text: `${prop.type.charAt(0).toUpperCase() + prop.type.slice(1)}: ${prop.name} (Line: ${prop.startLine})`,
+				icon: 'fa fa-cube',
+				data: { startLine: prop.startLine }
 			};
 		}
 	});
@@ -730,25 +748,37 @@ function convertToJsTreeFormat(treeStructure) {
 	if (treeStructure.classes) {
 		treeStructure.classes.forEach(cls => {
 			const classNode = {
-				text: `Class: ${cls.name}`,
-				children: []
+				text: `${cls.name}`,
+				icon: 'fa fa-sitemap',
+				children: [],
+				data: { startLine: null },
+
 			};
 
 			cls.methods.forEach(method => {
 				classNode.children.push({
-					text: `Method: ${method.name} (Line: ${method.startLine})`
+					text: `${method.name} (Line: ${method.startLine})`,
+					icon: 'fa fa-fire',
+					data: { startLine: method.startLine }
+
 				});
 			});
 
 			cls.fields.forEach(field => {
 				if (field.type === "object") {
 					classNode.children.push({
-						text: `Object: ${field.name} (Line: ${field.startLine})`,
-						children: convertObjectProperties(field.properties)
+						text: `${field.name} (Line: ${field.startLine})`,
+						icon: 'fa fa-cube',
+						children: convertObjectProperties(field.properties),
+						data: { startLine: field.startLine },
+
 					});
 				} else {
 					classNode.children.push({
-						text: `Field: ${field.name} (Line: ${field.startLine})`
+						text: `${field.name} (Line: ${field.startLine})`,
+						icon: 'fa fa-snowflake',
+						data: { startLine: field.startLine }
+
 					});
 				}
 			});
@@ -760,7 +790,9 @@ function convertToJsTreeFormat(treeStructure) {
 	if (treeStructure.functions) {
 		treeStructure.functions.forEach(func => {
 			jsTreeData.push({
-				text: `Function: ${func.name} (Line: ${func.startLine})`
+				text: `${func.name} (Line: ${func.startLine})`,
+				icon: 'fa fa-bolt',
+				data: { startLine: func.startLine }
 			});
 		});
 	}
@@ -768,7 +800,10 @@ function convertToJsTreeFormat(treeStructure) {
 	if (treeStructure.variables) {
 		treeStructure.variables.forEach(variable => {
 			jsTreeData.push({
-				text: `Variable: ${variable.name} (Line: ${variable.startLine})`
+				text: `${variable.name} (Line: ${variable.startLine})`,
+				icon: 'fa fa-asterisk',
+				data: { startLine: variable.startLine }
+
 			});
 		});
 	}

@@ -369,3 +369,22 @@ width: 30px;
 .status-row{
     z-index:999;
 }
+ /* Custom icons */
+.jstree-class-icon {
+	background: url('path/to/class-icon.png') center center no-repeat;
+}
+.jstree-method-icon {
+	background: url('path/to/method-icon.png') center center no-repeat;
+}
+.jstree-field-icon {
+	background: url('path/to/field-icon.png') center center no-repeat;
+}
+.jstree-object-icon {
+	background: url('path/to/object-icon.png') center center no-repeat;
+}
+.jstree-function-icon {
+	background: url('path/to/function-icon.png') center center no-repeat;
+}
+.jstree-variable-icon {
+	background: url('path/to/variable-icon.png') center center no-repeat;
+}
