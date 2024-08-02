@@ -3,32 +3,30 @@
 
 <div class="container-fluid first-row" >
 	<div class="row">
-		<div class="col-auto">			
-			<form action="/load-folder" method="post" id="frmFolder" class="form form-inline row">				
-				<div class="col-auto  d-flex align-items-center">
-					<input type="text" placeholder="Folder" id="folderpath" class="" name="folderpath" value="" />
-				</div>
-				<div class="col-auto d-flex align-items-center">	
-					<button id="btnBrowse" class="" type="submit">Browse</button>
-				</div>	
-			</form>
+		<div class="btn-toolbar flex-fill align-items-start col-auto" role="toolbar">
+			<div class="btn-group mr-2" role="group">
+			  <button type="button" class="" id="openFolderBtn" data-bs-toggle="modal" data-bs-target="#folderModal">
+				<i class="fa fa-folder-open"></i> Open Folder
+			  </button>
+			  <button type="button" class="" id="saveCurrentTabBtn">
+				<i class="fa fa-save"></i> Save File
+			  </button>
+			  <button type="button" class="" id="saveAllTabsBtn">
+				<i class="fa fa-save"></i> Save All
+			  </button>
+			  <button type="button" class="" id="openAutocomplete" data-bs-toggle="modal" data-bs-target="#autoCompleteModal">
+				<i class="fa fa-bolt"></i> AutoComplete
+			  </button>
+			  
+			  
+			</div>
 		</div>
-		<div class="col-auto">
 		
-			<form action="/load-folder" method="post" id="frmAutocomplete" class="form form-inline row">
-				<div class="col-auto  d-flex align-items-center">
-					<label>Autocomplete</label>
-				</div>
-				<div class="col-auto d-flex align-items-cente">
-					<input type="text" class="" placeholder="extensions" name="extensions" value=".js, .jsx, .ts, .tsx" />
-				</div>
-				<div class="col-auto d-flex align-items-cente">
-					<input type="text" class="" placeholder="language" name="language" value="javascript" />
-				</div>
-				<div class="col-auto d-flex align-items-cente">	
-					<button id="btnAutoComplete" class="" type="submit">Go</button>
-				</div>	
-			</form>	
+		<div class="col-auto align-items-end">
+			<button type="button" class="float-end" id="closeFolderBtn">
+				<i class="fa fa-times"></i> Close
+			</button>
+			
 		</div>
 	</div>
 </div>
@@ -97,8 +95,55 @@
 	</div>	
 </div>
 <div class="context-menu" id="context-menu">
+	<div class="context-menu-item" id="copy-path">Copy File Path</div>
 	<div class="context-menu-item" id="close-tab">Close this tab</div>
 	<div class="context-menu-item" id="close-other-tabs">Close other tabs</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="folderModal" tabindex="-1" aria-labelledby="folderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="folderModalLabel">Open Folder</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/load-folder" method="post" id="frmFolder" class="">                
+          <div class="w-100 mb-2">
+            <input type="text" placeholder="Folder" id="folderpath" class=" w-100" name="folderpath" value="" />
+          </div>
+          <div class="">    
+            <button id="btnBrowse" class="" data-bs-dismiss="modal"  type="submit">Browse</button>
+          </div>    
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="autoCompleteModal" tabindex="-1" aria-labelledby="folderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="folderModalLabel">Auto Complete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+			<form action="/load-folder" method="post" id="frmAutocomplete" class="">
+				
+				<div class="w-100 mb-2">
+					<input type="text" class="w-100" placeholder="extensions" name="extensions" value=".js, .jsx, .ts, .tsx" />
+				</div>
+				<div class="w-100 mb-2">
+					<input type="text" class="w-100" placeholder="language" name="language" value="javascript" />
+				</div>
+				<div class="w-100 mb-2">	
+					<button id="btnAutoComplete" class="" data-bs-dismiss="modal" type="submit">Go</button>
+				</div>	
+			</form>	
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

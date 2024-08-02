@@ -147,4 +147,15 @@ jQuery(document).ready(function($){
 		'data': null
 		}
 	});
+	
+    $('#saveCurrentTabBtn').click(function(){
+		saveContent();
+	});
+	$('#saveAllTabsBtn').click(function(){
+		saveAllTabs();
+	});
+	$('#closeFolderBtn').click(function(){
+		location.reload();
+	});
+	
 });

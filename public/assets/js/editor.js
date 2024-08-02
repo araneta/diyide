@@ -107,6 +107,43 @@ function setDirtyStatus(){
 		$('#'+id).addClass('dirty');
 	});
 }
+function saveAllTabs(){
+	for (const [key, value] of editorModels.entries()) {
+		//console.log(key, value);
+		
+		const formData = {
+		  fpath: value.fpath,		
+		  buffer: value.model.getValue()	  
+		};
+		setStatusProcess('Saving: '+value.fpath);
+		$.ajax({
+		  url: 'api/files/write',
+		  method: 'POST',
+		  contentType: 'application/json',
+		  data: JSON.stringify(formData),
+		  success: function(data) {			
+				if(data=='ok'){
+					setStatusProcess('Done');
+					value.isdirty = false;
+					generateHash(value.fpath).then(function(hash) {
+						const id = 't'+hash;		
+						$('#'+id).removeClass('dirty');
+					});
+				}else{
+				  setStatusProcess(data.message);
+				  alert(data.message);
+				}
+				
+				
+		  },
+		  error: function(jqXHR, textStatus, errorThrown) {
+				console.error('Error: ' + textStatus, errorThrown);
+				alert('Error: ' + textStatus);
+		  }
+		});
+		
+	}
+}
 function saveContent(){
 	setStatusProcess('Saving...');
 	const formData = {
@@ -123,6 +160,7 @@ function saveContent(){
 				setStatusProcess('Done');
 				editorModels.get(activeEditor).isdirty = false;
 				$('#'+activeEditor).removeClass('dirty');
+				updateFileStructurePanel();
 			}else{
 			  setStatusProcess(data.message);
 			  alert(data.message);
@@ -188,7 +226,7 @@ function logCursorPosition() {
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {				
 		editor = monaco.editor.create(container, {
-			value: 'loremimdsf sdfsd dsfds',
+			value: 'Welcome!',
 			language: 'javascript',
 			automaticLayout: true,
 			theme: 'vs-dark',
@@ -255,6 +293,7 @@ function setTabContextMenu(){
 	var contextMenu = document.getElementById('context-menu');
 	var closeTab = document.getElementById('close-tab');
 	var closeOtherTabs = document.getElementById('close-other-tabs');	
+	var copyPath = document.getElementById('copy-path');	
 	var tabList = document.getElementById('editor-tabs');
 	
 	tabList.addEventListener('contextmenu', function (event) {
@@ -292,6 +331,23 @@ function setTabContextMenu(){
 			}
 		});
 		contextMenu.style.display = 'none';
+	});
+	
+	copyPath.addEventListener('click', function (event) {
+		
+        if (activeTab) {
+			alert(activeTab.title);
+			let text = activeTab.title;
+			const copyContent = async () => {
+				try {
+					await navigator.clipboard.writeText(text);
+					setStatusProcess('Content copied to clipboard');
+				} catch (err) {
+					alert(err);
+					console.error('Failed to copy: ', err);
+				}
+			}
+		}
 	});
 }
 function openFile(file){
