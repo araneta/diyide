@@ -1,13 +1,21 @@
+const wh = $(window).height();
+function adjustLayout(){	
+	const fh = $('.first-row').outerHeight();
+	const sh = $('.status-row').outerHeight();
+	const mh = $('#myTab').outerHeight();
+	const divHeight = (wh-fh-sh-mh-3);
+	console.log('wh',wh);
+	console.log('fh',fh);
+	console.log('sh',sh);
+	$('#pane1').css('height', divHeight+'px');;
+	var we = $('#editor-container').width();
+	$('#editor-tabs').css('maxWidth',we+"px");
+	 // editor.layout();
+}
 jQuery(document).ready(function($){
 	setStatusProcess('ready');
 		
-	function adjustLayout(){
-		const divHeight = ($(window).height()-$('.first-row').height()-$('.status-row').height()-3);
-		$('#pane1').css('height', divHeight+'px');;
-		var we = $('#editor-container').width();
-		$('#editor-tabs').css('maxWidth',we+"px");
-		  editor.layout();
-	}
+	
 	
 	$( window ).bind( "resize", adjustLayout ); 
 	setTimeout(function(){
@@ -157,5 +165,21 @@ jQuery(document).ready(function($){
 	$('#closeFolderBtn').click(function(){
 		location.reload();
 	});
+	
+	
+	 // Load and initialize the plugin
+	 console.log('loading plugins',pluginFiles);
+	 for(var pi=0;pi<pluginFiles.length;pi++){
+		 const pfile = '/assets/plugins/'+pluginFiles[pi]+'/index.js';
+		 console.log('loading..',pfile);
+		pluginManager.loadPluginScript(pfile)
+		.then(plugin => {
+			console.log(`${plugin.constructor.name} has been successfully loaded and initialized.`);
+		})
+		.catch(error => {
+			console.error(error.message);
+		});
+	}
+
 	
 });

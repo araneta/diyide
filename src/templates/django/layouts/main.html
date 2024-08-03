@@ -15,30 +15,7 @@
 
     {%block css %}{% endblock %}
     
-    <script>
-		const hostname = window && window.location && window.location.hostname;
-		let backendHost;
-		console.log(hostname);
-		if(hostname === 'localhost' || hostname === 'university') {
-			backendHost = 'http://localhost:8080';  			
-		}else{ 
-			backendHost = 'https://'+hostname;	
-		}		
-		window.APP_API_URL =  window.location.protocol + '//' + window.location.host;
-		function getHeader(){
-			var token = localStorage.token?localStorage.token:'';
-			return {
-				"X-Requested-With": "XMLHttpRequest",
-				"Content-Type": "application/json;charset=UTF-8",
-				"Authorization":"Bearer "+token
-			};
-		}
-		{% if Data %}
-			var pageData = {{Data|safe }};
-		{% else %}
-			var pageData = {};
-		{% endif %}
-	</script>
+    
 </head>
 <body class="">
 	<div id="page-top"></div>

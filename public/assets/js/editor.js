@@ -609,6 +609,7 @@ function switchEditor(id) {
 	$('#'+id).addClass('active'); 
 	updateBreadcrumbs();
 	updateFileStructurePanel();
+	adjustLayout();
 }
 
 function closeEditor(id,fpath){
@@ -624,6 +625,7 @@ function closeEditor(id,fpath){
 	editorModels.delete(id);
 	editorModels.delete(id);
 	$('#'+id).remove();
+	$('#syntaxtree').empty().jstree('destroy');
 	
 	const entries = Array.from(editorModels.entries());
 	if (entries.length > 0) {
