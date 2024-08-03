@@ -96,6 +96,11 @@ function createOverlayBox(boxId,title, iframeurl){
 	$(modalElem).removeClass('hidden').addClass('visible');
 	$(modalElem).find('.close').on('click', function() {
 		$(modalElem).removeClass('visible').addClass('hidden');
+		setTimeout(function(){
+			$('#'+boxId).remove();
+			overlayBoxMap.delete(boxId);
+		}, 1000);
+		
 	});
 	return modalElem;
 }
