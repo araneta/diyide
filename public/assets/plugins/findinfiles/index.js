@@ -4,15 +4,11 @@
     init(manager) {
 		console.log("FindInFilesPlugin initialized.");
 		// Interact with the manager or host application
-		const findInFilesBtn = document.createElement('button');	
-		findInFilesBtn.className = 'btn';
-		findInFilesBtn.innerText = 'Find Files';
-		findInFilesBtn.onclick = function(e){
+		createBottomToolbarButton('Find in files', function(e){
 			e.stopPropagation();			
-			alert('test');
-		};
-		$('#bottomToolbar').append($(findInFilesBtn));
-      
+			createOverlayBox('findInFilesOverlay','Find in files', '/assets/plugins/findinfiles/dialog.html');			
+		});
+		
     }
   }
 

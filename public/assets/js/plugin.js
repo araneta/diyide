@@ -44,5 +44,67 @@ class PluginManager {
     this.pendingPluginInstance = pluginInstance;
   }
 }
+var overlayBoxMap = new Map();
+function createOverlayBox(boxId,title, iframeurl){
+	var modalElem;
+	if(overlayBoxMap.has(boxId)){
+		modalElem = overlayBoxMap.get(boxId);
+	}else{
+		modalElem = document.createElement('div');
+		modalElem.id = boxId;
+		modalElem.className = "overlay-container hidden";
+		modalElem.innerHTML = `
+		<div class="resize-handle" ></div>
+		<div class="header row py-1 mt-2">
+			<div class="flex-fill align-items-start col-auto">
+				<h5 class="mb-0">${title}</h5>
+			</div>	
+			<div class="col-auto align-items-end">
+				<button type="button" class="close" >x</button>
+			</div>	
+		</div>
+		<iframe src="${iframeurl}" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+		`;
+		$('body').append(modalElem);				
+		overlayBoxMap.set(boxId,modalElem);
+		
+		let isResizing = false;
+		let lastMouseY;
+		const handle = $(modalElem).find('.resize-handle');
+		handle.on('mousedown', function(e) {
+			isResizing = true;
+			lastMouseY = e.clientY;
+			$('body').on('mousemove', onMouseMove);
+			$('body').on('mouseup', onMouseUp);
+			e.preventDefault(); // Prevent text selection
+		});
 
+		function onMouseMove(e) {
+			if (!isResizing) return;
+			const overlay = $(modalElem);
+			const newHeight = overlay.height() - (e.clientY - lastMouseY);
+			overlay.css('height', newHeight);
+			lastMouseY = e.clientY;
+		}
+
+		function onMouseUp() {
+			isResizing = false;
+			$('body').off('mousemove', onMouseMove);
+			$('body').off('mouseup', onMouseUp);
+		}
+	}
+	$(modalElem).removeClass('hidden').addClass('visible');
+	$(modalElem).find('.close').on('click', function() {
+		$(modalElem).removeClass('visible').addClass('hidden');
+	});
+	return modalElem;
+}
+function createBottomToolbarButton(title, callback){
+	const findInFilesBtn = document.createElement('button');	
+	findInFilesBtn.className = 'btn';
+	findInFilesBtn.innerText = title;
+	findInFilesBtn.onclick = callback;
+	$('#bottomToolbar').append($(findInFilesBtn));
+}
 const pluginManager = new PluginManager();
+

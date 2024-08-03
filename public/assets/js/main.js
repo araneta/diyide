@@ -4,13 +4,11 @@ function adjustLayout(){
 	const sh = $('.status-row').outerHeight();
 	const mh = $('#myTab').outerHeight();
 	const divHeight = (wh-fh-sh-mh-3);
-	console.log('wh',wh);
-	console.log('fh',fh);
-	console.log('sh',sh);
+	
 	$('#pane1').css('height', divHeight+'px');;
 	var we = $('#editor-container').width();
 	$('#editor-tabs').css('maxWidth',we+"px");
-	 // editor.layout();
+	editor.layout();
 }
 jQuery(document).ready(function($){
 	setStatusProcess('ready');

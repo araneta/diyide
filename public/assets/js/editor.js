@@ -626,6 +626,7 @@ function closeEditor(id,fpath){
 	editorModels.delete(id);
 	$('#'+id).remove();
 	$('#syntaxtree').empty().jstree('destroy');
+	functionDropdown.innerHTML ='';
 	
 	const entries = Array.from(editorModels.entries());
 	if (entries.length > 0) {
