@@ -364,6 +364,14 @@ function setTabContextMenu(){
 		}
 	});
 }
+function openFileThenAddToTab(file){
+	setStatusProcess('Opening file: '+file);
+	openFile(file).then((data)=>{
+		const fileName = file.split('/').pop();											
+		addTab(file,data);
+		setStatusProcess('Done');
+	});
+}
 function openFile(file){
 	return new Promise(function(resolve, reject) {
 		const formData = {

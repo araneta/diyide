@@ -10,7 +10,7 @@
 	height: 100%;
 	scrollbar-width: thin; /* For IE, Edge, and future browsers */
 	scrollbar-color: black black;
-
+	overflow:hidden;
 	font-size:14px;  
 	background:#000;
 	background-color: black;

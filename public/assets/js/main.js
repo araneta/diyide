@@ -3,7 +3,7 @@ function adjustLayout(){
 	const fh = $('.first-row').outerHeight();
 	const sh = $('.status-row').outerHeight();
 	const mh = $('#myTab').outerHeight();
-	const divHeight = (wh-fh-sh-mh-3);
+	const divHeight = (wh-fh-sh-mh-1);
 	
 	$('#pane1').css('height', divHeight+'px');;
 	var we = $('#editor-container').width();

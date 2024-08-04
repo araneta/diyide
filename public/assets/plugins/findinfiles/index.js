@@ -6,7 +6,10 @@
 		// Interact with the manager or host application
 		createBottomToolbarButton('Find in files', function(e){
 			e.stopPropagation();			
-			createOverlayBox('findInFilesOverlay','Find in files', '/assets/plugins/findinfiles/dialog.html');			
+			createOverlayBox('findInFilesOverlay','Find in files', '/assets/plugins/findinfiles/dialog.html',function(){				
+				
+			});			
+			
 		});
 		
     }
@@ -15,3 +18,5 @@
   // Register the plugin instance with the PluginManager
   pluginManager.registerPluginInstance(new FindInFilesPlugin());
 })();
+
+

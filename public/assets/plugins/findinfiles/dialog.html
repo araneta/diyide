@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
 	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
 </head>
-<body class="">
-	<form class="mb-2">
+<body class="" >
+	<form class="mb-2" id="frmFindInFiles" method="post" action="">
 	  <div class="row g-3 align-items-center">
 			<div class="col-auto">
 				<label for="txtSearchfor" class="col-form-label" ></label>
@@ -58,5 +58,15 @@
 		  </tbody>
 		</table>
 	</div>
+	<script type="text/javascript" src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
+	<script type="text/javascript">
+		jQuery(document).ready(function($){
+			$('#frmFindInFiles').submit(function(e){
+				e.preventDefault();									
+				window.parent.openFileThenAddToTab('/media/aldo/data/projects/aldoapp-university/apps/react-admin/src/components/AllProgramDropdown.js');
+			});
+		});
+	</script>
 </body>
 </html>

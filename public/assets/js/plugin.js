@@ -45,13 +45,13 @@ class PluginManager {
   }
 }
 var overlayBoxMap = new Map();
-function createOverlayBox(boxId,title, iframeurl){
+function createOverlayBox(boxId,title, iframeurl, onloadEvent){
 	var modalElem;
 	if(overlayBoxMap.has(boxId)){
 		modalElem = overlayBoxMap.get(boxId);
 	}else{
 		modalElem = document.createElement('div');
-		modalElem.id = boxId;
+		modalElem.id = boxId;		
 		modalElem.className = "overlay-container hidden";
 		modalElem.innerHTML = `
 		<div class="resize-handle" ></div>
@@ -62,9 +62,18 @@ function createOverlayBox(boxId,title, iframeurl){
 			<div class="col-auto align-items-end">
 				<button type="button" class="close" >x</button>
 			</div>	
-		</div>
-		<iframe src="${iframeurl}" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+		</div>		
 		`;
+		var ifrm = document.createElement("iframe");
+        ifrm.setAttribute("src", iframeurl);
+        ifrm.style.width = "100%";
+        ifrm.style.height = "100%";
+        ifrm.style.overflow = 'hidden';
+        ifrm.width = "100%";
+        ifrm.height = "100%";
+        ifrm.frameborder=0;
+        ifrm.onload = onloadEvent;
+        modalElem.append(ifrm);
 		$('body').append(modalElem);				
 		overlayBoxMap.set(boxId,modalElem);
 		

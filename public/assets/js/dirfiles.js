@@ -267,12 +267,7 @@ function openDir(dir){
 					}else if(dtype=='f'){
 						
 						let file = hexDecode(data.selected[0]);
-						setStatusProcess('Opening file: '+file);
-						openFile(file).then((data)=>{
-							const fileName = file.split('/').pop();											
-							addTab(file,data);
-							setStatusProcess('Done');
-						});
+						openFileThenAddToTab(file);
 					}
 				}
 				
