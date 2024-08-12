@@ -8,6 +8,16 @@
 	<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-quartz.min.css">
 	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
+	<style>
+        /* Make sure the container has a height */
+        #myGrid {
+            height: calc(100vh - 70px); /* Full viewport height */
+            width: 100%;
+        }
+        .ag-theme-quartz {
+			--ag-grid-size: 3px; /* very compact */
+		}
+    </style>
 </head>
 <body class="" >
 	<form class="mb-2 ajax-form" id="frmFindInFiles" method="post" action="/api/plugins/find-in-files/search" data-callback="showResult">
@@ -19,7 +29,7 @@
 				<input type="text" id="txtSearchfor" placeholder="Search for" name="searchfor" />
 			</div>			
 			<div class="col-auto">
-				<input type="text" id="txtExts"  placeholder="Extensions" name="exts" />
+				<input type="text" id="txtExts" value=".js, .jsx, .ts, .tsx" placeholder="Extensions" name="exts" />
 			</div>			
 			<div class="col-auto">
 				<input type="text" id="txtFolder"  placeholder="Folder" name="folder" />
@@ -27,11 +37,15 @@
 			<div class="col-auto">
 				<button type="submit">Search</button>
 			</div>
+			<div class="col-auto"><div id="txttotal"></div></div>
+			
 	  </div>
 	</form>
 	<div class="search-result">
-		<div id="myGrid" style="height: 600px; width: 100%;" class="ag-theme-quartz-dark"></div>
-		<div id="txttotal"></div>
+		<div class="row mb-2">
+			<div id="myGrid"  class="ag-theme-quartz-dark"></div>
+		</div>
+		
 		<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
     
 	</div>
@@ -40,32 +54,49 @@
     <script src="/assets/js/form.js"></script>       
     
 	<script type="text/javascript">
+		let gridApi;
+		//console.log('result',data);
+		const columnDefs = [
+			{headerName: "File Path", field: "filePath"},
+			{headerName: "Line Number", field: "lineNum"},
+			{headerName: "Line Content", field: "line", flex: 1}
+		];
+
+		// Let the grid know which columns and what data to use
+		const gridOptions = {
+			columnDefs: columnDefs,
+			rowData: [],
+			rowSelection: 'single',
+			onGridReady: (params) => {
+				// Store grid API reference
+				console.log('grid ready');				
+			},
+			onRowClicked: (event) => {
+				var baseFolder = window.parent.getFolderPath();						
+				window.parent.openFileThenAddToTabThenGoToLine(baseFolder+event.data.filePath,event.data.lineNum);
+			}
+		};
+		
 		jQuery(document).ready(function($){
 			$('#txtFolder').val(window.parent.getFolderPath());			
 			//window.parent.openFileThenAddToTab('/media/aldo/data/projects/aldoapp-university/apps/react-admin/src/components/AllProgramDropdown.js');
+			const gridDiv = document.querySelector('#myGrid');
 			
+			gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
 		});
+		
+
+		
+		
 		function showResult(data){
 			if(data.status==1){
-				//console.log('result',data);
-				const columnDefs = [
-					{headerName: "File Path", field: "filePath"},
-					{headerName: "Line Number", field: "lineNum"},
-					{headerName: "Line Content", field: "line", flex: 1}
-				];
-
-				// Let the grid know which columns and what data to use
-				const gridOptions = {
-					columnDefs: columnDefs,
-					rowData: data.message,
-					rowSelection: 'single',
-					onRowClicked: (event) => {
-						var baseFolder = window.parent.getFolderPath();						
-						window.parent.openFileThenAddToTabThenGoToLine(baseFolder+event.data.filePath,event.data.lineNum);
-					}
-				};
-				const gridDiv = document.querySelector('#myGrid');
-				new agGrid.Grid(gridDiv, gridOptions);	
+				console.log('11');
+				if (gridApi) {
+					console.log(data.message);
+					
+					gridApi.setGridOption("rowData", data.message)
+				}
 				$('#txttotal').html('Search complete with '+data.message.length+' matches');
 	
 			}else{
@@ -74,6 +105,22 @@
 
 		}
 		window.showResult = showResult;
+		// Function to resize the grid to fit the container
+        function resizeGrid() {
+            const gridDiv = document.querySelector('#myGrid');
+            gridDiv.style.height = 'calc(100vh - 70px)'; // Ensure the height is 100% of viewport height
+            gridDiv.style.width = '100%';   // Ensure the width is 100% of the container
+            const grid = gridDiv.querySelector('.ag-root');
+            if (grid) {
+               // grid.style.height = 'calc(100% - 70px)'; // Ensure AG Grid height takes up 100% of the container
+            }
+        }
+
+        // Resize the grid on window resize
+        window.addEventListener('resize', resizeGrid);
+
+        // Initial resize
+        resizeGrid();
 		
 	</script>
 </body>

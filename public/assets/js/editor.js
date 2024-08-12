@@ -225,11 +225,29 @@ function logCursorPosition() {
 }
 function loadEditor(){
 	require(["vs/editor/editor.main"], function () {				
+		monaco.editor.defineTheme('my-custom-theme', {
+			base: 'vs-dark', // Base theme
+			inherit: true, // Inherit base theme rules
+			rules: [
+				//{ token: 'comment', foreground: '6A9955' },
+				//{ token: 'keyword', foreground: 'C586C0' },
+				//{ token: 'string', foreground: 'CE9178' },
+				// Add more custom rules here
+			],
+			colors: {
+				'editor.background': '#000000', // Background color
+				//'editor.foreground': '#D4D4D4', // Text color
+				'editorCursor.foreground': '#AEAFAD', // Cursor color
+				'editor.lineHighlightBackground': '#2D2D2D', // Line highlight color
+				'editor.selectionBackground': '#264F78', // Selection color
+				// Add more custom colors here
+			}
+		});
 		editor = monaco.editor.create(container, {
 			value: 'Welcome!',
 			language: 'javascript',
 			automaticLayout: true,
-			theme: 'vs-dark',
+			theme: 'my-custom-theme',
 			 breadcrumbs: {
 			  enabled: true,
 			  useNative: false, // Use custom breadcrumb rendering
