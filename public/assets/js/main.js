@@ -1,4 +1,8 @@
 const wh = $(window).height();
+var folderPath;
+function getFolderPath(){
+	return folderPath;
+}
 function adjustLayout(){	
 	const fh = $('.first-row').outerHeight();
 	const sh = $('.status-row').outerHeight();
@@ -74,7 +78,7 @@ jQuery(document).ready(function($){
 		openDir(data.folderpath);
 		//save to local storage
 		localStorage.setItem("lastFolder", data.folderpath);
-
+		folderPath = data.folderpath;
 		document.title = title;		
 		$('.second-row').removeClass('d-none');
 		$('.status-row').removeClass('d-none');

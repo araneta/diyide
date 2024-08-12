@@ -5,22 +5,24 @@
 	<title></title>
 	<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">    
     <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
+	<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-quartz.min.css">
 	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
 </head>
 <body class="" >
-	<form class="mb-2" id="frmFindInFiles" method="post" action="">
+	<form class="mb-2 ajax-form" id="frmFindInFiles" method="post" action="/api/plugins/find-in-files/search" data-callback="showResult">
 	  <div class="row g-3 align-items-center">
 			<div class="col-auto">
 				<label for="txtSearchfor" class="col-form-label" ></label>
 			</div>
 			<div class="col-auto">
-				<input type="text" id="txtSearchfor" placeholder="Search for">
+				<input type="text" id="txtSearchfor" placeholder="Search for" name="searchfor" />
 			</div>			
 			<div class="col-auto">
-				<input type="text" id="txtExts"  placeholder="Extensions">
+				<input type="text" id="txtExts"  placeholder="Extensions" name="exts" />
 			</div>			
 			<div class="col-auto">
-				<input type="text" id="txtFolder"  placeholder="Folder">
+				<input type="text" id="txtFolder"  placeholder="Folder" name="folder" />
 			</div>
 			<div class="col-auto">
 				<button type="submit">Search</button>
@@ -28,45 +30,51 @@
 	  </div>
 	</form>
 	<div class="search-result">
-		<table class="table table-striped table-hover">
-		  <thead>
-			<tr>
-			  <th scope="col">#</th>
-			  <th scope="col">First</th>
-			  <th scope="col">Last</th>
-			  <th scope="col">Handle</th>
-			</tr>
-		  </thead>
-		  <tbody>
-			<tr>
-			  <th scope="row">1</th>
-			  <td>Mark</td>
-			  <td>Otto</td>
-			  <td>@mdo</td>
-			</tr>
-			<tr>
-			  <th scope="row">2</th>
-			  <td>Jacob</td>
-			  <td>Thornton</td>
-			  <td>@fat</td>
-			</tr>
-			<tr>
-			  <th scope="row">3</th>
-			  <td colspan="2">Larry the Bird</td>
-			  <td>@twitter</td>
-			</tr>
-		  </tbody>
-		</table>
+		<div id="myGrid" style="height: 600px; width: 100%;" class="ag-theme-quartz-dark"></div>
+		<div id="txttotal"></div>
+		<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
+    
 	</div>
 	<script type="text/javascript" src="/assets/js/jquery.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
+    <script src="/assets/js/form.js"></script>       
+    
 	<script type="text/javascript">
 		jQuery(document).ready(function($){
-			$('#frmFindInFiles').submit(function(e){
-				e.preventDefault();									
-				window.parent.openFileThenAddToTab('/media/aldo/data/projects/aldoapp-university/apps/react-admin/src/components/AllProgramDropdown.js');
-			});
+			$('#txtFolder').val(window.parent.getFolderPath());			
+			//window.parent.openFileThenAddToTab('/media/aldo/data/projects/aldoapp-university/apps/react-admin/src/components/AllProgramDropdown.js');
+			
 		});
+		function showResult(data){
+			if(data.status==1){
+				//console.log('result',data);
+				const columnDefs = [
+					{headerName: "File Path", field: "filePath"},
+					{headerName: "Line Number", field: "lineNum"},
+					{headerName: "Line Content", field: "line", flex: 1}
+				];
+
+				// Let the grid know which columns and what data to use
+				const gridOptions = {
+					columnDefs: columnDefs,
+					rowData: data.message,
+					rowSelection: 'single',
+					onRowClicked: (event) => {
+						var baseFolder = window.parent.getFolderPath();						
+						window.parent.openFileThenAddToTabThenGoToLine(baseFolder+event.data.filePath,event.data.lineNum);
+					}
+				};
+				const gridDiv = document.querySelector('#myGrid');
+				new agGrid.Grid(gridDiv, gridOptions);	
+				$('#txttotal').html('Search complete with '+data.message.length+' matches');
+	
+			}else{
+				alert(data.message);
+			}
+
+		}
+		window.showResult = showResult;
+		
 	</script>
 </body>
 </html>

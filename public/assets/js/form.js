@@ -1,11 +1,18 @@
 jQuery(document).ready(function($){
-	$('.datepicker').datepicker({
+	/*$('.datepicker').datepicker({
 		format:'dd/mm/yyyy',		
-	});
+	});*/
 	function endsWith(str, suffix) {
 		return str.indexOf(suffix, str.length - suffix.length) !== -1;
 	}
-	
+	function getHeader(){
+		var token = localStorage.token?localStorage.token:'';
+		return {
+			"X-Requested-With": "XMLHttpRequest",
+			"Content-Type": "application/json;charset=UTF-8",
+			"Authorization":"Bearer "+token
+		};
+	}
 	function objectifyForm(formArray) {
 		//serialize data function
 		var returnArray = {};
@@ -18,6 +25,7 @@ jQuery(document).ready(function($){
 		event.preventDefault(); //prevent default action 
 		var $target = $(event.target);
 		var $status = $target.find('.statusbox');
+		var functionName = $target.attr('data-callback');
 		var submit = $target.find('input[type="submit"]');
 		if(submit.length==0){
 			submit = $target.find('button[type="submit"]');
@@ -84,33 +92,38 @@ jQuery(document).ready(function($){
 			headers:getHeader(),		
 			success(data){				
 				console.log('success',data);
-				if(data.status==1){
-					success = true;
-					if($status){						
-						var ret = $target.find('input[name="success-message"]').val();
-						if(ret){
-							$status.html('<div class="alert alert-success">'+ret+'</div>');					
-						}else{
-							$status.html('<div class="alert alert-success">'+data.message+'</div>');					
-						}
-						
-					}
+				if(functionName){
+					console.log('cb',functionName);
+					window[functionName](data);
 				}else{
-					if($status){
-						if (
-							typeof data.message === 'object' &&
-							!Array.isArray(data.message) &&
-							data.message !== null
-						) {
-							$status.html('<div class="alert alert-danger">'+data.message.Message+'</div>');
-						}else{
-							$status.html('<div class="alert alert-danger">'+data.message+'</div>');
+					if(data.status==1){
+						success = true;
+						if($status){						
+							var ret = $target.find('input[name="success-message"]').val();
+							if(ret){
+								$status.html('<div class="alert alert-success">'+ret+'</div>');					
+							}else{
+								$status.html('<div class="alert alert-success">'+data.message+'</div>');					
+							}
+							
 						}
-						
+					}else{
+						if($status){
+							if (
+								typeof data.message === 'object' &&
+								!Array.isArray(data.message) &&
+								data.message !== null
+							) {
+								$status.html('<div class="alert alert-danger">'+data.message.Message+'</div>');
+							}else{
+								$status.html('<div class="alert alert-danger">'+data.message+'</div>');
+							}
+							
+						}
 					}
-				}
-				if($status){
-					$status.attr("tabindex",-1).focus();
+					if($status){
+						$status.attr("tabindex",-1).focus();
+					}
 				}
 			},
 			error(data) { // if error occured

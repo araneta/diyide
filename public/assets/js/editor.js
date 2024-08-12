@@ -22,7 +22,7 @@ const extensionToLanguageMap = {
 };
 let activeEditor = null;		
 var projectDir = '';
-var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path, isdirty:true/false}
+var editorModels = new Map();//key:hash fpath, val:{model:monaco model, state: monaco state, fpath:file path, isdirty:true/false, hsplit:false}
 var editor;
 var activeTab;//for contex menu
 var timeout; //for breadcrumb functions
@@ -366,10 +366,21 @@ function setTabContextMenu(){
 }
 function openFileThenAddToTab(file){
 	setStatusProcess('Opening file: '+file);
-	openFile(file).then((data)=>{
+	return openFile(file).then((data)=>{
 		const fileName = file.split('/').pop();											
 		addTab(file,data);
 		setStatusProcess('Done');
+	});
+}
+function openFileThenAddToTabThenGoToLine(file,lineNumber){
+	openFileThenAddToTab(file).then(()=>{
+		setTimeout(() => {
+			console.log("1 second later...");
+			editor.setPosition({ lineNumber: lineNumber, column: 0 });
+			editor.revealPositionInCenter({ lineNumber: lineNumber, column: 0 });
+			editor.focus();
+		}, 1000);
+		
 	});
 }
 function openFile(file){
@@ -430,7 +441,7 @@ function addTabElement(id, fpath){
 }
 function addTab(fpath,data){
 	
-	generateHash(fpath).then(function(hash) {
+	return generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;
 		
 		if (editorModels.has(id)) {

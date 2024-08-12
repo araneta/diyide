@@ -114,8 +114,7 @@ func main() {
 	//init controller
 
 	var adminCont = new(controllers.AdminController)
-
-	//var userCont = new(controllers.UserController)
+	var findInFilesCont = new(controllers.FindInFilesController)
 
 	var port string
 	port = "8080"
@@ -153,6 +152,10 @@ func main() {
 		API.Post("/definitions", adminCont.Definitions)	
 		API.Post("/tree-structure", adminCont.TreeStructure)	
 		
+
+		//plugins
+		//find in files
+		API.Post("/plugins/find-in-files/search", findInFilesCont.FindInFiles)	
 	}
 
 	app.Listen(":" + port)

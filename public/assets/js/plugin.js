@@ -23,7 +23,7 @@ class PluginManager {
   loadPluginScript(url) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = url;
+      script.src = url+'?rnd'+Math.random();
       script.onload = () => {
         // Plugin class should be registered during script load
         const pluginInstance = this.pendingPluginInstance;
@@ -65,7 +65,7 @@ function createOverlayBox(boxId,title, iframeurl, onloadEvent){
 		</div>		
 		`;
 		var ifrm = document.createElement("iframe");
-        ifrm.setAttribute("src", iframeurl);
+        ifrm.setAttribute("src", iframeurl+'?rnd'+Math.random());
         ifrm.style.width = "100%";
         ifrm.style.height = "100%";
         ifrm.style.overflow = 'hidden';
@@ -106,8 +106,8 @@ function createOverlayBox(boxId,title, iframeurl, onloadEvent){
 	$(modalElem).find('.close').on('click', function() {
 		$(modalElem).removeClass('visible').addClass('hidden');
 		setTimeout(function(){
-			$('#'+boxId).remove();
-			overlayBoxMap.delete(boxId);
+			//$('#'+boxId).remove();
+			//overlayBoxMap.delete(boxId);
 		}, 1000);
 		
 	});
