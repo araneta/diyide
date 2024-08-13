@@ -196,12 +196,14 @@ function updateBreadcrumbs() {
 				const functions = data.message.functions;
 				
 				functionDropdown.innerHTML = '<option value="">Select a function...</option>';
-				functions.forEach(func => {
-				  const option = document.createElement('option');
-				  option.value = func.startLine;
-				  option.textContent = func.name;
-				  functionDropdown.appendChild(option);
-				});
+				if(functions){
+					functions.forEach(func => {
+					  const option = document.createElement('option');
+					  option.value = func.startLine;
+					  option.textContent = func.name;
+					  functionDropdown.appendChild(option);
+					});
+				}
 				// Event listener for select dropdown change
 				  functionDropdown.addEventListener('change', function() {
 					const lineNumber = parseInt(this.value, 10);

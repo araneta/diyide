@@ -52,55 +52,26 @@ function createOverlayBox(boxId,title, iframeurl, onloadEvent){
 	}else{
 		modalElem = document.createElement('div');
 		modalElem.id = boxId;		
-		modalElem.className = "overlay-container hidden";
+		modalElem.className = " hidden modal-window";
+		
+		var iframeurlx = iframeurl+'?rnd'+Math.random();
 		modalElem.innerHTML = `
-		<div class="resize-handle" ></div>
-		<div class="header row py-1 mt-2">
+		<div class="modal-header">
 			<div class="flex-fill align-items-start col-auto">
 				<h5 class="mb-0">${title}</h5>
 			</div>	
 			<div class="col-auto align-items-end">
 				<button type="button" class="close" >x</button>
-			</div>	
-		</div>		
-		`;
-		var ifrm = document.createElement("iframe");
-        ifrm.setAttribute("src", iframeurl+'?rnd'+Math.random());
-        ifrm.style.width = "100%";
-        ifrm.style.height = "100%";
-        ifrm.style.overflow = 'hidden';
-        ifrm.width = "100%";
-        ifrm.height = "100%";
-        ifrm.frameborder=0;
-        ifrm.onload = onloadEvent;
-        modalElem.append(ifrm);
-		$('body').append(modalElem);				
+			</div>
+		</div>
+    <div class="modal-body">
+        <iframe src="${iframeurlx}"></iframe>
+    </div>`;
+		
+		$('body').append(modalElem);	
+		makeModalWindow(modalElem);			
 		overlayBoxMap.set(boxId,modalElem);
 		
-		let isResizing = false;
-		let lastMouseY;
-		const handle = $(modalElem).find('.resize-handle');
-		handle.on('mousedown', function(e) {
-			isResizing = true;
-			lastMouseY = e.clientY;
-			$('body').on('mousemove', onMouseMove);
-			$('body').on('mouseup', onMouseUp);
-			e.preventDefault(); // Prevent text selection
-		});
-
-		function onMouseMove(e) {
-			if (!isResizing) return;
-			const overlay = $(modalElem);
-			const newHeight = overlay.height() - (e.clientY - lastMouseY);
-			overlay.css('height', newHeight);
-			lastMouseY = e.clientY;
-		}
-
-		function onMouseUp() {
-			isResizing = false;
-			$('body').off('mousemove', onMouseMove);
-			$('body').off('mouseup', onMouseUp);
-		}
 	}
 	$(modalElem).removeClass('hidden').addClass('visible');
 	$(modalElem).find('.close').on('click', function() {

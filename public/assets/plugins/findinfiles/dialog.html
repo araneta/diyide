@@ -5,18 +5,24 @@
 	<title></title>
 	<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">    
     <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
-	<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
-    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-quartz.min.css">
+	<link rel="stylesheet" href="/assets/css/ag-grid.min.css">
+    <link rel="stylesheet" href="/assets/css/ag-theme-quartz.min.css">
 	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
 	<style>
         /* Make sure the container has a height */
         #myGrid {
-            height: calc(100vh - 70px); /* Full viewport height */
+            height: calc(100vh - 50px); /* Full viewport height */
             width: 100%;
         }
         .ag-theme-quartz {
 			--ag-grid-size: 3px; /* very compact */
 		}
+		/* Adjust the padding and font size to make the grid content more compact */
+	.ag-theme-quartz .ag-cell {
+		padding-top: 2px;
+		padding-bottom: 2px;
+		font-size: 12px; /* Smaller font size */
+	}
     </style>
 </head>
 <body class="" >
@@ -46,10 +52,10 @@
 			<div id="myGrid"  class="ag-theme-quartz-dark"></div>
 		</div>
 		
-		<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
+		<script src="/assets/js/ag-grid-community.noStyle.js"></script>
     
 	</div>
-	<script type="text/javascript" src="/assets/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
     <script src="/assets/js/form.js"></script>       
     
@@ -67,6 +73,7 @@
 			columnDefs: columnDefs,
 			rowData: [],
 			rowSelection: 'single',
+			rowHeight: 20, // Smaller row height
 			onGridReady: (params) => {
 				// Store grid API reference
 				console.log('grid ready');				
@@ -108,11 +115,11 @@
 		// Function to resize the grid to fit the container
         function resizeGrid() {
             const gridDiv = document.querySelector('#myGrid');
-            gridDiv.style.height = 'calc(100vh - 70px)'; // Ensure the height is 100% of viewport height
+            gridDiv.style.height = 'calc(100vh - 50px)'; // Ensure the height is 100% of viewport height
             gridDiv.style.width = '100%';   // Ensure the width is 100% of the container
             const grid = gridDiv.querySelector('.ag-root');
             if (grid) {
-               // grid.style.height = 'calc(100% - 70px)'; // Ensure AG Grid height takes up 100% of the container
+               // grid.style.height = 'calc(100% - 50px)'; // Ensure AG Grid height takes up 100% of the container
             }
         }
 
