@@ -57,7 +57,7 @@ function resolveImport(filePath, importPath) {
 function recursivelyIndexImports(filePath, visited = new Set()) {
   const resolvedPath = resolveFilePath(filePath);
   if (!resolvedPath) {
-    //console.error(`File does not exist: ${filePath}`);
+    // console.error(`File does not exist: ${filePath}`);
     return [];
   }
 
@@ -66,16 +66,34 @@ function recursivelyIndexImports(filePath, visited = new Set()) {
   }
   visited.add(resolvedPath);
 
-  const imports = parseImports(resolvedPath);
-  const resolvedImports = imports.map(importPath => resolveImport(resolvedPath, importPath)).filter(Boolean);
+  let imports = [];
+  try {
+    imports = parseImports(resolvedPath);
+  } catch (error) {
+    console.error(`Error parsing imports in file: ${resolvedPath}`, error);
+    return [];
+  }
+
+  let resolvedImports = [];
+  try {
+    resolvedImports = imports.map(importPath => resolveImport(resolvedPath, importPath)).filter(Boolean);
+  } catch (error) {
+    console.error(`Error resolving imports in file: ${resolvedPath}`, error);
+    return [];
+  }
 
   let allImports = [resolvedPath];
   for (const importFilePath of resolvedImports) {
-    allImports = allImports.concat(recursivelyIndexImports(importFilePath, visited));
+    try {
+      allImports = allImports.concat(recursivelyIndexImports(importFilePath, visited));
+    } catch (error) {
+      console.error(`Error indexing imports recursively for file: ${importFilePath}`, error);
+    }
   }
 
   return allImports;
 }
+
 
 const filePath = process.argv[2];
 const allImports = recursivelyIndexImports(filePath);
