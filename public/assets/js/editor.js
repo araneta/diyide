@@ -637,6 +637,9 @@ function switchEditor(id) {
 	}
 					
 	var sel = editorModels.get(id);
+	if(!sel){
+		return;
+	}
 	editor.setModel(sel.model);
 	editor.restoreViewState(sel.state);
 	editor.focus();
