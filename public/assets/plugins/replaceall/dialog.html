@@ -1,0 +1,80 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<title></title>
+	<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">    
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
+	
+	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
+	
+</head>
+<body class="" >
+	<form class="mb-2 " id="frmReplaceAll" method="post" action="#" >
+	  <div class="row g-3 align-items-center">
+			
+			<div class="col-auto">
+				<input type="text" id="txtSearchfor" placeholder="Search for" name="searchfor" />
+			</div>			
+			
+			<div class="col-auto">
+				<input type="text" id="txtReplaceWith" placeholder="Replace with" name="replacewith" />
+			</div>		
+			<div class="col-auto">
+				<button type="submit">Replace in Session</button>
+			</div>
+	  </div>
+	</form>
+	<div class="search-result">
+		<div class="row mb-2">
+			<div id="myGrid"  class="ag-theme-quartz-dark"></div>
+		</div>
+		
+		<script src="/assets/js/ag-grid-community.noStyle.js"></script>
+    
+	</div>
+	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
+    
+    
+	<script type="text/javascript">
+		// Function to find and replace text in all Monaco models
+		function findAndReplaceInAllModels(findText, replaceText) {
+			// Get all models currently managed by Monaco Editor
+			
+			for (const [key, value] of window.parent.editorModels.entries()) {
+				const model = value.model;
+				const matches = model.findMatches(findText, false, true, false, null, true);
+
+				// Prepare edits for replacement
+				const edits = matches.map(match => {
+					return {
+						range: match.range, // Range of the matched text
+						text: replaceText   // Replacement text
+					};
+				});
+
+				// Apply the edits to the current model
+				model.applyEdits(edits);
+				value.isdirty = true;
+				const id = key;
+				alert(id);
+				window.parent.jQueryGetElement('#'+id).addClass('dirty');
+			}
+
+		}
+
+		jQuery(document).ready(function($){
+			$('#frmReplaceAll').submit(function(e){
+				e.preventDefault();
+				var src = $('#txtSearchfor').val();
+				var dest = $('#txtReplaceWith').val();
+				findAndReplaceInAllModels(src,dest); 
+				
+			});	
+		});
+		
+		
+	</script>
+</body>
+</html>

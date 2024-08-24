@@ -13,3 +13,6 @@ const secondRow = document.getElementById('second-row');
 function setStatusProcess(text){
 	$('#statusProcess').html(text);
 }
+function jQueryGetElement(sel){
+	return $(sel);
+}
