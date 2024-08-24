@@ -103,7 +103,10 @@ function setDirtyStatus(){
 	const fpath = model.uri.path;
 	generateHash(fpath).then(function(hash) {
 		const id = 't'+hash;		
-		editorModels.get(id).isdirty = true;
+		const modelx = editorModels.get(id);
+		if(modelx){
+			modelx.isdirty = true;
+		}
 		$('#'+id).addClass('dirty');
 	});
 }
@@ -146,8 +149,12 @@ function saveAllTabs(){
 }
 function saveContent(){
 	setStatusProcess('Saving...');
+	const modelx = editorModels.get(activeEditor);
+	if(!modelx){
+		return;
+	}
 	const formData = {
-	  fpath: editorModels.get(activeEditor).fpath,		
+	  fpath: modelx.fpath,		
 	  buffer: editor.getValue()	  
 	};
 	$.ajax({
@@ -158,7 +165,7 @@ function saveContent(){
 	  success: function(data) {			
 			if(data=='ok'){
 				setStatusProcess('Done');
-				editorModels.get(activeEditor).isdirty = false;
+				modelx.isdirty = false;
 				$('#'+activeEditor).removeClass('dirty');
 				updateFileStructurePanel();
 			}else{
@@ -440,20 +447,23 @@ function addTabElement(id, fpath){
 	closetab.innerText = 'x';
 	closetab.onclick = function(e){
 		e.stopPropagation();
-		var m = editorModels.get(id);
-		if(m.isdirty){
-			showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
-				
-				if(result){
-					saveContent();
-				}
-				closeEditor(id,fpath);
-			});	
-			
-		}else{
+		const m = editorModels.get(id);
+		if(!m){
 			closeEditor(id,fpath);
+		}else{
+			if(m.isdirty){
+				showConfirmationDlg('Confirmation','Do you want to save the changes you made to : '+m.fpath+' ?').then(result=>{
+					
+					if(result){
+						saveContent();
+					}
+					closeEditor(id,fpath);
+				});	
+				
+			}else{
+				closeEditor(id,fpath);
+			}
 		}
-		
 	};
 	tab.appendChild(closetab);
 	
@@ -629,14 +639,14 @@ function switchEditor(id) {
 	var currentState = editor.saveViewState();
 	
 	if(activeEditor){
-		var mod = editorModels.get(activeEditor);
+		const mod = editorModels.get(activeEditor);
 		
 		if(mod){
-			editorModels.get(activeEditor).state = currentState;
+			mod.state = currentState;
 		}
 	}
 					
-	var sel = editorModels.get(id);
+	const sel = editorModels.get(id);
 	if(!sel){
 		return;
 	}
