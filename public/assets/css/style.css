@@ -301,6 +301,7 @@ select option {
 	overflow-x: hidden;
   white-space: nowrap;
   flex-grow: 1;
+  width: 700px;
   -webkit-overflow-scrolling: touch;
 }
 #editor-tabs>.tab{
