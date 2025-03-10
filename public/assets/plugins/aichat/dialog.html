@@ -6,21 +6,106 @@
 	<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">    
     <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
 	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
-	
-	<style>
-        
+	<!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Custom styles for code blocks */
+        pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+        }
+		#chat-panel h2{
+			font-size:12px;
+		}
+        #chat-display{
+			overflow: scroll;
+			height: 90vh;
+
+		}
+		#chat-display {
+			font-family: Arial, sans-serif;			
+			padding: 10px;			
+			max-height: 400px;
+			overflow-y: auto;			
+		}
+
+		#chat-display pre {
+			background-color: #282c34; /* Dark background for code blocks */
+			color: #abb2bf; /* Light text color for contrast */
+			padding: 15px;
+			border-radius: 6px;
+			font-family: "Courier New", Courier, monospace;
+			font-size: 14px;
+			line-height: 1.5;
+			overflow-x: auto;
+			white-space: pre-wrap; /* Preserve formatting but wrap long lines */
+			word-wrap: break-word;
+			margin: 10px 0;
+		}
+
+		#chat-display code {
+			font-family: "Courier New", Courier, monospace;
+			font-size: 14px;
+			color: #abb2bf;
+		}
+
+		#chat-display p {
+			margin: 5px 0;			
+		}
+
+		#chat-display strong {
+			color: #007bff; /* Blue color for user/assistant labels */
+		}
     </style>
 </head>
 <body class="" >
 	<div id="chat-panel" class="panel">
         <h2>Chat Panel</h2>
+        <div class="clearfix mb-3">
+			<div class="container mt-4">
+				<div class="row form-group mb-2">
+					<div class="col-md-2 col-sm-12">
+						<label for="ddlAiAgent" class="form-label">Agent</label>
+					</div>
+					<div class="col-md-10 col-sm-12">
+						<select id="ddlAiAgent" class="form-control">
+							<option value="deepseek">Deepseek</option>
+							<option value="gemini">Gemini</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="row form-group  mb-2">
+					<div class="col-md-2 col-sm-12">
+						<label for="chat-input" class="form-label">Command</label>
+					</div>
+					<div class="col-md-10 col-sm-12">
+						<textarea id="chat-input" class="form-control" placeholder="Ask DeepSeek..." rows="1"></textarea>
+					</div>
+				</div>
+
+				<div class="row form-group  mb-2">
+					<div class="col-md-2 col-sm-12">
+						<!-- Empty column for alignment -->
+					</div>
+					<div class="col-md-10 col-sm-12">
+						<button id="btnSend" class="btn btn-success">Send</button>
+					</div>
+				</div>
+			</div>
+			
+			
+			
+        </div>
+        
         <div id="chat-display"></div>
-        <select id="ddlAiAgent">
-			<option value="deepseek">Deepseek</option>
-			<option value="gemini">Gemini</option>
-        </select>
-        <input type="text" id="chat-input" placeholder="Ask DeepSeek...">
-        <button id="btnSend">Send</button>
     </div>
 	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
@@ -34,28 +119,41 @@
 		});
 
         function sendToDeepSeek() {
-            const input = document.getElementById('chat-input').value;
-            const ddlAiAgent = document.getElementById('ddlAiAgent').value;
-            //const code = document.getElementById('code-display').textContent;
-            const modelx = window.parent.editor.getModel();
-            console.log('modelx',modelx);
-            
-            const code = modelx.getValue();
+			// Disable the button
+			const btnSend = document.getElementById('btnSend');
+			btnSend.disabled = true;
+			btnSend.textContent = 'Sending...'; // Optional: Change button text to indicate loading
 
-            fetch('/api/plugins/aichat/analyze', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code: code, question: input, aiagent:ddlAiAgent })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const chatDisplay = document.getElementById('chat-display');
-                chatDisplay.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
-                chatDisplay.innerHTML += `<p><strong>DeepSeek:</strong> ${data.response}</p>`;
-            });
-        }
+			const input = document.getElementById('chat-input').value;
+			const ddlAiAgent = document.getElementById('ddlAiAgent').value;
+			const modelx = window.parent.editor.getModel();
+			console.log('modelx', modelx);
+
+			const code = modelx.getValue();
+
+			fetch('/api/plugins/aichat/analyze', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ code: code, question: input, aiagent: ddlAiAgent })
+			})
+			.then(response => response.json())
+			.then(data => {
+				const chatDisplay = document.getElementById('chat-display');
+				chatDisplay.innerHTML = marked.parse(data.response);
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('An error occurred while sending the request.');
+			})
+			.finally(() => {
+				// Re-enable the button
+				btnSend.disabled = false;
+				btnSend.textContent = 'Send'; // Optional: Reset button text
+			});
+		}
+
 
 		
 	</script>

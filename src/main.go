@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	_ "os"
+	_ "path/filepath"
 	"strings"
 	_ "time"
-	_ "path/filepath"
 
 	"github.com/kataras/iris/v12"
 
@@ -115,6 +115,7 @@ func main() {
 
 	var adminCont = new(controllers.AdminController)
 	var findInFilesCont = new(controllers.FindInFilesController)
+	var AIChatCont = new(controllers.AIChatController)
 
 	var port string
 	port = "8080"
@@ -136,26 +137,26 @@ func main() {
 
 	API := app.Party("/api")
 	{
-		API.Get("/test", adminCont.Test)		
-		
-		API.Get("/files/filetree", adminCont.OpenDir)	
-		API.Post("/files/read", adminCont.ReadFile)		
-		API.Post("/files/write", adminCont.WriteFile)	
-		API.Post("/files/words", adminCont.GetWords)	
-		API.Post("/files/create", adminCont.CreateFileOrDir)	
-		API.Post("/files/rename", adminCont.RenameFileOrDir)	
-		API.Post("/files/delete", adminCont.DeleteFileOrDir)	
-		API.Post("/files/copy", adminCont.CopyFileOrDir)	
-		API.Post("/files/move", adminCont.MoveFileOrDir)	
-		API.Post("/files", adminCont.ListFiles)	
-		API.Post("/parser", adminCont.Parser)	
-		API.Post("/definitions", adminCont.Definitions)	
-		API.Post("/tree-structure", adminCont.TreeStructure)	
-		
+		API.Get("/test", adminCont.Test)
+
+		API.Get("/files/filetree", adminCont.OpenDir)
+		API.Post("/files/read", adminCont.ReadFile)
+		API.Post("/files/write", adminCont.WriteFile)
+		API.Post("/files/words", adminCont.GetWords)
+		API.Post("/files/create", adminCont.CreateFileOrDir)
+		API.Post("/files/rename", adminCont.RenameFileOrDir)
+		API.Post("/files/delete", adminCont.DeleteFileOrDir)
+		API.Post("/files/copy", adminCont.CopyFileOrDir)
+		API.Post("/files/move", adminCont.MoveFileOrDir)
+		API.Post("/files", adminCont.ListFiles)
+		API.Post("/parser", adminCont.Parser)
+		API.Post("/definitions", adminCont.Definitions)
+		API.Post("/tree-structure", adminCont.TreeStructure)
 
 		//plugins
 		//find in files
-		API.Post("/plugins/find-in-files/search", findInFilesCont.FindInFiles)	
+		API.Post("/plugins/find-in-files/search", findInFilesCont.FindInFiles)
+		API.Post("/plugins/aichat/analyze", AIChatCont.Analyze)
 	}
 
 	app.Listen(":" + port)
