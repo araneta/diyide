@@ -2,4 +2,5 @@
 const pluginFiles = [
 	'findinfiles',
 	'replaceall',
+	'aichat',
 ];

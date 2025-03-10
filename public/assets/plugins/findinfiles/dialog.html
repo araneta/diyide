@@ -43,6 +43,9 @@
 			<div class="col-auto">
 				<button type="submit">Search</button>
 			</div>
+			<div class="col-auto">
+				<button id="btnClear">Clear</button>
+			</div>
 			<div class="col-auto"><div id="txttotal"></div></div>
 			
 	  </div>
@@ -91,6 +94,10 @@
 			const gridDiv = document.querySelector('#myGrid');
 			
 			gridApi = agGrid.createGrid(gridDiv, gridOptions);
+			
+			$('#btnClear').click(function(){
+				gridApi.setGridOption("rowData", [])
+			})
 
 		});
 		
@@ -105,7 +112,9 @@
 					
 					gridApi.setGridOption("rowData", data.message)
 				}
-				$('#txttotal').html('Search complete with '+data.message.length+' matches');
+				var total = data.message ? data.message.length : 0;
+				
+				$('#txttotal').html('Search complete with '+total+' matches');
 	
 			}else{
 				alert(data.message);

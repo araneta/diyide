@@ -1,0 +1,63 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<title></title>
+	<link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">    
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css">
+	<link rel="stylesheet" href="/assets/css/style.css"  type="text/css"/>
+	
+	<style>
+        
+    </style>
+</head>
+<body class="" >
+	<div id="chat-panel" class="panel">
+        <h2>Chat Panel</h2>
+        <div id="chat-display"></div>
+        <select id="ddlAiAgent">
+			<option value="deepseek">Deepseek</option>
+			<option value="gemini">Gemini</option>
+        </select>
+        <input type="text" id="chat-input" placeholder="Ask DeepSeek...">
+        <button id="btnSend">Send</button>
+    </div>
+	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
+    <script src="/assets/js/form.js"></script>       
+    
+	<script type="text/javascript">
+		jQuery(document).ready(function($){
+			$('#btnSend').click(function(){
+				sendToDeepSeek();
+			});
+		});
+
+        function sendToDeepSeek() {
+            const input = document.getElementById('chat-input').value;
+            const ddlAiAgent = document.getElementById('ddlAiAgent').value;
+            //const code = document.getElementById('code-display').textContent;
+            const modelx = window.parent.editor.getModel();
+            console.log('modelx',modelx);
+            
+            const code = modelx.getValue();
+
+            fetch('/api/plugins/aichat/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code, question: input, aiagent:ddlAiAgent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatDisplay = document.getElementById('chat-display');
+                chatDisplay.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+                chatDisplay.innerHTML += `<p><strong>DeepSeek:</strong> ${data.response}</p>`;
+            });
+        }
+
+		
+	</script>
+</body>
+</html>
