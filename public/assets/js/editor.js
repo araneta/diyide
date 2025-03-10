@@ -659,6 +659,26 @@ function switchEditor(id) {
 	
 	$('.tabs .tab').removeClass('active');
 	$('#'+id).addClass('active'); 
+	
+	var $tabsContainer = $('.tabs');
+	var $tabToFocus =$('#'+id);
+	// Get the position of the tab relative to the container
+	// Get the tab's position relative to the container
+	var containerScrollLeft = $tabsContainer.scrollLeft();
+	var containerWidth = $tabsContainer.width();
+	var tabOffsetLeft = $tabToFocus.position().left; // Position relative to the container
+	var tabWidth = $tabToFocus.outerWidth(true); // Include margin
+	
+	// Check if the tab is fully visible
+	if (tabOffsetLeft < 0) {
+		// Tab is to the left of the visible area
+		$tabsContainer.animate({ scrollLeft: containerScrollLeft + tabOffsetLeft }, 400);
+	} else if (tabOffsetLeft + tabWidth > containerWidth) {
+		// Tab is to the right of the visible area
+		var scrollAmount = tabOffsetLeft + tabWidth - containerWidth;
+		$tabsContainer.animate({ scrollLeft: containerScrollLeft + scrollAmount }, 400);
+	}
+	
 	updateBreadcrumbs();
 	updateFileStructurePanel();
 	adjustLayout();
