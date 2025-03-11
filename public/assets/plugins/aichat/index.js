@@ -4,7 +4,7 @@
     init(manager) {
 		console.log("AIChatPlugin initialized.");
 		// Interact with the manager or host application
-		createBottomToolbarButton('AI Chat', function(e){
+		createRightToolbarButton('AI Chat', function(e){
 			e.stopPropagation();			
 			createOverlayBox('AIChatOverlay','AI Chat', '/assets/plugins/aichat/dialog.html',function(){				
 				

@@ -91,5 +91,12 @@ function createBottomToolbarButton(title, callback){
 	findInFilesBtn.onclick = callback;
 	$('#bottomToolbar').append($(findInFilesBtn));
 }
+function createRightToolbarButton(title, callback){
+	const findInFilesBtn = document.createElement('button');	
+	findInFilesBtn.className = 'btn';
+	findInFilesBtn.innerText = title;
+	findInFilesBtn.onclick = callback;
+	$('#right-pane').append($(findInFilesBtn));
+}
 const pluginManager = new PluginManager();
 
