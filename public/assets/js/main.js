@@ -13,6 +13,8 @@ function adjustLayout(){
 	var we = $('#editor-container').width();
 	$('#editor-tabs').css('maxWidth',we+"px");
 	editor.layout();
+	
+	$('#right-pane-content').css('height', divHeight+'px');
 }
 function makeModalWindow(selector) {
         $(selector).draggable({

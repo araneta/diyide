@@ -299,6 +299,7 @@ select option {
 }
 .right-pane-window iframe{    
     width:98%;
+    height: 100vh;
 }
 #editor-container{
 	position:absolute;
