@@ -295,10 +295,9 @@ select option {
 	width:20%;
 }
 .right-pane-window{
-	height:100vh;
+	
 }
-.right-pane-window iframe{
-    height: 100vh;
+.right-pane-window iframe{    
     width:98%;
 }
 #editor-container{
