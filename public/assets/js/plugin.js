@@ -84,6 +84,45 @@ function createOverlayBox(boxId,title, iframeurl, onloadEvent){
 	});
 	return modalElem;
 }
+
+var rightPaneBoxMap = new Map();
+function createRightPaneBox(boxId,title, iframeurl, onloadEvent){
+	var modalElem;
+	if(rightPaneBoxMap.has(boxId)){
+		modalElem = rightPaneBoxMap.get(boxId);
+	}else{
+		modalElem = document.createElement('div');
+		modalElem.id = boxId;		
+		modalElem.className = " hidden right-pane-window";
+		
+		var iframeurlx = iframeurl+'?rnd'+Math.random();
+		modalElem.innerHTML = `
+		<iframe src="${iframeurlx}"></iframe>`;
+		
+		$('#right-pane-content').append(modalElem);			
+		rightPaneBoxMap.set(boxId,modalElem);
+		
+	}
+	$(modalElem).removeClass('hidden').addClass('visible');
+	$(modalElem).find('.close').on('click', function() {
+		$(modalElem).removeClass('visible').addClass('hidden');
+		setTimeout(function(){
+			//$('#'+boxId).remove();
+			//overlayBoxMap.delete(boxId);
+		}, 1000);
+		
+	});
+	// Add resize logic
+    $(modalElem).on('resize', function() {
+        $(modalElem).find('iframe').css({
+            width: '100%',
+            height: '100%'
+        });
+    });
+
+    
+	return modalElem;
+}
 function createBottomToolbarButton(title, callback){
 	const findInFilesBtn = document.createElement('button');	
 	findInFilesBtn.className = 'btn';
@@ -96,7 +135,7 @@ function createRightToolbarButton(title, callback){
 	findInFilesBtn.className = 'btn';
 	findInFilesBtn.innerText = title;
 	findInFilesBtn.onclick = callback;
-	$('#right-pane').append($(findInFilesBtn));
+	$('#right-pane-buttons').append($(findInFilesBtn));
 }
 const pluginManager = new PluginManager();
 

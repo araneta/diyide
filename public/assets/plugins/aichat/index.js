@@ -6,7 +6,7 @@
 		// Interact with the manager or host application
 		createRightToolbarButton('AI Chat', function(e){
 			e.stopPropagation();			
-			createOverlayBox('AIChatOverlay','AI Chat', '/assets/plugins/aichat/dialog.html',function(){				
+			createRightPaneBox('AIChatOverlay','AI Chat', '/assets/plugins/aichat/dialog.html',function(){				
 				
 			});			
 			
