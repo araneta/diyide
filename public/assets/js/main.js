@@ -89,13 +89,21 @@ jQuery(document).ready(function($){
 	//end splitter
 	
 	
-	let isDragging2 = false;	
-	
-	//splitter
+	let isDragging2 = false;
+	let cleanupTimeout;
+
+	// Splitter event
 	splitter2.addEventListener('mousedown', (e) => {
 		isDragging2 = true;
 		document.addEventListener('mousemove', onMouseMove2);
 		document.addEventListener('mouseup', onMouseUp2);
+
+		// Ensure cleanup after 5 seconds
+		cleanupTimeout = setTimeout(() => {
+			if (isDragging2) {
+				onMouseUp2();
+			}
+		}, 5000);
 	});
 
 	function onMouseMove2(e) {
@@ -115,8 +123,11 @@ jQuery(document).ready(function($){
 		isDragging2 = false;
 		document.removeEventListener('mousemove', onMouseMove2);
 		document.removeEventListener('mouseup', onMouseUp2);
+
+		// Clear timeout to prevent unnecessary execution
+		clearTimeout(cleanupTimeout);
 	}
-	//end splitter
+
 	
 	
 	loadEditor();
