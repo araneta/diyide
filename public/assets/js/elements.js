@@ -10,6 +10,10 @@ const pane2 = document.getElementById('pane2');
 const firstRow = document.getElementById('first-row');
 const secondRow = document.getElementById('second-row');
 
+const splitter2 = document.getElementById('splitter2');
+const mainpane = document.getElementById('main-pane');
+const rightpane = document.getElementById('right-pane');
+
 function setStatusProcess(text){
 	$('#statusProcess').html(text);
 }

@@ -87,6 +87,36 @@ jQuery(document).ready(function($){
 	//end splitter
 	
 	
+	let isDragging2 = false;	
+	
+	//splitter
+	splitter2.addEventListener('mousedown', (e) => {
+		isDragging2 = true;
+		document.addEventListener('mousemove', onMouseMove2);
+		document.addEventListener('mouseup', onMouseUp2);
+	});
+
+	function onMouseMove2(e) {
+		if (!isDragging2) return;
+
+		let containerOffsetLeft = pane2.offsetLeft;
+		let newLeftWidth = e.clientX - containerOffsetLeft;
+
+		let containerWidth = pane2.clientWidth;
+		let splitterWidth = splitter2.clientWidth;
+
+		mainpane.style.width = newLeftWidth + 'px';
+		rightpane.style.width = (containerWidth - newLeftWidth - splitterWidth) + 'px';
+	}
+
+	function onMouseUp2() {
+		isDragging2 = false;
+		document.removeEventListener('mousemove', onMouseMove2);
+		document.removeEventListener('mouseup', onMouseUp2);
+	}
+	//end splitter
+	
+	
 	loadEditor();
 	//forms
 	let lastFolder = localStorage.getItem('lastFolder');

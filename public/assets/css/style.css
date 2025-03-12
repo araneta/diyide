@@ -285,6 +285,14 @@ select option {
 #pane2{
 	position:relative;
 	flex: 1;
+	display:flex;
+}
+#main-pane{
+	position:relative;
+	width:80%;
+}
+#right-pane{
+	width:20%;
 }
 #editor-container{
 	position:absolute;
