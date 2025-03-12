@@ -397,6 +397,7 @@ width: 30px;
 }
 .status-row{
     z-index:999;
+    position:relative;
 }
 
 .btn-close{	

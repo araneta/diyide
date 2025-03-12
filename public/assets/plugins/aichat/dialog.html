@@ -83,6 +83,26 @@
 						<textarea id="chat-input" class="form-control" placeholder="Command ..." rows="1"></textarea>
 					</div>
 				</div>
+				<div class="row form-group  mb-2">					
+					<div class="col-md-12 col-sm-12">
+						<label>Include:</label>
+						<div class="mb-1">							
+							<label><input type="checkbox" id="cbCurrentCode" checked> Current Code</label>
+						</div>
+						<div class="mb-1">							
+							<label><input type="checkbox" id="cbFiles"> Files</label>
+							<div id="divfiles">
+								<textarea id="txtFiles" class="form-control" placeholder="1 file path per line" rows="1"></textarea>
+							</div>
+						</div>
+						<div class="mb-1">							
+							<label><input type="checkbox" id="cbImage"> Image</label>
+							<div id="divimage">
+								<input type="file" id="txtImageFile" accept="image/*" />
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div class="row form-group  mb-2">					
 					<div class="col-md-12 col-sm-12">
@@ -106,6 +126,25 @@
 			$('#btnSend').click(function(){
 				sendToDeepSeek();
 			});
+			$('#divfiles').hide();
+			$('#cbFiles').change(function(){
+				console.log('onchange',this.checked);
+				if(this.checked) {
+					$('#divfiles').show();
+				}else{
+					$('#divfiles').hide();
+				}					
+			});
+			
+			$('#divimage').hide();
+			$('#cbImage').change(function(){
+				console.log('onchange',this.checked);
+				if(this.checked) {
+					$('#divimage').show();
+				}else{
+					$('#divimage').hide();
+				}					
+			});
 		});
 
         function sendToDeepSeek() {
@@ -116,17 +155,35 @@
 
 			const input = document.getElementById('chat-input').value;
 			const ddlAiAgent = document.getElementById('ddlAiAgent').value;
-			const modelx = window.parent.editor.getModel();
-			console.log('modelx', modelx);
-
-			const code = modelx.getValue();
+			
+			var useCurrentCode = document.getElementById("cbCurrentCode").checked;
+			var code = '';			
+			if(useCurrentCode){
+				const modelx = window.parent.editor.getModel();
+				code = modelx.getValue();
+			}
+			
+			var useFiles = document.getElementById("cbFiles").checked;
+			var files = [];			
+			if(useFiles){
+				const multiLineString = $('#txtFiles').val();
+				if(multiLineString){
+					files = multiLineString.split('\n');
+				}
+			}
+			
+			var useImage = document.getElementById("cbImage").checked;
+			var imageFile = '';			
+			if(useImage){
+				imageFile = $('#txtImageFile').val();
+			}
 
 			fetch('/api/plugins/aichat/analyze', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ code: code, question: input, aiagent: ddlAiAgent })
+				body: JSON.stringify({ code: code, files: files, imageFile:imageFile, question: input, aiagent: ddlAiAgent })
 			})
 			.then(response => response.json())
 			.then(data => {
