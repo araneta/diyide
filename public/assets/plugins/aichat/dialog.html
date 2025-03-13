@@ -9,6 +9,30 @@
 	<!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
+		.accordion {
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid #ccc;
+            background:transparent;
+        }
+
+        .accordion-header {            
+            padding:4px;
+            cursor: pointer;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 10px;
+        }
+
+        .active .accordion-content {
+            display: block;
+        }
         /* Custom styles for code blocks */
         pre {
             background-color: #282c34;
@@ -66,56 +90,65 @@
     </style>
 </head>
 <body class="" >
-	<div id="chat-panel" class="panel">        
-        <div class="clearfix mb-3">
-			<div class="container">
-				<div class="row form-group mb-2">					
-					<div class="col-md-12 col-sm-12">
-						<select id="ddlAiAgent" class="form-control">														
-							<option value="gemini">Gemini</option>
-							<option value="deepseek">Deepseek</option>
-						</select>
-					</div>
-				</div>
-
-				<div class="row form-group  mb-2">					
-					<div class="col-md-12 col-sm-12">
-						<textarea id="chat-input" class="form-control" placeholder="Command ..." rows="1"></textarea>
-					</div>
-				</div>
-				<div class="row form-group  mb-2">					
-					<div class="col-md-12 col-sm-12">
-						<label>Include:</label>
-						<div class="mb-1">							
-							<label><input type="checkbox" id="cbCurrentCode" checked> Current Code</label>
-						</div>
-						<div class="mb-1">							
-							<label><input type="checkbox" id="cbFiles"> Files</label>
-							<div id="divfiles">
-								<textarea id="txtFiles" class="form-control" placeholder="1 file path per line" rows="1"></textarea>
+	<div id="chat-panel" class="panel">  
+		<div class="accordion">
+			<div class="accordion-item">
+				<div class="accordion-header">Command</div>
+				<div class="accordion-content">
+					<div class="clearfix mb-3">
+						<div class="container">
+							<div class="row form-group mb-2">					
+								<div class="col-md-12 col-sm-12">
+									<select id="ddlAiAgent" class="form-control">														
+										<option value="gemini">Gemini</option>
+										<option value="deepseek">Deepseek</option>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="mb-1">							
-							<label><input type="checkbox" id="cbImage"> Image</label>
-							<div id="divimage">
-								<input type="file" id="txtImageFile" accept="image/*" />
-							</div>
-						</div>
-					</div>
-				</div>
 
-				<div class="row form-group  mb-2">					
-					<div class="col-md-12 col-sm-12">
-						<button id="btnSend" class="btn btn-success">Send</button>
+							<div class="row form-group  mb-2">					
+								<div class="col-md-12 col-sm-12">
+									<textarea id="chat-input" class="form-control" placeholder="Command ..." rows="1"></textarea>
+								</div>
+							</div>
+							<div class="row form-group  mb-2">					
+								<div class="col-md-12 col-sm-12">
+									<label>Include:</label>
+									<div class="mb-1">							
+										<label><input type="checkbox" id="cbCurrentCode" checked> Current Code</label>
+									</div>
+									<div class="mb-1">							
+										<label><input type="checkbox" id="cbFiles"> Files</label>
+										<div id="divfiles">
+											<textarea id="txtFiles" class="form-control" placeholder="1 file path per line" rows="1"></textarea>
+										</div>
+									</div>
+									<div class="mb-1">							
+										<label><input type="checkbox" id="cbImage"> Image</label>
+										<div id="divimage">
+											<input type="file" id="txtImageFile" accept="image/*" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row form-group  mb-2">					
+								<div class="col-md-12 col-sm-12">
+									<button id="btnSend" class="">Send</button>
+								</div>
+							</div>
+						</div>			
 					</div>
 				</div>
 			</div>
+			<div class="accordion-item">
+				<div class="accordion-header">Response</div>
+				<div class="accordion-content">
+					<div id="chat-display"></div>
+				</div>
+			</div>
 			
-			
-			
-        </div>
-        
-        <div id="chat-display"></div>
+		</div>		
     </div>
 	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
@@ -145,6 +178,15 @@
 					$('#divimage').hide();
 				}					
 			});
+			
+			
+			document.querySelectorAll(".accordion-header").forEach(header => {
+				header.addEventListener("click", function () {
+					let item = this.parentElement;
+					item.classList.toggle("active");
+				});
+			});
+			
 		});
 
         function sendToDeepSeek() {

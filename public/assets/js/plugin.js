@@ -97,7 +97,7 @@ function createRightPaneBox(boxId,title, iframeurl, onloadEvent){
 		
 		var iframeurlx = iframeurl+'?rnd'+Math.random();
 		modalElem.innerHTML = `
-		<iframe src="${iframeurlx}"></iframe>`;
+		<iframe src="${iframeurlx}" style=""></iframe>`;
 		
 		$('#right-pane-content').append(modalElem);			
 		rightPaneBoxMap.set(boxId,modalElem);
@@ -116,7 +116,7 @@ function createRightPaneBox(boxId,title, iframeurl, onloadEvent){
     $(modalElem).on('resize', function() {
         $(modalElem).find('iframe').css({
             width: '100%',
-            height: '100%'
+            height: document.documentElement.clientHeight + "px",
         });
     });
 
