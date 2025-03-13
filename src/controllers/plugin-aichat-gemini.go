@@ -6,8 +6,9 @@ import (
 	_ "encoding/base64"
 	_ "encoding/json"
 	"fmt"
-	_ "io/ioutil"
-	_ "net/http"
+
+	"os"
+	"strings"
 
 	"github.com/google/generative-ai-go/genai"
 	_ "github.com/kataras/iris/v12"
@@ -28,7 +29,7 @@ type ApiResponse struct {
 
 var conversationHistory []string
 
-func buildPrompt(code, command string, history []string) string {
+func buildPromptWithCommand(code, command string, history []string) string {
 	prompt := ""
 	for _, h := range history {
 		prompt += h + "\n"
@@ -36,6 +37,21 @@ func buildPrompt(code, command string, history []string) string {
 	prompt += fmt.Sprintf("Analyze this code:\n```\n%s\n```\n\nCommand: %s", code, command)
 	return prompt
 }
+func buildAnalyzePrompt(fpath, code string) string {
+	var prompt string
+
+	prompt = fmt.Sprintf("Analyze the following code, which is from the file: %s \n```\n%s\n```\n\n", fpath, code)
+	return prompt
+}
+func buildPromptCommandWithExistingPrompt(prevPrompt, code, command string, history []string) string {
+	prompt := ""
+	for _, h := range history {
+		prompt += h + "\n"
+	}
+	prompt += fmt.Sprintf("%s\nAnalyze this code:\n```\n%s\n```\n\nCommand: %s", prevPrompt, code, command)
+	return prompt
+}
+
 func getGeminiResponse(prompt string, imageData []byte) (string, error) {
 	ctx := context.Background()
 
@@ -47,27 +63,20 @@ func getGeminiResponse(prompt string, imageData []byte) (string, error) {
 
 	model := client.GenerativeModel(modelName)
 
-	// Read the image file
-	/*imageData, err := ioutil.ReadFile(imagePath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read image file: %w", err)
-	}*/
-
-	// Encode the image data
-	//encodedImage := base64.StdEncoding.EncodeToString(imageData)
-
-	// Create the image part
-	/*imagePart := genai.Part{
-		MIMEType: "image/jpeg", // or "image/png"
-		Data:     genai.ImageData{MIMEType: "image/jpeg", Data: encodedImage},
-	}
-
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))*/
 	// Create the request.
-	req := []genai.Part{
-		genai.ImageData("jpeg", imageData),
+	var req []genai.Part
+	if imageData != nil {
+		req = []genai.Part{
+			genai.ImageData("jpeg", imageData),
 
-		genai.Text(prompt),
+			genai.Text(prompt),
+		}
+
+	} else {
+		req = []genai.Part{
+			genai.Text(prompt),
+		}
+
 	}
 
 	// Generate content.
@@ -101,8 +110,25 @@ func (c *apiKeyCredentials) RequireTransportSecurity() bool {
 }
 
 func (c *AIChatController) GeminiAnalyze(form *AIChatCommandForm) (string, error) {
-	prompt := buildPrompt(form.Code, form.Question, conversationHistory)
 
+	n := len(form.Files)
+	var prompt string
+	if n > 0 {
+		var sb strings.Builder
+
+		for _, file := range form.Files {
+			b, err := os.ReadFile(file) // just pass the file name
+			if err != nil {
+				return "", err
+			}
+
+			sb.WriteString(buildAnalyzePrompt(file, string(b)))
+		}
+		prompt = buildPromptCommandWithExistingPrompt(sb.String(), form.Code, form.Question, conversationHistory)
+	} else {
+		prompt = buildPromptWithCommand(form.Code, form.Question, conversationHistory)
+	}
+	fmt.Println(prompt)
 	result, err := getGeminiResponse(prompt, form.ImageFile)
 	if err != nil {
 		return "", fmt.Errorf("Gemini error: %v\n", err)

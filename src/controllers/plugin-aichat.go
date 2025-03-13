@@ -14,11 +14,12 @@ import (
 type AIChatController struct {
 }
 type AIChatCommandForm struct {
-	Code      string   `json:"code"`
-	Question  string   `json:"question"`
-	AIAgent   string   `json:"aiagent"`
-	ImageFile []byte   `json:"imageFile"`
-	Files     []string `json:"files"`
+	CurrentFilePath string   `json:"currentFilePath"`
+	Code            string   `json:"code"`
+	Question        string   `json:"question"`
+	AIAgent         string   `json:"aiagent"`
+	ImageFile       []byte   `json:"imageFile"`
+	Files           []string `json:"files"`
 }
 type AIChatCommandResult struct {
 	Response string `json:"response"`

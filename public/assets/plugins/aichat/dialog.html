@@ -238,9 +238,11 @@
 			
 			var useCurrentCode = document.getElementById("cbCurrentCode").checked;
 			var code = '';			
+			var currentFilePath = '';
 			if(useCurrentCode){
 				const modelx = window.parent.editor.getModel();
-				code = modelx.getValue();
+				currentFilePath = modelx.uri.path;
+				code = modelx.getValue();				
 			}
 			
 			var useFiles = document.getElementById("cbFiles").checked;
@@ -255,6 +257,7 @@
 			var useImage = document.getElementById("cbImage").checked;
 
 			var payload = {
+				currentFilePath:currentFilePath,
 				code: code,
 				files: files,
 				question: input,
