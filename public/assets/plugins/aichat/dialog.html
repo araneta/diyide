@@ -9,16 +9,29 @@
 	<!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
 		.accordion {
             width: 100%;
             max-width: 400px;
             border: 1px solid #ccc;
+            
+            height: 100vh; /* Full viewport height */
+			display: flex;
+			flex-direction: column;
         }
 
         .accordion-item {
             border-bottom: 1px solid #ccc;
             background:transparent;
+            
+            
         }
+        .accordion-item.active {
+			flex: 1; /* Make each section expand evenly */
+		}
 
         .accordion-header {            
             padding:4px;
@@ -28,6 +41,9 @@
         .accordion-content {
             display: none;
             padding: 10px;
+            
+			flex-grow: 1; /* Allow content to fill available space */
+			overflow-y: auto; /* Prevent content overflow */
         }
 
         .active .accordion-content {
