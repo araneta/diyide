@@ -204,7 +204,29 @@
 			});
 			
 		});
+		
 
+		function sendRequest(data) {
+			fetch('/api/plugins/aichat/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			})
+			.then(response => response.json())
+			.then(data => {
+				const chatDisplay = document.getElementById('chat-display');
+				chatDisplay.innerHTML = marked.parse(data.response);
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('An error occurred while sending the request.');
+			})
+			.finally(() => {
+				btnSend.disabled = false;
+				btnSend.textContent = 'Send'; // Reset button text
+			});
+		}
+		
         function sendToDeepSeek() {
 			// Disable the button
 			const btnSend = document.getElementById('btnSend');
@@ -231,32 +253,35 @@
 			}
 			
 			var useImage = document.getElementById("cbImage").checked;
-			var imageFile = '';			
-			if(useImage){
-				imageFile = $('#txtImageFile').val();
-			}
 
-			fetch('/api/plugins/aichat/analyze', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ code: code, files: files, imageFile:imageFile, question: input, aiagent: ddlAiAgent })
-			})
-			.then(response => response.json())
-			.then(data => {
-				const chatDisplay = document.getElementById('chat-display');
-				chatDisplay.innerHTML = marked.parse(data.response);
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				alert('An error occurred while sending the request.');
-			})
-			.finally(() => {
-				// Re-enable the button
-				btnSend.disabled = false;
-				btnSend.textContent = 'Send'; // Optional: Reset button text
-			});
+			var payload = {
+				code: code,
+				files: files,
+				question: input,
+				aiagent: ddlAiAgent,
+				imageFile: null, // Default null if no image
+			};
+
+			if (useImage) {
+				var imageInput = document.getElementById("txtImageFile");
+				if (imageInput.files.length > 0) {
+					var file = imageInput.files[0];
+					var reader = new FileReader();
+					
+					reader.onloadend = function () {
+						payload.imageFile = reader.result.split(',')[1]; // Extract Base64 string
+
+						// Send request after encoding the image
+						sendRequest(payload);
+					};
+
+					reader.readAsDataURL(file); // Convert to Base64
+				} else {
+					sendRequest(payload);
+				}
+			} else {
+				sendRequest(payload);
+			}
 		}
 
 

@@ -34,11 +34,11 @@ type ChatCompletionResponse struct {
 	ErrorMsg string `json:"error_msg,omitempty"`
 }
 
-func (c *AIChatController) DeepSeekAnalyze(question, code string) (string, error) {
+func (c *AIChatController) DeepSeekAnalyze(form *AIChatCommandForm) (string, error) {
 	// API endpoint and key
 	apiURL := "https://api.deepseek.com/chat/completions"
 	apiKey := "sk-0b2f5476296148b3b5aae1a48379e49a" // Replace with your actual API key
-	command := fmt.Sprintf("%s. code: %s", question, code)
+	command := fmt.Sprintf("%s. code: %s", form.Question, form.Code)
 	// Create the request payload
 	requestPayload := ChatCompletionRequest{
 		Model: "deepseek-chat",

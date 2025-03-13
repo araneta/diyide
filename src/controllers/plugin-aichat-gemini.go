@@ -3,8 +3,10 @@ package controllers
 import (
 	_ "bytes"
 	"context"
+	_ "encoding/base64"
 	_ "encoding/json"
 	"fmt"
+	_ "io/ioutil"
 	_ "net/http"
 
 	"github.com/google/generative-ai-go/genai"
@@ -34,7 +36,7 @@ func buildPrompt(code, command string, history []string) string {
 	prompt += fmt.Sprintf("Analyze this code:\n```\n%s\n```\n\nCommand: %s", code, command)
 	return prompt
 }
-func getGeminiResponse(prompt string) (string, error) {
+func getGeminiResponse(prompt string, imageData []byte) (string, error) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
@@ -45,7 +47,32 @@ func getGeminiResponse(prompt string) (string, error) {
 
 	model := client.GenerativeModel(modelName)
 
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+	// Read the image file
+	/*imageData, err := ioutil.ReadFile(imagePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read image file: %w", err)
+	}*/
+
+	// Encode the image data
+	//encodedImage := base64.StdEncoding.EncodeToString(imageData)
+
+	// Create the image part
+	/*imagePart := genai.Part{
+		MIMEType: "image/jpeg", // or "image/png"
+		Data:     genai.ImageData{MIMEType: "image/jpeg", Data: encodedImage},
+	}
+
+	resp, err := model.GenerateContent(ctx, genai.Text(prompt))*/
+	// Create the request.
+	req := []genai.Part{
+		genai.ImageData("jpeg", imageData),
+
+		genai.Text(prompt),
+	}
+
+	// Generate content.
+	resp, err := model.GenerateContent(ctx, req...)
+
 	if err != nil {
 		return "", fmt.Errorf("failed to generate content: %w", err)
 	}
@@ -73,15 +100,15 @@ func (c *apiKeyCredentials) RequireTransportSecurity() bool {
 	return false
 }
 
-func (c *AIChatController) GeminiAnalyze(question, code string) (string, error) {
-	prompt := buildPrompt(code, question, conversationHistory)
+func (c *AIChatController) GeminiAnalyze(form *AIChatCommandForm) (string, error) {
+	prompt := buildPrompt(form.Code, form.Question, conversationHistory)
 
-	result, err := getGeminiResponse(prompt)
+	result, err := getGeminiResponse(prompt, form.ImageFile)
 	if err != nil {
 		return "", fmt.Errorf("Gemini error: %v\n", err)
 	}
 
-	conversationHistory = append(conversationHistory, "User: "+question, "Gemini: "+result)
+	conversationHistory = append(conversationHistory, "User: "+form.Question, "Gemini: "+result)
 	if len(conversationHistory) > 10 {
 		conversationHistory = conversationHistory[2:]
 	}

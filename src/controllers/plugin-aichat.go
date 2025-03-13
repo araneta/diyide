@@ -14,9 +14,11 @@ import (
 type AIChatController struct {
 }
 type AIChatCommandForm struct {
-	Code     string `json:"code"`
-	Question string `json:"question"`
-	AIAgent  string `json:"aiagent"`
+	Code      string   `json:"code"`
+	Question  string   `json:"question"`
+	AIAgent   string   `json:"aiagent"`
+	ImageFile []byte   `json:"imageFile"`
+	Files     []string `json:"files"`
 }
 type AIChatCommandResult struct {
 	Response string `json:"response"`
@@ -33,7 +35,7 @@ func (c *AIChatController) Analyze(ctx iris.Context) {
 	}
 
 	if form.AIAgent == "deepseek" {
-		response, err := c.DeepSeekAnalyze(form.Question, form.Code)
+		response, err := c.DeepSeekAnalyze(&form)
 		if err != nil {
 			ctx.JSON(iris.Map{"response": err.Error()})
 			return
@@ -41,7 +43,7 @@ func (c *AIChatController) Analyze(ctx iris.Context) {
 			ctx.JSON(iris.Map{"response": response})
 		}
 	} else if form.AIAgent == "gemini" {
-		response, err := c.GeminiAnalyze(form.Question, form.Code)
+		response, err := c.GeminiAnalyze(&form)
 		if err != nil {
 			ctx.JSON(iris.Map{"response": err.Error()})
 			return
