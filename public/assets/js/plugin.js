@@ -96,8 +96,9 @@ function createRightPaneBox(boxId,title, iframeurl, onloadEvent){
 		modalElem.className = " hidden right-pane-window";
 		
 		var iframeurlx = iframeurl+'?rnd'+Math.random();
+		var hf = getRightPanelHeight();
 		modalElem.innerHTML = `
-		<iframe src="${iframeurlx}" style=""></iframe>`;
+		<iframe src="${iframeurlx}" style="height:${hf}px"></iframe>`;
 		
 		$('#right-pane-content').append(modalElem);			
 		rightPaneBoxMap.set(boxId,modalElem);
@@ -116,7 +117,7 @@ function createRightPaneBox(boxId,title, iframeurl, onloadEvent){
     $(modalElem).on('resize', function() {
         $(modalElem).find('iframe').css({
             width: '100%',
-            height: document.documentElement.clientHeight + "px",
+            height: getRightPanelHeight(),
         });
     });
 

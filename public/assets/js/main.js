@@ -3,6 +3,9 @@ var folderPath;
 function getFolderPath(){
 	return folderPath;
 }
+function getRightPanelHeight(){
+	return $('#right-pane-content').innerHeight();
+}
 function adjustLayout(){	
 	const fh = $('.first-row').outerHeight();
 	const sh = $('.status-row').outerHeight();
