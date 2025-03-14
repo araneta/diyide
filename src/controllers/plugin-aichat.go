@@ -54,3 +54,23 @@ func (c *AIChatController) Analyze(ctx iris.Context) {
 	}
 
 }
+func (c *AIChatController) Reset(ctx iris.Context) {
+	var form AIChatCommandForm
+	err := ctx.ReadJSON(&form)
+
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+
+	if form.AIAgent == "deepseek" {
+		//c.GeminiReset(&form)
+		ctx.JSON(iris.Map{"response": "ok"})
+	} else if form.AIAgent == "gemini" {
+		c.GeminiReset(&form)
+		ctx.JSON(iris.Map{"response": "ok"})
+
+	}
+
+}

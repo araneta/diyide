@@ -156,7 +156,9 @@ func main() {
 		//plugins
 		//find in files
 		API.Post("/plugins/find-in-files/search", findInFilesCont.FindInFiles)
+		//ai
 		API.Post("/plugins/aichat/analyze", AIChatCont.Analyze)
+		API.Post("/plugins/aichat/reset", AIChatCont.Reset)
 	}
 
 	app.Listen(":" + port)

@@ -18,7 +18,7 @@
             max-width: 400px;
             border: 1px solid #ccc;
             
-            height: 100vh; /* Full viewport height */
+            /*height: 100vh;*/ /* Full viewport height */
 			display: flex;
 			flex-direction: column;
         }
@@ -30,7 +30,7 @@
             
         }
         .accordion-item.active {
-			flex: 1; /* Make each section expand evenly */
+			/*flex: 1;*/ /* Make each section expand evenly */
 		}
 
         .accordion-header {            
@@ -68,18 +68,15 @@
 			overflow: scroll;
 			height: 90vh;
 
-		}
-		#chat-display {
 			font-family: Arial, sans-serif;			
-			padding: 10px;			
-			max-height: 400px;
+			padding: 10px;						
 			overflow-y: auto;			
 		}
 
 		#chat-display pre {
 			background-color: #282c34; /* Dark background for code blocks */
 			color: #abb2bf; /* Light text color for contrast */
-			padding: 15px;
+			padding: 8px;
 			border-radius: 6px;
 			font-family: "Courier New", Courier, monospace;
 			font-size: 14px;
@@ -92,7 +89,7 @@
 
 		#chat-display code {
 			font-family: "Courier New", Courier, monospace;
-			font-size: 14px;
+			font-size: 12px;
 			color: #abb2bf;
 		}
 
@@ -151,20 +148,17 @@
 							<div class="row form-group  mb-2">					
 								<div class="col-md-12 col-sm-12">
 									<button id="btnSend" class="">Send</button>
+									<button id="btnResetSession">Reset</button>
+
 								</div>
 							</div>
 						</div>			
 					</div>
 				</div>
-			</div>
-			<div class="accordion-item">
-				<div class="accordion-header">Response</div>
-				<div class="accordion-content">
-					<div id="chat-display"></div>
-				</div>
-			</div>
-			
+			</div>						
 		</div>		
+		<label>Response:</label>
+		<div id="chat-display"></div>
     </div>
 	<script type="text/javascript" src="/assets/js/jquery-3.6.0.min.js"></script>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>       
@@ -173,7 +167,7 @@
 	<script type="text/javascript">
 		jQuery(document).ready(function($){
 			$('#btnSend').click(function(){
-				sendToDeepSeek();
+				sendToAI();
 			});
 			$('#divfiles').hide();
 			$('#cbFiles').change(function(){
@@ -194,7 +188,13 @@
 					$('#divimage').hide();
 				}					
 			});
-			
+			$('#btnResetSession').click(function(){
+				const ddlAiAgent = document.getElementById('ddlAiAgent').value;
+				var data = {
+					aiagent: ddlAiAgent,
+				}
+				resetSession(data);
+			});
 			
 			document.querySelectorAll(".accordion-header").forEach(header => {
 				header.addEventListener("click", function () {
@@ -227,7 +227,7 @@
 			});
 		}
 		
-        function sendToDeepSeek() {
+        function sendToAI() {
 			// Disable the button
 			const btnSend = document.getElementById('btnSend');
 			btnSend.disabled = true;
@@ -286,7 +286,28 @@
 				sendRequest(payload);
 			}
 		}
-
+		
+		function resetSession(data) {
+			fetch('/api/plugins/aichat/reset', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			})
+			.then(response => response.json())
+			.then(data => {
+				const chatDisplay = document.getElementById('chat-display');
+				chatDisplay.innerHTML = "";
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('An error occurred while sending the request.');
+			})
+			.finally(() => {
+				btnSend.disabled = false;
+				btnSend.textContent = 'Send'; // Reset button text
+			});
+		}
+		
 
 		
 	</script>

@@ -109,6 +109,11 @@ func (c *apiKeyCredentials) RequireTransportSecurity() bool {
 	return false
 }
 
+func (c *AIChatController) GeminiReset(form *AIChatCommandForm) {
+	conversationHistory = []string{} // Clear the history
+
+}
+
 func (c *AIChatController) GeminiAnalyze(form *AIChatCommandForm) (string, error) {
 
 	n := len(form.Files)
