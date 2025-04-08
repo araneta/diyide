@@ -18,7 +18,7 @@ import (
 // Replace with your actual API key and model name.
 const (
 	apiKey    = "AIzaSyAkD6kALKRdaQixM7DFZvXct_YBei73RYQ"
-	modelName = "models/gemini-1.5-flash"
+	modelName = "models/gemini-2.0-flash"
 	endpoint  = "generativelanguage.googleapis.com:443"
 )
 
